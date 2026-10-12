@@ -1,39 +1,40 @@
 <view class="login">
+  <!-- 品牌区：与网页版一致（圆角方块 logo + 粗体 Campux） -->
   <view class="login-brand">
-    <view class="login-logo">C</view>
-    <view class="login-wordmark">Campux</view>
+    <view class="login-brand-box">
+      <image class="login-brand-img" src="{{logoUrl || '/assets/logo.png'}}" mode="aspectFit" />
+    </view>
+    <text class="login-brand-name">Campux</text>
   </view>
 
   <view class="surface login-card">
-    <view class="login-title">登录到 Campux</view>
-    <view class="login-sub">使用微信一键登录；首次登录需绑定你已有的校园墙账号。</view>
+    <text class="login-title">登录到 Campux</text>
+    <text class="login-sub">输入 QQ 号或邮箱，以及你的账号密码。</text>
 
-    <view class="postbtn login-btn {{loggingIn ? 'postbtn-disabled' : ''}}" bindtap="onWechatLogin">
+    <!-- 微信一键登录（主按钮） -->
+    <view class="postbtn login-wxbtn {{loggingIn ? 'postbtn-disabled' : ''}}" bindtap="onWechatLogin">
+      <image class="login-wxicon" src="/assets/wechat.png" mode="aspectFit" />
       <text>{{loggingIn ? '登录中…' : '微信一键登录'}}</text>
     </view>
 
-    <view class="bind" wx:if="{{unbound}}">
-      <view class="bind-tip">该微信尚未绑定账号，请用你的 QQ 号或 QQ 邮箱登录一次完成绑定。</view>
-      <input
-        class="bind-input"
-        placeholder="QQ 号或 QQ 邮箱"
-        placeholder-class="bind-placeholder"
-        value="{{account}}"
-        bindinput="onAccountInput"
-      />
-      <input
-        class="bind-input"
-        password="{{true}}"
-        placeholder="密码"
-        placeholder-class="bind-placeholder"
-        value="{{password}}"
-        bindinput="onPasswordInput"
-      />
-      <view class="postbtn login-btn {{binding ? 'postbtn-disabled' : ''}}" bindtap="onBind">
-        <text>{{binding ? '绑定中…' : '绑定并登录'}}</text>
-      </view>
+    <!-- 分隔线 -->
+    <view class="login-divider">
+      <view class="login-divider-line"></view>
+      <text class="login-divider-text">或</text>
+      <view class="login-divider-line"></view>
+    </view>
+
+    <!-- 未绑定提示 -->
+    <view class="login-tip" wx:if="{{unbound}}">该微信尚未绑定账号，用下面的账号密码登录一次即可绑定。</view>
+
+    <!-- 邮箱/密码登录 -->
+    <input class="bind-input" placeholder="QQ 号或邮箱" value="{{account}}" bindinput="onAccountInput" />
+    <input class="bind-input" password placeholder="密码" value="{{password}}" bindinput="onPasswordInput" />
+
+    <view class="postbtn login-btn {{loginBusy || !account || !password ? 'postbtn-disabled' : ''}}" bindtap="onPasswordLogin">
+      <text>{{loginBusy ? '登录中…' : (unbound ? '登录并绑定微信' : '登录')}}</text>
     </view>
   </view>
 
-  <view class="login-footer">由 Campux 提供技术支持</view>
+  <text class="login-footer">由 Campux 提供技术支持</text>
 </view>

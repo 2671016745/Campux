@@ -74,7 +74,7 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.load(this.data.page).then(() => wx.stopPullDownRefresh());
+    this.load(this.data.page).finally(() => wx.stopPullDownRefresh());
   },
 
   onKeywordInput(event) {
@@ -124,6 +124,7 @@ Page({
       return null;
     }).catch(() => {
       this.setData({ loading: false });
+      wx.showToast({ title: '加载失败，请检查网络', icon: 'none' });
       return null;
     });
   },

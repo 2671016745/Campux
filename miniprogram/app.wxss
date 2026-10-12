@@ -45,66 +45,6 @@ page {
   line-height: 20px;
 }
 
-/* ── 顶部 Header（Header.tsx：h-14 + border-b） ─────────────────────── */
-.appheader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 57px; /* 网页端实测 375x57：h-14(56) + 1px 底边框 */
-  padding: 0 16px;
-  background-color: var(--surface);
-  border-bottom: 1px solid var(--border-200);
-  box-sizing: border-box;
-}
-
-.appheader-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.appheader-logo {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  border: 1px solid var(--border-200);
-  border-radius: 14px;
-  background-color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--muted);
-}
-
-.appheader-wordmark {
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 18px;
-  color: var(--text-950);
-}
-
-.appheader-wall {
-  display: block;
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--muted);
-  max-width: 150px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.appheader-role {
-  flex-shrink: 0;
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--muted);
-}
-
 /* ── 白色信息面（.product-surface） ─────────────────────────────────── */
 .surface {
   background-color: var(--surface);

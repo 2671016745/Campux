@@ -2,10 +2,9 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { CampuxConfig } from "@campux/config";
 import { createManyDedup, verifyPassword } from "@campux/db";
-import { createSession, findActiveBan, hashToken, setSessionCookie } from "../lib/auth";
+import { createSession, hashToken, setSessionCookie } from "../lib/auth";
 import { prisma } from "../lib/prisma";
-import { toMembership, toPublicUser, toTenantSummary } from "../lib/serializers";
-import { resolveEffectiveTenantMembership } from "../lib/tenant-access";
+import { buildSessionPayload, loadUserForLogin, parseAccount, resolveTenantId } from "../lib/session-payload";
 
 /**
  * 微信小程序登录路由。
@@ -13,6 +12,9 @@ import { resolveEffectiveTenantMembership } from "../lib/tenant-access";
  * 与网页端「聚合登录」的区别：小程序没有浏览器 cookie，也没有可回跳的授权页，
  * 因此这里提供纯 JSON 接口，登录成功后返回 bearer token，由小程序存入本地存储，
  * 后续请求以 `Authorization: Bearer <token>` 携带（见 lib/auth.ts 的 getSessionContext）。
+ *
+ * 账号密码登录也支持（供小程序里「邮箱/密码登录」使用），见 routes/auth.ts 的
+ * POST /api/auth/token-login —— 与这里的绑定接口共用 lib/session-payload.ts 组装响应。
  *
  * ── 绑定模型（重要）────────────────────────────────────────────────────
  * 微信身份（openid）不自动建号，沿用仓库既有约定「第三方身份只做登录、不注册」：
@@ -24,29 +26,6 @@ import { resolveEffectiveTenantMembership } from "../lib/tenant-access";
  */
 
 const WECHAT_PROVIDER = "wechat_miniprogram";
-
-const tenantSummaryInclude = {
-  metadata: {
-    where: {
-      key: "logo_url" as const,
-    },
-  },
-  aiSettings: {
-    select: {
-      enabled: true,
-    },
-  },
-  _count: {
-    select: {
-      botAccounts: true,
-      posts: {
-        where: {
-          status: "pending_approval" as const,
-        },
-      },
-    },
-  },
-} as const;
 
 const loginBodySchema = z.object({
   code: z.string().trim().min(1, "缺少微信登录 code"),
@@ -69,10 +48,7 @@ class WechatRequestError extends Error {
   }
 }
 
-/**
- * 把 zod 校验失败转成 400 + 首条中文提示。
- * 仓库没有全局 errorHandler，若不显式处理，ZodError 会变成 500。
- */
+/** 把 zod 校验失败转成 400 + 首条中文提示（仓库没有全局 errorHandler）。 */
 function parseOrReply<T>(
   schema: z.ZodType<T>,
   value: unknown,
@@ -138,65 +114,6 @@ async function exchangeCodeForOpenId(app: FastifyInstance, code: string) {
   return data.openid;
 }
 
-/** 载入登录所需用户及其成员关系（含租户摘要字段）。 */
-async function loadUserForLogin(userId: string) {
-  return prisma.user.findUnique({
-    where: { id: userId },
-    include: {
-      memberships: {
-        include: {
-          tenant: {
-            include: tenantSummaryInclude,
-          },
-        },
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
-    },
-  });
-}
-
-type LoadedUser = NonNullable<Awaited<ReturnType<typeof loadUserForLogin>>>;
-
-/**
- * 选墙规则与网页端一致：优先显式指定的 tenantId（且确有成员关系），
- * 否则退回该用户的第一个校园墙（单墙自托管场景即唯一那面墙）。
- */
-function resolveTenantId(user: LoadedUser, requestedTenantId?: string) {
-  if (requestedTenantId && user.memberships.some((membership) => membership.tenantId === requestedTenantId)) {
-    return requestedTenantId;
-  }
-  return user.memberships[0]?.tenantId ?? null;
-}
-
-/** 组装小程序登录后的会话响应（与 /api/auth/login 对齐，另附 bearer token）。 */
-async function buildSessionPayload(user: LoadedUser, tenantId: string | null, token: string) {
-  const effectiveMembership = tenantId
-    ? resolveEffectiveTenantMembership({
-        userId: user.id,
-        systemRole: user.systemRole,
-        tenantId,
-        memberships: user.memberships,
-      })
-    : null;
-  const membership = tenantId ? user.memberships.find((item) => item.tenantId === tenantId) : undefined;
-
-  return {
-    authenticated: true,
-    token,
-    user: toPublicUser(user),
-    memberships: user.memberships.map(toMembership),
-    currentTenant: membership ? toTenantSummary(membership.tenant) : null,
-    currentMembership: effectiveMembership
-      ? { id: effectiveMembership.id, role: effectiveMembership.role }
-      : null,
-    activeBan: tenantId && membership ? await findActiveBan(tenantId, user.id) : null,
-    needsTenantSelection: false,
-    hostLocked: false,
-  };
-}
-
 export function registerWechatRoutes(app: FastifyInstance, _config: CampuxConfig) {
   // ─── 微信登录：openid 已绑定则直接登录 ─────────────────────────────────
   app.post("/api/wechat/login", async (request, reply) => {
@@ -257,9 +174,7 @@ export function registerWechatRoutes(app: FastifyInstance, _config: CampuxConfig
       throw error;
     }
 
-    const account = body.account.trim();
-    const email = account.includes("@") ? account.toLowerCase() : null;
-    const qqUin = /^[1-9]\d{4,9}$/.test(account) ? BigInt(account) : null;
+    const { email, qqUin } = parseAccount(body.account);
     if (!email && qqUin === null) {
       return reply.code(400).send({ message: "请输入 QQ 号或 QQ 邮箱" });
     }

@@ -16,6 +16,7 @@ Page({
     roleLabel: '',
     account: '',
     rules: [],
+    wechatBound: false,
   },
 
   onShow() {
@@ -50,6 +51,13 @@ Page({
         this.setData({ rules: res.data.postRules || [], logoUrl: res.data.logoUrl || this.data.logoUrl });
       }
     }).catch(() => null);
+    // 查询微信绑定状态
+    api.fetchMe().then((res) => {
+      if (res.statusCode === 200 && res.data) {
+        const bound = (res.data.oauthBindings || []).some((b) => b.provider === 'wechat_miniprogram');
+        this.setData({ wechatBound: bound });
+      }
+    }).catch(() => null);
   },
 
   /** 修改显示名：服务端 PATCH /api/auth/profile（网页端同一接口）。 */
@@ -77,6 +85,8 @@ Page({
             return;
           }
           wx.showModal({ title: '更新失败', content: api.errorMessage(resp, '请稍后重试'), showCancel: false });
+        }).catch(() => {
+          wx.showModal({ title: '更新失败', content: '网络错误，请稍后重试', showCancel: false });
         });
       },
     });
@@ -135,6 +145,8 @@ Page({
             return;
           }
           wx.showModal({ title: '解绑失败', content: api.errorMessage(resp, '请稍后重试'), showCancel: false });
+        }).catch(() => {
+          wx.showModal({ title: '解绑失败', content: '网络错误，请稍后重试', showCancel: false });
         });
       },
     });
@@ -142,6 +154,9 @@ Page({
 
   onLogout() {
     api.logout().then(() => {
+      getApp().clearSession();
+      wx.redirectTo({ url: '/pages/login/login' });
+    }).catch(() => {
       getApp().clearSession();
       wx.redirectTo({ url: '/pages/login/login' });
     });

@@ -66,7 +66,9 @@ Page({
         limitText: limit > 0 ? '每人最多同时保留 ' + limit + ' 条待审核稿件。' : '当前不限制待审核稿件数量。',
         logoUrl: meta.logoUrl || this.data.logoUrl,
       });
-    }).catch(() => null);
+    }).catch(() => {
+      // 静默失败，投稿页不阻塞
+    });
   },
 
   onTextInput(event) {

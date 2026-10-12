@@ -10,11 +10,19 @@ import { toMembership, toPublicUser, toTenantSummary } from "../lib/serializers"
 import { resolveEffectiveTenantMembership } from "../lib/tenant-access";
 import { findManagementHostByRequest, findTenantByRequestHost } from "../lib/tenant-host";
 import { getDeployMode, resolveSingleModeTenantId } from "../lib/deploy-mode";
+import { buildSessionPayload, loadUserForLogin, parseAccount, resolveTenantId } from "../lib/session-payload";
 
 const loginSchema = z.object({
   account: z.string().trim().min(1).optional(),
   qqUin: z.string().trim().min(1).optional(),
   password: z.string().min(1),
+});
+
+/** 小程序 / 纯 API 客户端的账号密码登录（不种 cookie，返回 bearer token）。 */
+const tokenLoginSchema = z.object({
+  account: z.string().trim().min(1, "请输入账号"),
+  password: z.string().min(1, "请输入密码"),
+  tenantId: z.string().trim().min(1).optional(),
 });
 
 const emailSchema = z
@@ -219,6 +227,46 @@ export function registerAuthRoutes(app: FastifyInstance, config: CampuxConfig) {
       needsTenantSelection: !selectedTenantId && (visibleMemberships.length > 1 || systemAccessibleTenants.length > 0),
       hostLocked: false,
     };
+  });
+
+  /**
+   * 账号密码登录（纯 API / 小程序用）。
+   *
+   * 与 /api/auth/login 的差别只有一处：不依赖浏览器 cookie，而是返回 bearer token，
+   * 供小程序存入本地存储后以 `Authorization: Bearer <token>` 访问既有接口
+   * （lib/auth.ts 的 getSessionContext 支持该回退）。响应字段与网页端登录保持一致，
+   * 由 lib/session-payload.ts 统一组装，避免两个客户端行为漂移。
+   */
+  app.post("/api/auth/token-login", async (request, reply) => {
+    const parsed = tokenLoginSchema.safeParse(request.body ?? {});
+    if (!parsed.success) {
+      return reply.code(400).send({ message: parsed.error.issues[0]?.message ?? "请求参数不正确" });
+    }
+    const body = parsed.data;
+    const { email, qqUin } = parseAccount(body.account);
+    if (!email && qqUin === null) {
+      return reply.code(400).send({ message: "请输入 QQ 号或邮箱" });
+    }
+
+    const account = await prisma.user.findUnique({
+      where: email ? { email } : { qqUin: qqUin! },
+      select: { id: true, passwordHash: true, isTestAccount: true },
+    });
+    if (!account || !(await verifyPassword(body.password, account.passwordHash))) {
+      return reply.code(401).send({ message: "账号或密码错误" });
+    }
+    if (account.isTestAccount && config.nodeEnv !== "development") {
+      return reply.code(403).send({ message: "测试账号只能在开发环境登录" });
+    }
+
+    const user = await loadUserForLogin(account.id);
+    if (!user) {
+      return reply.code(409).send({ message: "账号状态异常，请稍后重试" });
+    }
+    const tenantId = resolveTenantId(user, body.tenantId);
+    const token = await createSession(user.id, tenantId);
+    setSessionCookie(reply, token);
+    return buildSessionPayload(user, tenantId, token);
   });
 
   app.post("/api/auth/register/request-code", async (request, reply) => {

@@ -16,6 +16,7 @@ App({
     currentTenant: null,
     currentMembership: null,
     metadata: null,
+    logoUrl: '',
   },
 
   onLaunch() {
@@ -27,6 +28,7 @@ App({
     this.globalData.user = payload.user || null;
     this.globalData.currentTenant = payload.currentTenant || null;
     this.globalData.currentMembership = payload.currentMembership || null;
+    this.globalData.logoUrl = (payload.currentTenant && payload.currentTenant.logoUrl) || '';
     if (payload.token) {
       wx.setStorageSync('token', payload.token);
     }

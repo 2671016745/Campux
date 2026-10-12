@@ -57,7 +57,7 @@
       <view class="row-text">
         <view class="row-title">微信绑定</view>
       </view>
-      <text class="row-value">已绑定</text>
+      <text class="row-value">{{wechatBound ? '已绑定' : '未绑定'}}</text>
     </view>
   </view>
 

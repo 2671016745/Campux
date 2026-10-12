@@ -1,100 +1,163 @@
-/* 登录页 —— 沿用 Campux 的字标、信息面与蓝色主按钮 */
+/* 登录页：对齐 apps/web 真实样式（375×812 视口量取） */
+
 .login {
   min-height: 100vh;
-  padding: 48px 16px 24px;
-  box-sizing: border-box;
+  background: #f9fafb;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
+/* ── 品牌区 ── */
 .login-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-top: 56px;
+  margin-bottom: 32px;
 }
 
-.login-logo {
-  width: 40px;
-  height: 40px;
-  border: 1px solid #e2e8f0;
+.login-brand-box {
+  width: 56px;
+  height: 56px;
+  background: #ffffff;
   border-radius: 14px;
-  background-color: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  font-weight: 700;
-  color: #2563eb;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.login-wordmark {
-  font-size: 20px;
+.login-brand-img {
+  width: 44px;
+  height: 37px;
+}
+
+.login-brand-name {
+  font-size: 24px;
   font-weight: 700;
   color: #020618;
+  letter-spacing: -0.3px;
 }
 
+/* ── 登录卡片 ── */
 .login-card {
   width: 100%;
+  padding: 24px 20px;
   box-sizing: border-box;
-  padding: 20px 16px;
 }
 
 .login-title {
+  display: block;
   font-size: 18px;
-  font-weight: 600;
-  line-height: 26px;
+  font-weight: 700;
   color: #020618;
+  margin-bottom: 6px;
 }
 
 .login-sub {
-  margin-top: 6px;
-  font-size: 14px;
-  line-height: 20px;
+  display: block;
+  font-size: 13px;
   color: #62748e;
+  margin-bottom: 20px;
+  line-height: 18px;
 }
 
-.login-btn {
-  width: 100%;
-  margin-top: 16px;
-  box-sizing: border-box;
-}
-
-.bind {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #f1f5f9;
-}
-
-.bind-tip {
-  font-size: 12px;
-  line-height: 20px;
-  color: #7a3306;
-  background-color: #fffbeb;
-  border: 1px solid #fee685;
+/* ── 微信一键登录按钮 ── */
+.login-wxbtn {
+  background: #07c160;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 12px 0;
+  width: 100%;
 }
 
+.login-wxicon {
+  width: 20px;
+  height: 20px;
+}
+
+/* ── 分隔线 ── */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.login-divider-line {
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.login-divider-text {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* ── 未绑定提示 ── */
+.login-tip {
+  font-size: 12px;
+  color: #b45309;
+  background: #fef3c7;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  line-height: 17px;
+}
+
+/* ── 输入框 ── */
 .bind-input {
-  margin-top: 12px;
-  padding: 9px 12px;
-  background-color: #ffffff;
+  width: 100%;
+  height: 44px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
+  padding: 0 14px;
   font-size: 14px;
-  color: #0f172b;
+  color: #020618;
+  background: #ffffff;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  outline: none;
 }
 
-.bind-placeholder {
-  color: #94a3b8;
+.bind-input:focus {
+  border-color: #1447e6;
 }
 
+/* ── 登录按钮 ── */
+.login-btn {
+  background: #1447e6;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 12px 0;
+  text-align: center;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.login-btn.postbtn-disabled {
+  opacity: 0.5;
+}
+
+/* ── 底部 ── */
 .login-footer {
   margin-top: auto;
-  padding-top: 24px;
-  font-size: 12px;
-  line-height: 16px;
+  margin-bottom: 24px;
+  font-size: 11px;
   color: #94a3b8;
+  text-align: center;
 }

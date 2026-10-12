@@ -46,7 +46,9 @@ Page({
           pendingCount: fresh.pendingPostCount || 0,
         });
       }
-    }).catch(() => null);
+    }).catch(() => {
+      // 网络错误时保持已有数据
+    });
   },
 
   copyConsoleUrl() {

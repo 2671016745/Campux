@@ -10,13 +10,5 @@ Component({
     roleLabel: { type: String, value: '' },
   },
 
-  data: {
-    initial: '',
-  },
-
-  observers: {
-    tenantName(value) {
-      this.setData({ initial: (value || '墙').slice(0, 1) });
-    },
-  },
+  data: {},
 });

@@ -1,7 +1,6 @@
 <view class="appheader">
   <view class="appheader-left">
-    <image class="appheader-logo" wx:if="{{logoUrl}}" src="{{logoUrl}}" mode="aspectFit"></image>
-    <view class="appheader-logo" wx:else>{{initial}}</view>
+    <image class="appheader-logo" src="{{logoUrl || '/assets/logo.png'}}" mode="aspectFit"></image>
     <view>
       <view class="appheader-wordmark">Campux</view>
       <text class="appheader-wall">{{tenantName}}</text>

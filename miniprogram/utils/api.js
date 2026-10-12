@@ -7,6 +7,7 @@
  *   POST /api/posts                 multipart 投稿（text/anonymous/images）
  *   POST /api/wechat/login|bind     微信登录 / 首次绑定
  *   POST /api/wechat/unbind         解绑
+ *   POST /api/auth/token-login      账号密码登录（返回 bearer token，不种 cookie）
  */
 
 function baseUrl() {
@@ -84,6 +85,17 @@ function wechatBind(account, password, tenantId) {
   });
 }
 
+/**
+ * 账号密码登录（小程序「邮箱/密码登录」用）。
+ * 与 /api/auth/login 不同：不依赖浏览器 cookie，改为返回 bearer token，
+ * 由小程序存入本地存储后以 Authorization: Bearer 访问既有接口。
+ */
+function passwordLogin(account, password, tenantId) {
+  const data = { account: account, password: password };
+  if (tenantId) data.tenantId = tenantId;
+  return request('/api/auth/token-login', { method: 'POST', data });
+}
+
 function logout() {
   return request('/api/auth/logout', { method: 'POST' }).catch(() => null);
 }
@@ -112,6 +124,7 @@ module.exports = {
   errorMessage,
   wechatLogin,
   wechatBind,
+  passwordLogin,
   logout,
   fetchMe,
   fetchMetadata,

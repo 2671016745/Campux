@@ -1,82 +1,102 @@
-const api = require('../../utils/api.js');
+const { wechatLogin, wechatBind, passwordLogin, errorMessage } = require('../../utils/api');
+const app = getApp();
 
 Page({
   data: {
-    loggingIn: false,
-    binding: false,
-    unbound: false,
+    logoUrl: '',
     account: '',
     password: '',
+    loggingIn: false,
+    loginBusy: false,
+    unbound: false,
+  },
+
+  onLoad(options) {
+    // 支持从其他页带参跳转（如 ?account=xxx）
+    if (options && options.account) {
+      this.setData({ account: options.account });
+    }
+    this.setData({ logoUrl: app.globalData.logoUrl || '' });
   },
 
   onShow() {
-    const app = getApp();
-    // 已有登录态直接进投稿页
-    if (app.globalData.token) {
-      wx.switchTab({ url: '/pages/post/post' });
-    }
+    this.setData({ logoUrl: app.globalData.logoUrl || '' });
   },
 
+  onAccountInput(e) {
+    this.setData({ account: e.detail.value });
+  },
+
+  onPasswordInput(e) {
+    this.setData({ password: e.detail.value });
+  },
+
+  /** 微信一键登录 */
   onWechatLogin() {
-    if (this.data.loggingIn) {
-      return;
-    }
+    if (this.data.loggingIn) return;
     this.setData({ loggingIn: true });
-    api.wechatLogin().then((res) => {
-      this.setData({ loggingIn: false });
-      const data = res.data || {};
-      if (data.authenticated && data.token) {
-        getApp().setSession(data);
-        wx.switchTab({ url: '/pages/post/post' });
-        return;
-      }
-      if (data.unbound) {
-        this.setData({ unbound: true });
-        wx.showToast({ title: '请先绑定账号', icon: 'none' });
-        return;
-      }
-      wx.showModal({ title: '登录失败', content: api.errorMessage(res, '请稍后重试'), showCancel: false });
-    }).catch((err) => {
-      this.setData({ loggingIn: false });
-      wx.showModal({ title: '登录失败', content: (err && err.message) || '网络错误', showCancel: false });
-    });
+
+    wechatLogin()
+      .then((res) => {
+        if (res.data && res.data.unbound) {
+          // 未绑定：提示用户用下面的账号密码登录
+          this.setData({ unbound: true, loggingIn: false });
+          return;
+        }
+        // 已绑定：直接登录成功
+        this.onLoginSuccess(res.data);
+      })
+      .catch((err) => {
+        this.setData({ loggingIn: false });
+        wx.showToast({ title: errorMessage(err, '微信登录失败'), icon: 'none' });
+      });
   },
 
-  onAccountInput(event) {
-    this.setData({ account: event.detail.value });
+  /** 邮箱/密码登录（未绑定时自动走绑定流程） */
+  onPasswordLogin() {
+    if (this.data.loginBusy) return;
+    const { account, password, unbound } = this.data;
+    if (!account || !password) return;
+
+    this.setData({ loginBusy: true });
+
+    if (unbound) {
+      // 未绑定微信：走 bind 接口（绑定 + 登录）
+      this.doBind(account, password);
+      return;
+    }
+
+    passwordLogin(account, password)
+      .then((res) => {
+        this.setData({ loginBusy: false });
+        this.onLoginSuccess(res.data);
+      })
+      .catch((err) => {
+        this.setData({ loginBusy: false });
+        wx.showToast({ title: errorMessage(err, '登录失败'), icon: 'none' });
+      });
   },
 
-  onPasswordInput(event) {
-    this.setData({ password: event.detail.value });
+  /** 绑定微信并登录 */
+  doBind(account, password) {
+    wechatBind(account, password)
+      .then((res) => {
+        this.setData({ loginBusy: false, unbound: false });
+        this.onLoginSuccess(res.data);
+      })
+      .catch((err) => {
+        this.setData({ loginBusy: false });
+        wx.showToast({ title: errorMessage(err, '绑定失败'), icon: 'none' });
+      });
   },
 
-  onBind() {
-    const { account, password, binding } = this.data;
-    if (binding) {
+  /** 登录成功：保存会话并跳转 */
+  onLoginSuccess(data) {
+    if (!data || !data.token) {
+      wx.showToast({ title: '登录失败：未获取到令牌', icon: 'none' });
       return;
     }
-    if (!account.trim()) {
-      wx.showToast({ title: '请输入 QQ 号或 QQ 邮箱', icon: 'none' });
-      return;
-    }
-    if (!password) {
-      wx.showToast({ title: '请输入密码', icon: 'none' });
-      return;
-    }
-    this.setData({ binding: true });
-    api.wechatBind(account.trim(), password).then((res) => {
-      this.setData({ binding: false });
-      const data = res.data || {};
-      if (data.authenticated && data.token) {
-        getApp().setSession(data);
-        this.setData({ password: '' });
-        wx.switchTab({ url: '/pages/post/post' });
-        return;
-      }
-      wx.showModal({ title: '绑定失败', content: api.errorMessage(res, '请检查账号密码'), showCancel: false });
-    }).catch(() => {
-      this.setData({ binding: false });
-      wx.showModal({ title: '绑定失败', content: '网络错误，请稍后重试', showCancel: false });
-    });
+    app.setSession(data);
+    wx.reLaunch({ url: '/pages/post/post' });
   },
 });
