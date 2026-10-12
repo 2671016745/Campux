@@ -128,11 +128,13 @@ Page({
     });
   },
 
+  /** 与服务端 toPostListItem 的字段对齐（title 即截断后的正文）。 */
   toView(post) {
     const attachments = normalizeAttachments(post.attachments);
     return {
       id: post.id,
       displayId: post.displayId,
+      title: post.title || post.text,
       text: post.text,
       anonymous: post.anonymous,
       statusLabel: STATUS_LABELS[post.status] || post.status,
@@ -167,6 +169,33 @@ Page({
     if (urls.length) {
       wx.previewImage({ urls, current: urls[index] });
     }
+  },
+
+  /** 预览图：与网页端一致，取服务端渲染的说说预览图（GET /api/posts/:id/render-preview）。 */
+  previewPost(event) {
+    const id = event.currentTarget.dataset.id;
+    const token = api.getToken();
+    if (!token) {
+      wx.redirectTo({ url: '/pages/login/login' });
+      return;
+    }
+    wx.showLoading({ title: '生成预览图…' });
+    wx.downloadFile({
+      url: api.baseUrl() + '/api/posts/' + id + '/render-preview',
+      header: { Authorization: 'Bearer ' + token },
+      success: (res) => {
+        wx.hideLoading();
+        if (res.statusCode === 200 && res.tempFilePath) {
+          wx.previewImage({ urls: [res.tempFilePath] });
+          return;
+        }
+        wx.showModal({ title: '预览图生成失败', content: '服务端返回 HTTP ' + res.statusCode, showCancel: false });
+      },
+      fail: () => {
+        wx.hideLoading();
+        wx.showModal({ title: '预览图生成失败', content: '网络错误，请稍后重试', showCancel: false });
+      },
+    });
   },
 
   cancelPost(event) {

@@ -28,39 +28,73 @@
     <text class="muted">{{loading ? '正在加载…' : '还没有稿件，去「投稿」写一条吧。'}}</text>
   </view>
 
+  <!-- 卡片结构与网页端一致：标签行(编号/展示/渠道/附件) + 标题 + 操作区(预览图/取消/状态) + 浅灰内容块(元信息+正文) -->
   <view class="postcard" wx:for="{{posts}}" wx:key="id">
-    <view class="postcard-head">
-      <view class="postcard-tags">
-        <view class="tag-status tag-status-{{item.statusTone}}">{{item.statusLabel}}</view>
-        <view class="tag tag-anon" wx:if="{{item.anonymous}}">匿名展示</view>
-        <view class="tag tag-channel" wx:if="{{item.channelLabel}}">{{item.channelLabel}}</view>
-        <view class="tag tag-attach" wx:if="{{item.attachmentCount > 0}}">{{item.attachmentCount}} 个附件</view>
+    <view class="postcard-top">
+      <view class="postcard-main">
+        <view class="postcard-tags">
+          <view class="tag tag-plain">
+            <view class="tag-icon icon" style="background-image: url('{{icons.hash.slate700}}')"></view>
+            <text>{{item.displayId}}</text>
+          </view>
+          <view class="tag {{item.anonymous ? 'tag-anon' : 'tag-real'}}">
+            <view
+              class="tag-icon icon"
+              style="background-image: url('{{item.anonymous ? icons.eye.amberDark : icons.eye.sky}}')"
+            ></view>
+            <text>{{item.anonymous ? '匿名展示' : '实名展示'}}</text>
+          </view>
+          <view class="tag tag-channel" wx:if="{{item.channelLabel}}">
+            <text>{{item.channelLabel}}</text>
+          </view>
+          <view class="tag tag-plain" wx:if="{{item.attachmentCount > 0}}">
+            <view class="tag-icon icon" style="background-image: url('{{icons.paperclip.slate700}}')"></view>
+            <text>{{item.attachmentCount}} 个附件</text>
+          </view>
+        </view>
+        <view class="postcard-title">{{item.title}}</view>
       </view>
-      <view class="postcard-action" wx:if="{{item.cancellable}}" data-id="{{item.id}}" bindtap="cancelPost">
-        <text>取消</text>
+
+      <view class="postcard-actions">
+        <view class="action-btn" data-id="{{item.id}}" bindtap="previewPost">
+          <view class="action-icon icon" style="background-image: url('{{icons.image.slate700}}')"></view>
+          <text>预览图</text>
+        </view>
+        <view class="action-btn action-danger" wx:if="{{item.cancellable}}" data-id="{{item.id}}" bindtap="cancelPost">
+          <view class="action-icon icon" style="background-image: url('{{icons.xCircle.red}}')"></view>
+          <text>取消</text>
+        </view>
+        <view class="tag-status tag-status-{{item.statusTone}}">
+          <text>{{item.statusLabel}}</text>
+        </view>
       </view>
     </view>
 
-    <view class="postcard-text">{{item.text}}</view>
-
-    <view class="postcard-images" wx:if="{{item.imageUrls.length > 0}}">
-      <image
-        class="postcard-image"
-        wx:for="{{item.imageUrls}}"
-        wx:for-item="img"
-        wx:key="*this"
-        src="{{img}}"
-        mode="aspectFill"
-        data-urls="{{item.imageUrls}}"
-        data-index="{{index}}"
-        bindtap="previewImage"
-      ></image>
-    </view>
-
-    <view class="postcard-meta">
-      <text>{{item.textLength}} 字</text>
-      <text class="postcard-meta-dot">·</text>
-      <text>{{item.createdAt}}</text>
+    <view class="postcard-body">
+      <view class="postcard-meta">
+        <view class="meta-item">
+          <view class="meta-icon icon" style="background-image: url('{{icons.textIcon.gray}}')"></view>
+          <text>{{item.textLength}} 字</text>
+        </view>
+        <view class="meta-item">
+          <view class="meta-icon icon" style="background-image: url('{{icons.clock.gray}}')"></view>
+          <text>{{item.createdAt}}</text>
+        </view>
+      </view>
+      <view class="postcard-text">{{item.text}}</view>
+      <view class="postcard-images" wx:if="{{item.imageUrls.length > 0}}">
+        <image
+          class="postcard-image"
+          wx:for="{{item.imageUrls}}"
+          wx:for-item="img"
+          wx:key="*this"
+          src="{{img}}"
+          mode="aspectFill"
+          data-urls="{{item.imageUrls}}"
+          data-index="{{index}}"
+          bindtap="previewImage"
+        ></image>
+      </view>
     </view>
   </view>
 

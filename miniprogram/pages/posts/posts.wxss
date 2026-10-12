@@ -1,4 +1,4 @@
-/* 「稿件」页 —— 数值取自网页端 /posts（你的稿件）的实测计算样式 */
+/* 「稿件」页 —— 数值取自网页端 /posts（你的稿件）卡片的实测计算样式 */
 .screen {
   padding: 16px 16px 96px;
 }
@@ -66,20 +66,26 @@
   text-align: center;
 }
 
-/* 稿件卡片：白底 + 1px #e2e8f0 描边 + 8px 圆角 */
+/* 卡片：白底 + 1px 描边 + 8px 圆角 + 内距 10px（实测 grid gap-2 p-2.5） */
 .postcard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   margin-top: 12px;
-  padding: 16px;
+  padding: 10px;
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
 }
 
-.postcard-head {
+.postcard-top {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 8px;
+}
+
+.postcard-main {
+  min-width: 0;
 }
 
 .postcard-tags {
@@ -87,13 +93,119 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  min-width: 0;
 }
 
-/* 状态标签：待审核为琥珀色（实测 bg #fef3c6 / ring #ffd230 / text #7a3306） */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tag-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+/* 编号 / 附件数：白底 + 1px #e2e8f0 + 999px 圆角，11px/600 #314158 */
+.tag-plain {
+  padding: 2px 6px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  color: #314158;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+/* 匿名展示：amber-50 底 + amber-200 边 + #973c00 字（实测） */
+.tag-anon {
+  padding: 2px 6px;
+  background-color: #fffbeb;
+  border: 1px solid #fee685;
+  border-radius: 999px;
+  color: #973c00;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 16px;
+}
+
+/* 实名展示：sky 系（实测 bg #f0f9ff / 边 #b8e6fe / 字 #00598a） */
+.tag-real {
+  padding: 2px 6px;
+  background-color: #f0f9ff;
+  border: 1px solid #b8e6fe;
+  border-radius: 999px;
+  color: #00598a;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 16px;
+}
+
+/* 投稿渠道：sky-100 底 + #0069a8 字，8px 圆角，12px/600 */
+.tag-channel {
+  padding: 2px 6px;
+  background-color: #dff2fe;
+  border-radius: 8px;
+  color: #0069a8;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+/* 标题行：14px/600 + 截断（实测 h3 line-clamp-1 text-sm font-semibold text-slate-950） */
+.postcard-title {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: #020618;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.postcard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 操作按钮：白/极浅底 + 1px #d8dbdf + 8px 圆角，12px/700 */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 8px 0 6px;
+  background-color: #f9fafb;
+  border: 1px solid #d8dbdf;
+  border-radius: 8px;
+  color: #13181e;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.action-danger {
+  height: 32px;
+  color: #c10007;
+}
+
+.action-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* 状态徽章：待审核为琥珀（实测 bg #fef3c6 / 环 #ffd230 / 字 #7a3306），12px/700 */
 .tag-status {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  height: 20px;
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 12px;
@@ -118,65 +230,42 @@
   color: #22272e;
 }
 
-.tag {
+/* 内容块：极浅灰底 + 1px #f1f5f9 + 8px 圆角 + 内距 8px 10px（实测） */
+.postcard-body {
+  padding: 8px 10px;
+  background-color: rgba(248, 249, 252, 0.7);
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+}
+
+.postcard-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  color: #62748e;
+}
+
+.meta-item {
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
 
-/* 匿名展示（实测：amber-50 底 + amber-200 边 + #973c00 字，11px/900） */
-.tag-anon {
-  padding: 2px 6px;
-  background-color: #fffbeb;
-  border: 1px solid #fee685;
-  border-radius: 999px;
-  color: #973c00;
-  font-size: 11px;
-  font-weight: 900;
-  line-height: 16px;
-}
-
-/* 投稿渠道（实测：sky-100 底 + sky-700 字） */
-.tag-channel {
-  padding: 2px 6px;
-  background-color: #dff2fe;
-  border-radius: 8px;
-  color: #0069a8;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* 附件数（实测：白底 + slate-200 边 + #314158 字） */
-.tag-attach {
-  padding: 2px 6px;
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 999px;
-  color: #314158;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.postcard-action {
+.meta-icon {
+  width: 12px;
+  height: 12px;
   flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 32px;
-  padding: 0 8px 0 6px;
-  background-color: #f9fafb;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  color: #c10007;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 16px;
 }
 
 .postcard-text {
-  margin-top: 12px;
   font-size: 14px;
-  line-height: 22px;
+  font-weight: 500;
+  line-height: 20px;
   color: #13181e;
   word-break: break-word;
 }
@@ -194,21 +283,6 @@
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   background-color: #f1f5f9;
-}
-
-.postcard-meta {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 16px;
-  color: #62748e;
-}
-
-.postcard-meta-dot {
-  color: #94a3b8;
 }
 
 .pager {
