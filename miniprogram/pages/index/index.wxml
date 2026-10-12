@@ -18,7 +18,8 @@
   <!-- 已登录：身份卡 + 我的稿件 -->
   <block wx:else>
     <view class="post-card user-card">
-      <image class="post-avatar" src="{{tenantLogo}}" mode="aspectFill"></image>
+      <image class="post-avatar" wx:if="{{tenantLogo}}" src="{{tenantLogo}}" mode="aspectFill"></image>
+      <view class="post-avatar avatar-fallback" wx:else>{{tenantInitial}}</view>
       <view class="user-info">
         <view class="user-name">{{userName}}</view>
         <view class="user-sub">{{tenantName}} · {{roleLabel}}</view>

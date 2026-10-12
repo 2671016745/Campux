@@ -45,6 +45,17 @@
   align-items: center;
 }
 
+/* 墙没有 logo 时的占位头像（首字母），避免 <image src=""> 出现裂图 */
+.avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e6e6e6;
+  color: #666;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .user-info {
   flex: 1;
   min-width: 0;

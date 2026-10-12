@@ -83,6 +83,7 @@ Page({
       userName: (data.user && data.user.displayName) || '',
       tenantName: tenant.name || '未加入校园墙',
       tenantLogo: tenant.logoUrl || '',
+      tenantInitial: (tenant.name || '墙').slice(0, 1),
       roleLabel: ROLE_LABELS[(data.currentMembership && data.currentMembership.role) || ''] || '无权限',
       bannerText: tenant.name ? tenant.name + ' · 欢迎投稿' : this.data.bannerText,
     });
