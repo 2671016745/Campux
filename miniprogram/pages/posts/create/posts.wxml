@@ -17,7 +17,7 @@
         bindinput="onTextareaInput"
       ></textarea>
 
-      <view class="image-preview" wx:if="{{imageUrls.length > 0}}">
+      <view class="thumb-row" wx:if="{{imageUrls.length > 0}}">
         <view class="thumb-wrap" wx:for="{{imageUrls}}" wx:for-item="img" wx:key="*this">
           <image class="thumb" src="{{img}}" mode="aspectFill" data-index="{{index}}" bindtap="previewImage"></image>
           <view class="thumb-remove" data-index="{{index}}" catchtap="removeImage">×</view>

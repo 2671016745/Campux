@@ -23,7 +23,8 @@
   line-height: 1.6;
 }
 
-.image-preview {
+/* 缩略图容器：独立类名，避免被 app.wxss 的 .image-preview img（48px）覆盖 */
+.thumb-row {
   display: flex;
   flex-wrap: wrap;
   margin-top: 10px;
