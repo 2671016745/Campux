@@ -1,0 +1,28 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/posts/create/posts",
+    "pages/services/services",
+    "pages/admin/admin"
+  ],
+  "window": {
+    "backgroundColor": "#fafafa",
+    "navigationBarBackgroundColor": "#e6e6e6",
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "Campux",
+    "enablePullDownRefresh": false,
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#808080",
+    "selectedColor": "#e91e63",
+    "borderStyle": "dark",
+    "backgroundColor": "#fafafa",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "📝投稿", "iconPath": "", "selectedIconPath": "" },
+      { "pagePath": "pages/posts/create/posts", "text": "🌏稿件", "iconPath": "", "selectedIconPath": "" },
+      { "pagePath": "pages/services/services", "text": "🛠服务", "iconPath": "", "selectedIconPath": "" },
+      { "pagePath": "pages/admin/admin", "text": "🔐管理", "iconPath": "", "selectedIconPath": "" }
+    ]
+  }
+}

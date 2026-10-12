@@ -1,0 +1,29 @@
+<view class="page">
+  <view class="post-card" wx:if="{{!loggedIn}}">
+    <view class="post-text">未登录，请先在「投稿」页微信登录</view>
+  </view>
+
+  <block wx:else>
+    <view class="post-card">
+      <view class="field-label">账号</view>
+      <view class="row"><text class="k">显示名</text><text class="v">{{userName}}</text></view>
+      <view class="row"><text class="k">QQ 号</text><text class="v">{{qqUin}}</text></view>
+      <view class="row"><text class="k">邮箱</text><text class="v">{{email || '—'}}</text></view>
+      <view class="row"><text class="k">身份</text><text class="v">{{roleLabel}}</text></view>
+    </view>
+
+    <view class="post-card">
+      <view class="field-label">当前校园墙</view>
+      <view class="row"><text class="k">名称</text><text class="v">{{tenantName}}</text></view>
+      <view class="row"><text class="k">域名</text><text class="v">{{tenantHost || '—'}}</text></view>
+      <view class="row"><text class="k">状态</text><text class="v">{{tenantStatus || '—'}}</text></view>
+    </view>
+
+    <view class="post-card">
+      <view class="field-label">微信绑定</view>
+      <view class="hint">解绑后本微信将无法直接登录，需要重新绑定。</view>
+      <button class="danger-btn" bindtap="unbindWechat" loading="{{unbinding}}">解绑微信</button>
+      <button class="submit-btn" bindtap="onLogout">退出登录</button>
+    </view>
+  </block>
+</view>

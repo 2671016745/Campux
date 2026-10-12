@@ -1,0 +1,143 @@
+/* 全局样式，模拟浏览器端的内部运营工具视觉 */
+/* 注意：WXSS 不支持 :root，变量挂在 page 上 */
+page {
+  --bg-color: #fafafa;
+  --card-bg: #fff;
+  --text-color: #333333;
+  --muted-color: #666666;
+  --announcement-bg: #fbc02d;
+  --announcement-color: #fff;
+  --anonymous-bg: #a9d18e;
+  --anonymous-color: #fff;
+  --rules-bg: #f56565;
+  --rules-color: #fff;
+  --btn-gradient-start: #e91e63;
+  --btn-gradient-end: #ff9900;
+  --border-radius: 4px;
+  --font-size-base: 14px;
+}
+
+page {
+  font-family: system-ui, -apple-system, "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: var(--font-size-base);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+/* 公告栏 */
+.banner {
+  background-color: var(--announcement-bg);
+  color: var(--announcement-color);
+  padding: 6px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+/* 投稿卡片 */
+.post-card {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.post-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.post-text {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.post-images {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.post-image {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 6px;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+}
+
+/* 匿名块 */
+.annonymous-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  background-color: var(--anonymous-bg);
+  color: var(--anonymous-color);
+  border-radius: 4px;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+/* 规则块 */
+.rules-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  background-color: var(--rules-bg);
+  color: var(--rules-color);
+  border-radius: 4px;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+/* 提交按钮 */
+.submit-btn {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, var(--btn-gradient-start), var(--btn-gradient-end));
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* 输入框 */
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  box-sizing: border-box;
+  margin-bottom: 8px;
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* 图片预览 */
+.image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.image-preview img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 4px;
+  margin-bottom: 4px;
+}

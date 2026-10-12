@@ -1,0 +1,19 @@
+{
+  "description": "Campux 微信小程序项目配置",
+  "miniprogramRoot": "./",
+  "projectname": "campux-miniprogram",
+  "appid": "touristappid",
+  "compileType": "miniprogram",
+  "libVersion": "latest",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "coverView": true,
+    "nodeModules": false,
+    "checkInvalidKey": true
+  },
+  "condition": {}
+}

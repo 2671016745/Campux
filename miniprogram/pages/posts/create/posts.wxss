@@ -1,0 +1,105 @@
+.page {
+  padding: 12px;
+  background-color: #fafafa;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.field-label {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.post-textarea {
+  width: 100%;
+  min-height: 140px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: #fff;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.thumb-wrap {
+  position: relative;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+}
+
+.thumb-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 14px;
+}
+
+.choose-btn {
+  margin-top: 4px;
+  padding: 10px;
+  border: 1px dashed #bbb;
+  border-radius: 4px;
+  text-align: center;
+  color: #666;
+  font-size: 13px;
+  background-color: #fff;
+}
+
+.tag-row {
+  display: flex;
+  margin-top: 12px;
+}
+
+.toggle {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  font-size: 13px;
+  border-radius: 4px;
+  color: #fff;
+  background-color: #c9c9c9;
+}
+
+.toggle:first-child {
+  margin-right: 8px;
+}
+
+.toggle-anonymous-on {
+  background-color: #a9d18e;
+}
+
+.toggle-rules-on {
+  background-color: #f56565;
+}
+
+.rules-text {
+  margin-top: 10px;
+  padding: 8px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #b45309;
+  background-color: #fff7ed;
+  border-radius: 4px;
+}
