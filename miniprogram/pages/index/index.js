@@ -1,5 +1,11 @@
 const api = require('../../utils/api.js');
 
+// 附件/头像走鉴权接口（GET /api/uploads/post-image 需要登录态），
+// 小程序的 <image src> 无法携带 Authorization 头，因此先用 wx.downloadFile
+// （支持自定义 header）下载到本地临时文件，再把本地路径交给 <image>。
+// 会话内缓存，避免重复下载。
+const imageCache = {};
+
 const ROLE_LABELS = {
   submitter: '用户',
   broadcaster: '广播员',
@@ -80,6 +86,14 @@ Page({
       roleLabel: ROLE_LABELS[(data.currentMembership && data.currentMembership.role) || ''] || '无权限',
       bannerText: tenant.name ? tenant.name + ' · 欢迎投稿' : this.data.bannerText,
     });
+    // 墙 logo 同样可能是鉴权相对路径，异步换成可渲染的本地路径。
+    if (tenant.logoUrl) {
+      this.downloadImage(tenant.logoUrl).then((localPath) => {
+        if (localPath) {
+          this.setData({ tenantLogo: localPath });
+        }
+      });
+    }
   },
 
   loadPosts() {
@@ -95,8 +109,55 @@ Page({
         imageUrls: extractImageUrls(post.attachments),
       }));
       this.setData({ posts, loadingPosts: false });
+      this.resolvePostImages(posts);
     }).catch(() => {
       this.setData({ loadingPosts: false });
+    });
+  },
+
+  /** 把相对路径的图片下载成本地临时文件，逐张回填（下载失败则保持空串不显示）。 */
+  resolvePostImages(posts) {
+    posts.forEach((post, postIndex) => {
+      post.imageUrls.forEach((url, imageIndex) => {
+        this.downloadImage(url).then((localPath) => {
+          if (localPath) {
+            this.setData({
+              ['posts[' + postIndex + '].imageUrls[' + imageIndex + ']']: localPath,
+            });
+          }
+        });
+      });
+    });
+  },
+
+  downloadImage(url) {
+    if (!url) {
+      return Promise.resolve('');
+    }
+    if (/^https?:\/\//.test(url)) {
+      return Promise.resolve(url);
+    }
+    if (imageCache[url]) {
+      return Promise.resolve(imageCache[url]);
+    }
+    const token = api.getToken();
+    if (!token) {
+      return Promise.resolve('');
+    }
+    return new Promise((resolve) => {
+      wx.downloadFile({
+        url: api.baseUrl() + url,
+        header: { Authorization: 'Bearer ' + token },
+        success: (res) => {
+          if (res.statusCode === 200 && res.tempFilePath) {
+            imageCache[url] = res.tempFilePath;
+            resolve(res.tempFilePath);
+          } else {
+            resolve('');
+          }
+        },
+        fail: () => resolve(''),
+      });
     });
   },
 
