@@ -1,0 +1,79 @@
+<app-header tenant-name="{{tenantName}}" logo-url="{{logoUrl}}" role-label="{{roleLabel}}"></app-header>
+
+<view class="screen">
+  <!-- 公告栏（amber-50 / amber-200 / amber-900） -->
+  <view class="banner" wx:if="{{banner}}">
+    <view class="banner-icon icon" style="background-image: url('{{icons.megaphone.amber}}')"></view>
+    <view class="banner-text">{{banner}}</view>
+  </view>
+
+  <!-- 写一条投稿 -->
+  <view class="surface compose">
+    <view class="compose-head">
+      <view class="compose-head-text">
+        <view class="compose-title">写一条投稿</view>
+        <view class="compose-sub">审核通过后会发布到校园墙，匿名开关只影响对外展示。</view>
+      </view>
+      <view class="pill">{{textLength}}/1000</view>
+    </view>
+
+    <textarea
+      class="compose-textarea"
+      placeholder="写下想投稿的内容，地点、时间、联系方式等信息尽量写清楚。"
+      placeholder-class="compose-placeholder"
+      maxlength="1000"
+      value="{{text}}"
+      bindinput="onTextInput"
+    ></textarea>
+
+    <view class="attach-row">
+      <view
+        class="attach-thumb"
+        wx:for="{{imageUrls}}"
+        wx:key="*this"
+        data-index="{{index}}"
+        bindtap="confirmRemoveImage"
+      >
+        <image class="attach-img" src="{{item}}" mode="aspectFill"></image>
+      </view>
+      <view class="attach-add" wx:if="{{imageUrls.length < 9}}" bindtap="chooseImage">
+        <view class="attach-add-icon icon" style="background-image: url('{{icons.imagePlus.gray}}')"></view>
+      </view>
+    </view>
+
+    <view class="attach-hint">最多 9 个文件。可直接从相册选择图片。</view>
+
+    <!-- 匿名展示（product-accent-green） -->
+    <view class="accent-green anon-block">
+      <view class="anon-text">
+        <view class="anon-title">匿名展示</view>
+        <view class="anon-sub">审核员仍可查看必要的投稿记录。</view>
+      </view>
+      <switch class="anon-switch" checked="{{anonymous}}" color="#2563eb" bindchange="onAnonymousChange" />
+    </view>
+
+    <!-- 投稿规则入口 -->
+    <view class="rules-line" wx:if="{{rules.length > 0}}">
+      <text class="rules-prefix">请务必遵守</text>
+      <text class="rules-link" bindtap="showRules">投稿规则</text>
+    </view>
+
+    <view class="submit-row">
+      <view class="postbtn {{canSubmit ? '' : 'postbtn-disabled'}}" bindtap="submitPost">
+        <view class="postbtn-icon icon" style="background-image: url('{{icons.send.white}}')"></view>
+        <text>{{submitting ? '提交中' : '提交投稿'}}</text>
+      </view>
+      <text class="hint">{{submitting ? '正在提交，请稍候' : '提交后进入审核'}}</text>
+    </view>
+  </view>
+
+  <!-- 稿件状态（product-accent-blue） -->
+  <view class="accent-blue status-block">
+    <view class="status-text">
+      <view class="status-title">稿件状态</view>
+      <view class="status-sub">审核通过后会自动发布到校园墙。</view>
+      <view class="status-limit">{{limitText}}</view>
+    </view>
+    <view class="badge">可投稿</view>
+  </view>
+</view>

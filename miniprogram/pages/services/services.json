@@ -1,5 +1,9 @@
 {
-  "navigationBarTitleText": "Campux 服务",
-  "navigationBarBackgroundColor": "#e6e6e6",
-  "navigationBarTextStyle": "black"
+  "navigationBarTitleText": "Campux",
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#f9fafb",
+  "usingComponents": {
+    "app-header": "/components/app-header/index"
+  }
 }

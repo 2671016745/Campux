@@ -1,0 +1,62 @@
+/* 自定义 tabBar：数值取自 MobileTabBar.tsx 的实测计算样式 */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  height: 64px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 12px 8px;
+  background-color: #ffffff;
+  border-top: 1px solid #e2e8f0;
+}
+
+.tabbar-grid {
+  position: relative;
+  display: flex;
+  height: 52px;
+  width: 100%;
+}
+
+.tabbar-item {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 52px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 12px;
+  color: #62748e;
+}
+
+.tabbar-item-active {
+  color: #1447e6;
+}
+
+.tabbar-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.tabbar-label {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 12px;
+  color: inherit;
+}
+
+.tabbar-indicator {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  border-radius: 999px;
+  background-color: #155dfc;
+  transition: left 0.5s cubic-bezier(0.65, 0, 0.35, 1), width 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}

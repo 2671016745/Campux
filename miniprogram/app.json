@@ -1,28 +1,31 @@
 {
   "pages": [
-    "pages/index/index",
-    "pages/posts/create/posts",
+    "pages/login/login",
+    "pages/post/post",
+    "pages/posts/posts",
     "pages/services/services",
     "pages/admin/admin"
   ],
   "window": {
-    "backgroundColor": "#fafafa",
-    "navigationBarBackgroundColor": "#e6e6e6",
+    "backgroundColor": "#f9fafb",
+    "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "Campux",
-    "enablePullDownRefresh": false,
     "backgroundTextStyle": "light"
   },
   "tabBar": {
-    "color": "#808080",
-    "selectedColor": "#e91e63",
-    "borderStyle": "dark",
-    "backgroundColor": "#fafafa",
+    "custom": true,
+    "color": "#62748e",
+    "selectedColor": "#1447e6",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
     "list": [
-      { "pagePath": "pages/index/index", "text": "📝投稿", "iconPath": "", "selectedIconPath": "" },
-      { "pagePath": "pages/posts/create/posts", "text": "🌏稿件", "iconPath": "", "selectedIconPath": "" },
-      { "pagePath": "pages/services/services", "text": "🛠服务", "iconPath": "", "selectedIconPath": "" },
-      { "pagePath": "pages/admin/admin", "text": "🔐管理", "iconPath": "", "selectedIconPath": "" }
+      { "pagePath": "pages/post/post", "text": "投稿" },
+      { "pagePath": "pages/posts/posts", "text": "稿件" },
+      { "pagePath": "pages/services/services", "text": "服务" },
+      { "pagePath": "pages/admin/admin", "text": "管理" }
     ]
-  }
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
 }

@@ -1,0 +1,100 @@
+/* 登录页 —— 沿用 Campux 的字标、信息面与蓝色主按钮 */
+.login {
+  min-height: 100vh;
+  padding: 48px 16px 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.login-logo {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.login-wordmark {
+  font-size: 20px;
+  font-weight: 700;
+  color: #020618;
+}
+
+.login-card {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 20px 16px;
+}
+
+.login-title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 26px;
+  color: #020618;
+}
+
+.login-sub {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #62748e;
+}
+
+.login-btn {
+  width: 100%;
+  margin-top: 16px;
+  box-sizing: border-box;
+}
+
+.bind {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.bind-tip {
+  font-size: 12px;
+  line-height: 20px;
+  color: #7a3306;
+  background-color: #fffbeb;
+  border: 1px solid #fee685;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.bind-input {
+  margin-top: 12px;
+  padding: 9px 12px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0f172b;
+}
+
+.bind-placeholder {
+  color: #94a3b8;
+}
+
+.login-footer {
+  margin-top: auto;
+  padding-top: 24px;
+  font-size: 12px;
+  line-height: 16px;
+  color: #94a3b8;
+}

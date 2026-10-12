@@ -1,4 +1,5 @@
 const api = require('../../utils/api.js');
+const icons = require('../../utils/icons.js');
 
 const ROLE_LABELS = {
   submitter: '用户',
@@ -7,46 +8,45 @@ const ROLE_LABELS = {
   admin: '管理员',
 };
 
-const REVIEW_ROLES = ['reviewer', 'admin', 'broadcaster'];
-
 Page({
   data: {
-    loggedIn: false,
-    roleLabel: '',
+    icons,
     tenantName: '',
+    logoUrl: '',
+    roleLabel: '',
     pendingCount: 0,
-    canReview: false,
     consoleUrl: '',
   },
 
   onShow() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().refresh();
+      this.getTabBar().setSelected(3);
+    }
     const app = getApp();
     if (!app.globalData.token) {
-      this.setData({ loggedIn: false });
+      wx.redirectTo({ url: '/pages/login/login' });
       return;
     }
+    const tenant = app.globalData.currentTenant || {};
+    this.setData({
+      tenantName: tenant.name || '校园墙',
+      logoUrl: tenant.logoUrl || '',
+      roleLabel: ROLE_LABELS[app.role] || '',
+      pendingCount: tenant.pendingPostCount || 0,
+      consoleUrl: app.globalData.baseUrl,
+    });
+    // 刷新一次待审核数（与网页端 tenant summary 同源）
     api.fetchMe().then((res) => {
-      if (res.statusCode === 401 || !res.data || !res.data.authenticated) {
-        app.clearSession();
-        this.setData({ loggedIn: false });
-        return;
+      if (res.statusCode === 200 && res.data && res.data.authenticated) {
+        const fresh = res.data.currentTenant || {};
+        this.setData({
+          tenantName: fresh.name || this.data.tenantName,
+          logoUrl: fresh.logoUrl || this.data.logoUrl,
+          pendingCount: fresh.pendingPostCount || 0,
+        });
       }
-      const role = (res.data.currentMembership && res.data.currentMembership.role) || '';
-      const tenant = res.data.currentTenant || {};
-      this.setData({
-        loggedIn: true,
-        roleLabel: ROLE_LABELS[role] || '无权限',
-        tenantName: tenant.name || '未加入校园墙',
-        pendingCount: tenant.pendingPostCount || 0,
-        canReview: REVIEW_ROLES.indexOf(role) >= 0,
-        consoleUrl: app.globalData.baseUrl,
-      });
-    }).catch(() => this.setData({ loggedIn: false }));
-  },
-
-  openWebConsole() {
-    // 小程序内不能直接打开外部网页，复制地址由用户在浏览器打开。
-    this.copyConsoleUrl();
+    }).catch(() => null);
   },
 
   copyConsoleUrl() {

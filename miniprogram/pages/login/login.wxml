@@ -1,0 +1,39 @@
+<view class="login">
+  <view class="login-brand">
+    <view class="login-logo">C</view>
+    <view class="login-wordmark">Campux</view>
+  </view>
+
+  <view class="surface login-card">
+    <view class="login-title">登录到 Campux</view>
+    <view class="login-sub">使用微信一键登录；首次登录需绑定你已有的校园墙账号。</view>
+
+    <view class="postbtn login-btn {{loggingIn ? 'postbtn-disabled' : ''}}" bindtap="onWechatLogin">
+      <text>{{loggingIn ? '登录中…' : '微信一键登录'}}</text>
+    </view>
+
+    <view class="bind" wx:if="{{unbound}}">
+      <view class="bind-tip">该微信尚未绑定账号，请用你的 QQ 号或 QQ 邮箱登录一次完成绑定。</view>
+      <input
+        class="bind-input"
+        placeholder="QQ 号或 QQ 邮箱"
+        placeholder-class="bind-placeholder"
+        value="{{account}}"
+        bindinput="onAccountInput"
+      />
+      <input
+        class="bind-input"
+        password="{{true}}"
+        placeholder="密码"
+        placeholder-class="bind-placeholder"
+        value="{{password}}"
+        bindinput="onPasswordInput"
+      />
+      <view class="postbtn login-btn {{binding ? 'postbtn-disabled' : ''}}" bindtap="onBind">
+        <text>{{binding ? '绑定中…' : '绑定并登录'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="login-footer">由 Campux 提供技术支持</view>
+</view>

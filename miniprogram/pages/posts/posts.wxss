@@ -1,0 +1,247 @@
+/* 「稿件」页 —— 数值取自网页端 /posts（你的稿件）的实测计算样式 */
+.screen {
+  padding: 16px 16px 96px;
+}
+
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.list-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  color: #020618;
+}
+
+.list-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-refresh {
+  gap: 6px;
+}
+
+.list-refresh-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 0 12px;
+  height: 36px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.search-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  color: #0f172b;
+}
+
+.search-placeholder {
+  color: #94a3b8;
+}
+
+.list-empty {
+  padding: 32px 0;
+  text-align: center;
+}
+
+/* 稿件卡片：白底 + 1px #e2e8f0 描边 + 8px 圆角 */
+.postcard {
+  margin-top: 12px;
+  padding: 16px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.postcard-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.postcard-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* 状态标签：待审核为琥珀色（实测 bg #fef3c6 / ring #ffd230 / text #7a3306） */
+.tag-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.tag-status-pending {
+  background-color: #fef3c6;
+  border: 1px solid #ffd230;
+  color: #7a3306;
+}
+
+.tag-status-active {
+  background-color: #dcfce7;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+}
+
+.tag-status-neutral {
+  background-color: #e5e8ec;
+  color: #22272e;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 匿名展示（实测：amber-50 底 + amber-200 边 + #973c00 字，11px/900） */
+.tag-anon {
+  padding: 2px 6px;
+  background-color: #fffbeb;
+  border: 1px solid #fee685;
+  border-radius: 999px;
+  color: #973c00;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 16px;
+}
+
+/* 投稿渠道（实测：sky-100 底 + sky-700 字） */
+.tag-channel {
+  padding: 2px 6px;
+  background-color: #dff2fe;
+  border-radius: 8px;
+  color: #0069a8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 附件数（实测：白底 + slate-200 边 + #314158 字） */
+.tag-attach {
+  padding: 2px 6px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  color: #314158;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.postcard-action {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 8px 0 6px;
+  background-color: #f9fafb;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #c10007;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.postcard-text {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 22px;
+  color: #13181e;
+  word-break: break-word;
+}
+
+.postcard-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.postcard-image {
+  width: 70px;
+  height: 70px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #f1f5f9;
+}
+
+.postcard-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  color: #62748e;
+}
+
+.postcard-meta-dot {
+  color: #94a3b8;
+}
+
+.pager {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.pager-info {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  color: #62748e;
+}
+
+.pager-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.pager-btn {
+  padding: 6px 12px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #314158;
+}
+
+.pager-btn-disabled {
+  color: #94a3b8;
+  background-color: #f9fafb;
+}

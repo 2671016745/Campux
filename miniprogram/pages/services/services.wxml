@@ -1,29 +1,81 @@
-<view class="page">
-  <view class="post-card" wx:if="{{!loggedIn}}">
-    <view class="post-text">未登录，请先在「投稿」页微信登录</view>
+<app-header tenant-name="{{tenantName}}" logo-url="{{logoUrl}}" role-label="{{roleLabel}}"></app-header>
+
+<view class="screen">
+  <view class="section-title">账户设置</view>
+  <view class="section-sub">管理你在当前校园墙里的基本账号信息。</view>
+
+  <view class="surface rows">
+    <view class="row" bindtap="renameAccount">
+      <view class="row-text">
+        <view class="row-title">修改名称</view>
+        <view class="row-desc">更新投稿时使用的显示名</view>
+      </view>
+      <view class="row-chevron icon" style="background-image: url('{{icons.chevronDown.gray}}')"></view>
+    </view>
+    <view class="row-divider"></view>
+    <view class="row" bindtap="changePasswordHint">
+      <view class="row-text">
+        <view class="row-title">修改密码</view>
+        <view class="row-desc">保护你的校园墙账号</view>
+      </view>
+      <view class="row-chevron icon" style="background-image: url('{{icons.chevronDown.gray}}')"></view>
+    </view>
+    <view class="row-divider"></view>
+    <view class="row" bindtap="showRules">
+      <view class="row-text">
+        <view class="row-title">投稿规则</view>
+        <view class="row-desc">查看本墙投稿规范</view>
+      </view>
+      <view class="row-chevron icon" style="background-image: url('{{icons.chevronDown.gray}}')"></view>
+    </view>
   </view>
 
-  <block wx:else>
-    <view class="post-card">
-      <view class="field-label">账号</view>
-      <view class="row"><text class="k">显示名</text><text class="v">{{userName}}</text></view>
-      <view class="row"><text class="k">QQ 号</text><text class="v">{{qqUin}}</text></view>
-      <view class="row"><text class="k">邮箱</text><text class="v">{{email || '—'}}</text></view>
-      <view class="row"><text class="k">身份</text><text class="v">{{roleLabel}}</text></view>
+  <view class="section-title section-gap">账号状态</view>
+  <view class="surface rows">
+    <view class="row row-static">
+      <view class="row-text">
+        <view class="row-title">当前校园墙</view>
+      </view>
+      <text class="row-value">{{tenantName}}</text>
     </view>
+    <view class="row-divider"></view>
+    <view class="row row-static">
+      <view class="row-text">
+        <view class="row-title">身份</view>
+      </view>
+      <text class="row-value">{{roleLabel}}</text>
+    </view>
+    <view class="row-divider"></view>
+    <view class="row row-static">
+      <view class="row-text">
+        <view class="row-title">账号</view>
+      </view>
+      <text class="row-value">{{account}}</text>
+    </view>
+    <view class="row-divider"></view>
+    <view class="row row-static">
+      <view class="row-text">
+        <view class="row-title">微信绑定</view>
+      </view>
+      <text class="row-value">已绑定</text>
+    </view>
+  </view>
 
-    <view class="post-card">
-      <view class="field-label">当前校园墙</view>
-      <view class="row"><text class="k">名称</text><text class="v">{{tenantName}}</text></view>
-      <view class="row"><text class="k">域名</text><text class="v">{{tenantHost || '—'}}</text></view>
-      <view class="row"><text class="k">状态</text><text class="v">{{tenantStatus || '—'}}</text></view>
+  <view class="btn-row">
+    <view class="outline-btn outline-btn-danger" bindtap="unbindWechat">解绑微信</view>
+    <view class="postbtn btn-wide" bindtap="onLogout">
+      <text>退出登录</text>
     </view>
+  </view>
 
-    <view class="post-card">
-      <view class="field-label">微信绑定</view>
-      <view class="hint">解绑后本微信将无法直接登录，需要重新绑定。</view>
-      <button class="danger-btn" bindtap="unbindWechat" loading="{{unbinding}}">解绑微信</button>
-      <button class="submit-btn" bindtap="onLogout">退出登录</button>
+  <view class="section-title section-gap">关于服务</view>
+  <view class="surface rows">
+    <view class="row" bindtap="showAbout">
+      <view class="row-text">
+        <view class="row-title">关于</view>
+        <view class="row-desc">版本、部署形态与接入信息</view>
+      </view>
+      <view class="row-chevron icon" style="background-image: url('{{icons.chevronDown.gray}}')"></view>
     </view>
-  </block>
+  </view>
 </view>

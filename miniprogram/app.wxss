@@ -1,143 +1,229 @@
-/* 全局样式，模拟浏览器端的内部运营工具视觉 */
-/* 注意：WXSS 不支持 :root，变量挂在 page 上 */
+/**
+ * 全局样式 —— 数值全部取自真实网页端（apps/web）的实测计算样式，不是重新设计。
+ * 取法：把 web 端跑在 375×812 视口，用 getComputedStyle 读出各元素的值。
+ *
+ * 对应关系：
+ *   .appheader     ← Header.tsx（h-14 + 底部 1px #e2e8f0）
+ *   .banner        ← div.border-amber-200.bg-amber-50（公告栏）
+ *   .surface       ← .product-surface（1px #e5e7eb + 8px 圆角白面）
+ *   .accent-green  ← .product-accent-green（匿名展示块）
+ *   .accent-blue   ← .product-accent-blue（稿件状态块）
+ *   .postbtn       ← .campux-postbtn（提交投稿，纯蓝 #2563eb，禁用 #cbd5e1）
+ *   .tabbar        ← MobileTabBar.tsx（h-64px + 3px 蓝色指示条）
+ */
 page {
-  --bg-color: #fafafa;
-  --card-bg: #fff;
-  --text-color: #333333;
-  --muted-color: #666666;
-  --announcement-bg: #fbc02d;
-  --announcement-color: #fff;
-  --anonymous-bg: #a9d18e;
-  --anonymous-color: #fff;
-  --rules-bg: #f56565;
-  --rules-color: #fff;
-  --btn-gradient-start: #e91e63;
-  --btn-gradient-end: #ff9900;
-  --border-radius: 4px;
-  --font-size-base: 14px;
+  --bg: #f9fafb;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --border-200: #e2e8f0;
+  --text: #13181e;
+  --text-950: #020618;
+  --text-900: #0f172b;
+  --muted: #62748e;
+  --muted-700: #314158;
+  --primary: #2563eb;
+  --primary-600: #155dfc;
+  --primary-700: #1447e6;
+  --disabled: #cbd5e1;
+  --amber-bg: #fffbeb;
+  --amber-border: #fee685;
+  --amber-text: #7a3306;
+  --green-bg: #f0fdf4;
+  --green-border: #bbf7d0;
+  --green-text: #15803d;
+  --blue-bg: #eff6ff;
+  --blue-border: #dbeafe;
+  --blue-text: #1d4ed8;
+  --slate-pill-bg: #f1f5f9;
+  --slate-pill-text: #45556c;
+  --radius: 8px;
+
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
 }
 
-page {
-  font-family: system-ui, -apple-system, "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  font-size: var(--font-size-base);
-  background-color: var(--bg-color);
-  color: var(--text-color);
-}
-
-/* 公告栏 */
-.banner {
-  background-color: var(--announcement-bg);
-  color: var(--announcement-color);
-  padding: 6px 12px;
-  font-size: 12px;
-  line-height: 1.5;
-  margin-bottom: 8px;
-}
-
-/* 投稿卡片 */
-.post-card {
-  background-color: var(--card-bg);
-  border-radius: var(--border-radius);
-  padding: 12px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-}
-
-.post-meta {
+/* ── 顶部 Header（Header.tsx：h-14 + border-b） ─────────────────────── */
+.appheader {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
-}
-
-.post-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  margin-right: 8px;
-  flex-shrink: 0;
-}
-
-.post-text {
-  flex: 1;
-  line-height: 1.5;
-}
-
-.post-images {
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 6px;
-}
-
-.post-image {
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  border-radius: 4px;
-  margin-right: 6px;
-  margin-bottom: 6px;
-  flex-shrink: 0;
-}
-
-/* 匿名块 */
-.annonymous-tag {
-  display: inline-block;
-  padding: 2px 6px;
-  background-color: var(--anonymous-bg);
-  color: var(--anonymous-color);
-  border-radius: 4px;
-  font-size: 12px;
-  margin-left: 6px;
-}
-
-/* 规则块 */
-.rules-tag {
-  display: inline-block;
-  padding: 2px 6px;
-  background-color: var(--rules-bg);
-  color: var(--rules-color);
-  border-radius: 4px;
-  font-size: 12px;
-  margin-left: 6px;
-}
-
-/* 提交按钮 */
-.submit-btn {
-  width: 100%;
-  padding: 10px;
-  background: linear-gradient(135deg, var(--btn-gradient-start), var(--btn-gradient-end));
-  color: #fff;
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  margin-top: 8px;
-}
-
-/* 输入框 */
-textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: var(--border-radius);
+  justify-content: space-between;
+  height: 57px; /* 网页端实测 375x57：h-14(56) + 1px 底边框 */
+  padding: 0 16px;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border-200);
   box-sizing: border-box;
-  margin-bottom: 8px;
-  min-height: 80px;
-  resize: vertical;
 }
 
-/* 图片预览 */
-.image-preview {
+.appheader-left {
   display: flex;
-  flex-wrap: wrap;
-  margin-top: 6px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
-.image-preview img {
-  width: 48px;
-  height: 48px;
-  object-fit: cover;
-  border-radius: 4px;
+.appheader-logo {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-200);
+  border-radius: 14px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.appheader-wordmark {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--text-950);
+}
+
+.appheader-wall {
+  display: block;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--muted);
+  max-width: 150px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.appheader-role {
+  flex-shrink: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--muted);
+}
+
+/* ── 白色信息面（.product-surface） ─────────────────────────────────── */
+.surface {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* ── 公告栏（amber-50 / amber-200 / amber-900） ─────────────────────── */
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 36px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background-color: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: var(--radius);
+  color: var(--amber-text);
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.banner-icon {
+  width: 16px;
+  height: 16px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.banner-text {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* ── 强调块 ─────────────────────────────────────────────────────────── */
+.accent-green {
+  background-color: var(--green-bg);
+  border: 1px solid var(--green-border);
+  border-radius: var(--radius);
+  color: var(--green-text);
+}
+
+.accent-blue {
+  background-color: var(--blue-bg);
+  border: 1px solid var(--blue-border);
+  border-radius: var(--radius);
+  color: var(--blue-text);
+}
+
+/* ── 提交按钮（.campux-postbtn） ────────────────────────────────────── */
+.postbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 24px;
+  border-radius: var(--radius);
+  background-color: var(--primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.postbtn-disabled {
+  background-color: var(--disabled);
+}
+
+.postbtn-icon {
+  width: 16px;
+  height: 16px;
   margin-right: 4px;
-  margin-bottom: 4px;
+}
+
+/* ── 通用小组件 ─────────────────────────────────────────────────────── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: var(--slate-pill-bg);
+  color: var(--slate-pill-text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: var(--radius);
+  background-color: #e5e8ec;
+  color: #22272e;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.hint {
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--muted);
+}
+
+/* 图标底座：WXSS 不支持 currentColor 的 background-image，故按颜色预生成 data URI */
+.icon {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+/* 页面滚动容器（网页端：px-4 py-4 pb-24） */
+.screen {
+  padding: 16px 16px 96px;
 }

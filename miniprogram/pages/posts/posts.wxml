@@ -1,0 +1,74 @@
+<app-header tenant-name="{{tenantName}}" logo-url="{{logoUrl}}" role-label="{{roleLabel}}"></app-header>
+
+<view class="screen">
+  <view class="list-head">
+    <view class="list-title">你的稿件</view>
+    <view class="list-actions">
+      <view class="pill list-refresh" bindtap="refresh">
+        <view class="list-refresh-icon icon" style="background-image: url('{{icons.refresh.gray}}')"></view>
+        <text>刷新</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="search-box">
+    <view class="search-icon icon" style="background-image: url('{{icons.search.gray}}')"></view>
+    <input
+      class="search-input"
+      placeholder="搜索稿件内容或编号"
+      placeholder-class="search-placeholder"
+      value="{{keyword}}"
+      confirm-type="search"
+      bindinput="onKeywordInput"
+      bindconfirm="refresh"
+    />
+  </view>
+
+  <view class="list-empty" wx:if="{{!posts.length}}">
+    <text class="muted">{{loading ? '正在加载…' : '还没有稿件，去「投稿」写一条吧。'}}</text>
+  </view>
+
+  <view class="postcard" wx:for="{{posts}}" wx:key="id">
+    <view class="postcard-head">
+      <view class="postcard-tags">
+        <view class="tag-status tag-status-{{item.statusTone}}">{{item.statusLabel}}</view>
+        <view class="tag tag-anon" wx:if="{{item.anonymous}}">匿名展示</view>
+        <view class="tag tag-channel" wx:if="{{item.channelLabel}}">{{item.channelLabel}}</view>
+        <view class="tag tag-attach" wx:if="{{item.attachmentCount > 0}}">{{item.attachmentCount}} 个附件</view>
+      </view>
+      <view class="postcard-action" wx:if="{{item.cancellable}}" data-id="{{item.id}}" bindtap="cancelPost">
+        <text>取消</text>
+      </view>
+    </view>
+
+    <view class="postcard-text">{{item.text}}</view>
+
+    <view class="postcard-images" wx:if="{{item.imageUrls.length > 0}}">
+      <image
+        class="postcard-image"
+        wx:for="{{item.imageUrls}}"
+        wx:for-item="img"
+        wx:key="*this"
+        src="{{img}}"
+        mode="aspectFill"
+        data-urls="{{item.imageUrls}}"
+        data-index="{{index}}"
+        bindtap="previewImage"
+      ></image>
+    </view>
+
+    <view class="postcard-meta">
+      <text>{{item.textLength}} 字</text>
+      <text class="postcard-meta-dot">·</text>
+      <text>{{item.createdAt}}</text>
+    </view>
+  </view>
+
+  <view class="pager" wx:if="{{pageCount > 1}}">
+    <text class="pager-info">第 {{page}} / {{pageCount}} 页，共 {{total}} 条</text>
+    <view class="pager-buttons">
+      <view class="pager-btn {{page <= 1 ? 'pager-btn-disabled' : ''}}" bindtap="prevPage">上一页</view>
+      <view class="pager-btn {{page >= pageCount ? 'pager-btn-disabled' : ''}}" bindtap="nextPage">下一页</view>
+    </view>
+  </view>
+</view>

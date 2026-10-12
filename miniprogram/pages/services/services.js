@@ -1,4 +1,5 @@
 const api = require('../../utils/api.js');
+const icons = require('../../utils/icons.js');
 
 const ROLE_LABELS = {
   submitter: '用户',
@@ -9,63 +10,131 @@ const ROLE_LABELS = {
 
 Page({
   data: {
-    loggedIn: false,
-    userName: '',
-    qqUin: '',
-    email: '',
-    roleLabel: '',
+    icons,
     tenantName: '',
-    tenantHost: '',
-    tenantStatus: '',
-    unbinding: false,
+    logoUrl: '',
+    roleLabel: '',
+    account: '',
+    rules: [],
   },
 
   onShow() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().refresh();
+      this.getTabBar().setSelected(2);
+    }
     const app = getApp();
     if (!app.globalData.token) {
-      this.setData({ loggedIn: false });
+      wx.redirectTo({ url: '/pages/login/login' });
       return;
     }
-    api.fetchMe().then((res) => {
-      if (res.statusCode === 401 || !res.data || !res.data.authenticated) {
-        app.clearSession();
-        this.setData({ loggedIn: false });
-        return;
+    this.applyIdentity();
+    this.loadMetadata();
+  },
+
+  applyIdentity() {
+    const app = getApp();
+    const tenant = app.globalData.currentTenant || {};
+    const user = app.globalData.user || {};
+    this.setData({
+      tenantName: tenant.name || '校园墙',
+      logoUrl: tenant.logoUrl || '',
+      roleLabel: ROLE_LABELS[app.role] || '',
+      account: user.displayName ? user.displayName + '（QQ ' + user.qqUin + '）' : '',
+    });
+  },
+
+  loadMetadata() {
+    api.fetchMetadata().then((res) => {
+      if (res.statusCode === 200 && res.data) {
+        this.setData({ rules: res.data.postRules || [], logoUrl: res.data.logoUrl || this.data.logoUrl });
       }
-      const user = res.data.user || {};
-      const tenant = res.data.currentTenant || {};
-      this.setData({
-        loggedIn: true,
-        userName: user.displayName || '',
-        qqUin: user.qqUin || '',
-        email: user.email || '',
-        roleLabel: ROLE_LABELS[(res.data.currentMembership && res.data.currentMembership.role) || ''] || '无权限',
-        tenantName: tenant.name || '未加入校园墙',
-        tenantHost: tenant.host || '',
-        tenantStatus: tenant.status || '',
-      });
-    }).catch(() => this.setData({ loggedIn: false }));
+    }).catch(() => null);
+  },
+
+  /** 修改显示名：服务端 PATCH /api/auth/profile（网页端同一接口）。 */
+  renameAccount() {
+    const app = getApp();
+    const current = (app.globalData.user && app.globalData.user.displayName) || '';
+    wx.showModal({
+      title: '修改名称',
+      editable: true,
+      placeholderText: current || '输入新的显示名',
+      success: (res) => {
+        if (!res.confirm) {
+          return;
+        }
+        const displayName = (res.content || '').trim();
+        if (!displayName) {
+          wx.showToast({ title: '名称不能为空', icon: 'none' });
+          return;
+        }
+        api.request('/api/auth/profile', { method: 'PATCH', data: { displayName } }).then((resp) => {
+          if (resp.statusCode >= 200 && resp.statusCode < 300 && resp.data && resp.data.user) {
+            app.globalData.user = resp.data.user;
+            this.applyIdentity();
+            wx.showToast({ title: '已更新', icon: 'success' });
+            return;
+          }
+          wx.showModal({ title: '更新失败', content: api.errorMessage(resp, '请稍后重试'), showCancel: false });
+        });
+      },
+    });
+  },
+
+  changePasswordHint() {
+    wx.showModal({
+      title: '修改密码',
+      content: '为了账号安全，修改密码请在网页端完成（需要输入当前密码）。',
+      showCancel: false,
+      confirmText: '知道了',
+    });
+  },
+
+  showRules() {
+    const rules = this.data.rules;
+    if (!rules.length) {
+      wx.showToast({ title: '本墙暂未配置投稿规则', icon: 'none' });
+      return;
+    }
+    wx.showModal({
+      title: '投稿规则',
+      content: rules.map((rule, i) => (i + 1) + '. ' + rule).join('\n'),
+      showCancel: false,
+      confirmText: '知道了',
+    });
+  },
+
+  showAbout() {
+    const app = getApp();
+    wx.showModal({
+      title: '关于 Campux',
+      content:
+        'Campux 微信小程序端\n' +
+        '实例：' + app.globalData.baseUrl + '\n' +
+        '当前校园墙：' + (this.data.tenantName || '-') + '\n' +
+        '登录方式：微信一键登录（绑定校园墙账号后可用）',
+      showCancel: false,
+      confirmText: '知道了',
+    });
   },
 
   unbindWechat() {
     wx.showModal({
       title: '解绑微信',
-      content: '解绑后需重新用 QQ 号/邮箱登录并绑定才能用微信登录，确认解绑？',
-      success: (modal) => {
-        if (!modal.confirm) {
+      content: '解绑后需要重新用 QQ 号/邮箱绑定才能微信登录，确认解绑？',
+      success: (res) => {
+        if (!res.confirm) {
           return;
         }
-        this.setData({ unbinding: true });
-        api.request('/api/wechat/unbind', { method: 'POST' }).then((res) => {
-          this.setData({ unbinding: false });
-          if (res.statusCode >= 200 && res.statusCode < 300) {
+        api.request('/api/wechat/unbind', { method: 'POST' }).then((resp) => {
+          if (resp.statusCode >= 200 && resp.statusCode < 300) {
+            getApp().clearSession();
             wx.showToast({ title: '已解绑', icon: 'success' });
+            wx.redirectTo({ url: '/pages/login/login' });
             return;
           }
-          wx.showToast({ title: api.errorMessage(res, '解绑失败'), icon: 'none' });
-        }).catch(() => {
-          this.setData({ unbinding: false });
-          wx.showToast({ title: '解绑失败，请重试', icon: 'none' });
+          wx.showModal({ title: '解绑失败', content: api.errorMessage(resp, '请稍后重试'), showCancel: false });
         });
       },
     });
@@ -74,8 +143,7 @@ Page({
   onLogout() {
     api.logout().then(() => {
       getApp().clearSession();
-      this.setData({ loggedIn: false });
-      wx.showToast({ title: '已退出', icon: 'none' });
+      wx.redirectTo({ url: '/pages/login/login' });
     });
   },
 });

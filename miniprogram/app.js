@@ -1,12 +1,12 @@
 /**
  * Campux 微信小程序入口。
  *
- * 与网页端共用一个 Campux 实例：小程序通过 bearer token 认证
- * （服务端 /api/wechat/login、/api/wechat/bind 返回），不依赖浏览器 cookie。
+ * 视觉与交互对齐 apps/web（真实网页端）：所有色值/尺寸来自 web 端实测计算样式。
+ * 登录：小程序无 cookie，服务端 /api/wechat/* 签发 bearer token，后续请求带
+ *       Authorization: Bearer <token>（服务端 getSessionContext 已支持该回退）。
  *
- * ⚠️ 部署前请把 globalData.baseUrl 改成你自己的 Campux 地址
- *    （必须是 HTTPS，且在微信公众平台「开发 - 服务器域名」里配置为 request 合法域名；
- *     开发者工具里可勾选「不校验合法域名」先本地联调）。
+ * ⚠️ 部署前把 globalData.baseUrl 改成你的 Campux 地址（HTTPS，并在微信公众平台
+ *    配置 request 合法域名；开发者工具里可勾选「不校验合法域名」先联调）。
  */
 App({
   globalData: {
@@ -15,13 +15,13 @@ App({
     user: null,
     currentTenant: null,
     currentMembership: null,
+    metadata: null,
   },
 
   onLaunch() {
     this.globalData.token = wx.getStorageSync('token') || '';
   },
 
-  /** 保存登录态（token + 用户/校园墙信息）。 */
   setSession(payload) {
     this.globalData.token = payload.token || '';
     this.globalData.user = payload.user || null;
@@ -30,18 +30,18 @@ App({
     if (payload.token) {
       wx.setStorageSync('token', payload.token);
     }
-    if (payload.currentTenant) {
-      wx.setStorageSync('currentTenant', payload.currentTenant);
-    }
   },
 
-  /** 清空登录态。 */
   clearSession() {
     this.globalData.token = '';
     this.globalData.user = null;
     this.globalData.currentTenant = null;
     this.globalData.currentMembership = null;
+    this.globalData.metadata = null;
     wx.removeStorageSync('token');
-    wx.removeStorageSync('currentTenant');
+  },
+
+  get role() {
+    return (this.globalData.currentMembership && this.globalData.currentMembership.role) || '';
   },
 });
