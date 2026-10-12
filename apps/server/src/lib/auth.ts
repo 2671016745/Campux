@@ -40,6 +40,27 @@ export function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
+/**
+ * 根据 token 字符串（可能是 cookie 值或 bearer token）查扐 accountSession。
+ * 返回 prisma.accountSession 记录，未找到则返回 null。
+ */
+export async function lookupSessionByToken(token: string) {
+  const tokenHash = hashToken(token);
+  return prisma.accountSession.findUnique({
+    where: { tokenHash },
+    include: {
+      selectedTenant: {
+        include: {
+          metadata: {
+            where: { key: "logo_url" as const },
+          },
+          aiSettings: { select: { enabled: true } },
+        },
+      },
+    },
+  });
+}
+
 export function issueSessionToken() {
   return randomBytes(32).toString("base64url");
 }
@@ -99,9 +120,15 @@ export async function createSession(userId: string, selectedTenantId?: string | 
 }
 
 export async function getSessionContext(request: FastifyRequest) {
-  const token = getCookie(request, sessionCookieName);
+  let token = getCookie(request, sessionCookieName);
   if (!token) {
-    return null;
+    // 备用：从 Authorization header 读取 Bearer token（供小程序 / 纯 API 调用）
+    const authHeader = request.headers["authorization"];
+    if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
+      token = authHeader.slice("Bearer ".length);
+    } else {
+      return null;
+    }
   }
 
   const session = await prisma.accountSession.findUnique({
