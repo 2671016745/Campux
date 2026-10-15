@@ -11,6 +11,9 @@
 App({
   globalData: {
     baseUrl: 'https://my-campux.top',
+    // 注册接口只对管理端域名开放（服务端按 Host 判定）。若你的实例管理端域名与
+    // baseUrl 不同，在这里单独填管理端地址；留空则使用 baseUrl。
+    managementBaseUrl: '',
     token: '',
     user: null,
     currentTenant: null,

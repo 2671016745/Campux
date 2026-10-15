@@ -9,14 +9,13 @@
  *   .login-title      ← p.text-lg.font-semibold（18px/600，lh28）
  *   .login-sub        ← p.mt-2.text-sm.leading-6（14px，lh24，mt8）
  *   .login-input      ← input.h-8.rounded-lg.border（高 32，r10，padding 0 10，16px）
- *   .login-btn        ← button.h-8.rounded-lg（高 32，r10，mt20，14px/500）
+ *   .login-btn        ← button.h-8.rounded-lg.w-full（高 32，r10，mt20，宽度铺满）
  *   .login-extra      ← div.mt-3.product-surface.px-4.py-4（mt12，白面 r8，padding 16）
- *   .login-extra-row  ← div.flex.items-start.justify-between.gap-3
  */
 
 .login-page {
   min-height: 100vh;
-  padding: 32px 16px;
+  padding: 32px 16px 40px;
   box-sizing: border-box;
   background-color: #f9fafb;
   display: flex;
@@ -99,13 +98,16 @@
   font-size: 16px;
 }
 
+/* 登录按钮：与网页端一致铺满整条（h-8 w-full） */
 .login-btn {
+  width: 100%;
   height: 32px;
   margin-top: 20px;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
+  box-sizing: border-box;
 }
 
 /* 未绑定提示（沿用仓库既有的 amber 提示配色） */
@@ -120,23 +122,11 @@
   line-height: 18px;
 }
 
-/* ── 底部区块：微信快捷登录 ── */
+/* ── 底部区块（微信快捷登录 / 注册） ── */
 .login-extra {
   margin-top: 12px;
   padding: 16px;
   box-sizing: border-box;
-}
-
-.login-extra-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.login-extra-text {
-  flex: 1;
-  min-width: 0;
 }
 
 .login-extra-title {
@@ -155,28 +145,48 @@
   color: #62748e;
 }
 
+/* 两个动作按钮都铺满整条，避免出现右侧留白 */
 .login-wxbtn {
-  flex-shrink: 0;
+  width: 100%;
+  height: 32px;
+  margin-top: 12px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 6px 12px;
+  gap: 6px;
   border-radius: 10px;
   background-color: #07c160;
   color: #ffffff;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   line-height: 20px;
 }
 
 .login-wxicon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 .login-wxbtn-disabled {
   opacity: 0.5;
+}
+
+.login-regbtn {
+  width: 100%;
+  height: 32px;
+  margin-top: 12px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #1447e6;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
 }
 
 /* ── 底部 ── */

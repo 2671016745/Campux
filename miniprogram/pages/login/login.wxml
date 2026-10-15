@@ -37,18 +37,21 @@
     </view>
   </view>
 
-  <!-- 底部区块：对应 app.campux.top 的「墙号运营者第一次使用？」区块 -->
+  <!-- 微信快捷登录区块 -->
   <view class="surface login-extra">
-    <view class="login-extra-row">
-      <view class="login-extra-text">
-        <text class="login-extra-title">还没有绑定微信？</text>
-        <text class="login-extra-desc">微信快捷登录需要先自行登录后绑定：用上面的账号密码登录，在「服务」页绑定微信，之后即可一键登录。</text>
-      </view>
-      <view class="login-wxbtn {{loggingIn ? 'login-wxbtn-disabled' : ''}}" bindtap="onWechatLogin">
-        <image class="login-wxicon" src="/assets/wechat.png" mode="aspectFit" />
-        <text>{{loggingIn ? '登录中' : '微信快捷登录'}}</text>
-      </view>
+    <text class="login-extra-title">还没有绑定微信？</text>
+    <text class="login-extra-desc">微信快捷登录需要先自行登录后绑定：用上面的账号密码登录，在「服务」页绑定微信，之后即可一键登录。</text>
+    <view class="login-wxbtn {{loggingIn ? 'login-wxbtn-disabled' : ''}}" bindtap="onWechatLogin">
+      <image class="login-wxicon" src="/assets/wechat.png" mode="aspectFit" />
+      <text>{{loggingIn ? '登录中…' : '微信快捷登录'}}</text>
     </view>
+  </view>
+
+  <!-- 注册区块：对应原版「墙号运营者第一次使用？」 -->
+  <view class="surface login-extra">
+    <text class="login-extra-title">第一次使用？</text>
+    <text class="login-extra-desc">注册运营管理员账号即可自助创建校园墙。普通用户请通过对应校园墙机器人注册，已有账号可直接登录。</text>
+    <view class="login-regbtn" bindtap="goRegister">注册</view>
   </view>
 
   <text class="login-footer">由 Campux 提供技术支持</text>

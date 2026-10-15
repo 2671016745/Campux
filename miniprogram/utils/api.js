@@ -33,7 +33,8 @@ function request(path, options) {
   const opts = options || {};
   return new Promise((resolve, reject) => {
     wx.request({
-      url: baseUrl() + path,
+      // 注册类接口服务端按 Host 判定「管理端域名」，故允许按调用点覆盖基地址
+      url: (opts.baseUrl || baseUrl()) + path,
       method: opts.method || 'GET',
       data: opts.data || {},
       header: buildHeader(opts.header),
@@ -116,6 +117,35 @@ function bindWechatToSession() {
   });
 }
 
+/**
+ * 注册相关接口的基地址。
+ * 服务端 /api/auth/register* 只对「管理端域名」（systemSetting.management_host）开放，
+ * 其他 Host 一律 404「当前入口不开放注册」。小程序没法改 Host，因此这里允许在
+ * app.js 的 globalData.managementBaseUrl 里单独指定管理端地址；留空则退回 baseUrl。
+ */
+function registerBaseUrl() {
+  const app = getApp();
+  return (app && app.globalData && app.globalData.managementBaseUrl) || baseUrl();
+}
+
+/** 发送注册邮箱验证码（仅 QQ 邮箱可用）。 */
+function requestRegisterCode(email) {
+  return request('/api/auth/register/request-code', {
+    method: 'POST',
+    data: { email: email },
+    baseUrl: registerBaseUrl(),
+  });
+}
+
+/** 注册运营管理员账号。成功时返回体里带 token，可直接当作登录态使用。 */
+function registerAccount(payload) {
+  return request('/api/auth/register', {
+    method: 'POST',
+    data: payload,
+    baseUrl: registerBaseUrl(),
+  });
+}
+
 function logout() {
   return request('/api/auth/logout', { method: 'POST' }).catch(() => null);
 }
@@ -146,6 +176,8 @@ module.exports = {
   wechatBind,
   bindWechatToSession,
   passwordLogin,
+  requestRegisterCode,
+  registerAccount,
   logout,
   fetchMe,
   fetchMetadata,

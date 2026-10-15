@@ -393,6 +393,8 @@ export function registerAuthRoutes(app: FastifyInstance, config: CampuxConfig) {
 
     return {
       authenticated: true,
+      // 无 cookie 客户端（小程序）需要显式拿到 token；网页端忽略该字段、继续用 cookie。
+      token,
       user: toPublicUser(user),
       memberships: [],
       systemAccessibleTenants: [],

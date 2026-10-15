@@ -1,0 +1,68 @@
+<view class="login-page">
+  <!-- 品牌区：与登录页同一套视觉 -->
+  <view class="login-brand">
+    <view class="login-brand-box">
+      <image class="login-brand-img" src="{{logoUrl || '/assets/logo.png'}}" mode="aspectFit" />
+    </view>
+    <text class="login-brand-name">Campux</text>
+  </view>
+
+  <view class="surface login-card">
+    <text class="login-title">注册 Campux 账号</text>
+    <text class="login-sub">仅支持 QQ 邮箱注册；注册后可自助创建校园墙。</text>
+
+    <input
+      class="login-input"
+      placeholder="QQ 邮箱（如 123456@qq.com）"
+      placeholder-class="login-placeholder"
+      value="{{email}}"
+      bindinput="onEmailInput"
+    />
+
+    <view class="reg-code-row">
+      <input
+        class="login-input reg-code-input"
+        type="number"
+        maxlength="6"
+        placeholder="邮箱验证码"
+        placeholder-class="login-placeholder"
+        value="{{code}}"
+        bindinput="onCodeInput"
+      />
+      <view class="reg-code-btn {{countdown > 0 || sending ? 'reg-code-btn-off' : ''}}" bindtap="sendCode">
+        <text>{{countdown > 0 ? countdown + 's' : (sending ? '发送中…' : '发送验证码')}}</text>
+      </view>
+    </view>
+
+    <input
+      class="login-input"
+      placeholder="显示名（投稿时对外展示）"
+      placeholder-class="login-placeholder"
+      value="{{displayName}}"
+      bindinput="onNameInput"
+    />
+    <input
+      class="login-input"
+      password
+      placeholder="密码（至少 6 位）"
+      placeholder-class="login-placeholder"
+      value="{{password}}"
+      bindinput="onPasswordInput"
+    />
+
+    <view class="login-tip" wx:if="{{devCode}}">开发环境验证码：{{devCode}}</view>
+  </view>
+
+  <!-- 底部两个按钮：注册 / 注册并绑定微信 -->
+  <view class="surface reg-actions">
+    <view class="postbtn reg-btn-main {{busy || !canSubmit ? 'postbtn-disabled' : ''}}" bindtap="onRegister">
+      <text>{{busy && !bindMode ? '注册中…' : '注册'}}</text>
+    </view>
+    <view class="reg-bindbtn {{busy || !canSubmit ? 'reg-bindbtn-off' : ''}}" bindtap="onRegisterAndBind">
+      <image class="login-wxicon" src="/assets/wechat.png" mode="aspectFit" />
+      <text>{{busy && bindMode ? '注册中…' : '注册并绑定微信'}}</text>
+    </view>
+  </view>
+
+  <text class="login-footer">由 Campux 提供技术支持</text>
+</view>

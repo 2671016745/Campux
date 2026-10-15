@@ -90,6 +90,11 @@ Page({
       });
   },
 
+  /** 跳转注册页 */
+  goRegister() {
+    wx.navigateTo({ url: '/pages/register/register' });
+  },
+
   /** 登录成功：保存会话并跳转 */
   onLoginSuccess(data) {
     if (!data || !data.token) {
