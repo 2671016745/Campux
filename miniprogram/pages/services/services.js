@@ -129,6 +129,27 @@ Page({
     });
   },
 
+  /** 已登录状态下绑定微信：走 /api/wechat/bind-session（无需再输账号密码）。 */
+  bindWechat() {
+    wx.showLoading({ title: '绑定中…' });
+    api.bindWechatToSession().then((res) => {
+      wx.hideLoading();
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        wx.showToast({ title: '微信已绑定', icon: 'success' });
+        this.setData({ wechatBound: true });
+        return;
+      }
+      wx.showModal({ title: '绑定失败', content: api.errorMessage(res, '请稍后重试'), showCancel: false });
+    }).catch((err) => {
+      wx.hideLoading();
+      wx.showModal({
+        title: '绑定失败',
+        content: (err && err.message) || '网络错误，请稍后重试',
+        showCancel: false,
+      });
+    });
+  },
+
   unbindWechat() {
     wx.showModal({
       title: '解绑微信',

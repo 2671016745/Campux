@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { CampuxConfig } from "@campux/config";
 import { createManyDedup, verifyPassword } from "@campux/db";
-import { createSession, hashToken, setSessionCookie } from "../lib/auth";
+import { createSession, getSessionContext, setSessionCookie } from "../lib/auth";
 import { prisma } from "../lib/prisma";
 import { buildSessionPayload, loadUserForLogin, parseAccount, resolveTenantId } from "../lib/session-payload";
 
@@ -37,6 +37,10 @@ const bindBodySchema = z.object({
   account: z.string().trim().min(1, "请输入 QQ 号或 QQ 邮箱"),
   password: z.string().min(1, "请输入密码"),
   tenantId: z.string().trim().min(1).optional(),
+});
+
+const bindSessionBodySchema = z.object({
+  code: z.string().trim().min(1, "缺少微信登录 code"),
 });
 
 class WechatRequestError extends Error {
@@ -238,22 +242,85 @@ export function registerWechatRoutes(app: FastifyInstance, _config: CampuxConfig
     return buildSessionPayload(loaded, tenantId, token);
   });
 
-  // ─── 解绑（供小程序「设置」页使用）────────────────────────────────────
-  app.post("/api/wechat/unbind", async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (typeof authHeader !== "string" || !authHeader.startsWith("Bearer ")) {
+  // ─── 已登录后绑定微信（供小程序「服务」页使用）────────────────────────
+  // 与 /bind 的区别：调用方已经登录（拿得到会话），因此不需要再输账号密码；
+  // openid 仍由服务端用新 code 换取，客户端无法伪造。
+  app.post("/api/wechat/bind-session", async (request, reply) => {
+    const context = await getSessionContext(request);
+    if (!context) {
       return reply.code(401).send({ message: "请先登录" });
     }
-    const token = authHeader.slice("Bearer ".length);
-    const session = await prisma.accountSession.findUnique({
-      where: { tokenHash: hashToken(token) },
-    });
-    if (!session || session.expiresAt.getTime() <= Date.now()) {
-      return reply.code(401).send({ message: "登录已过期，请重新登录" });
+    const parsed = parseOrReply(bindSessionBodySchema, request.body ?? {}, reply);
+    if (!parsed.ok) {
+      return;
     }
-    await prisma.oAuthIdentity.deleteMany({
-      where: { userId: session.userId, provider: WECHAT_PROVIDER },
+
+    let openid: string;
+    try {
+      openid = await exchangeCodeForOpenId(app, parsed.data.code);
+    } catch (error) {
+      if (error instanceof WechatRequestError) {
+        return reply.code(error.status).send({ message: error.message });
+      }
+      throw error;
+    }
+
+    const owner = await prisma.oAuthIdentity.findUnique({
+      where: {
+        provider_providerUserId: {
+          provider: WECHAT_PROVIDER,
+          providerUserId: openid,
+        },
+      },
     });
-    return { ok: true };
+    if (owner && owner.userId !== context.user.id) {
+      return reply.code(409).send({ message: "该微信已绑定其他账号，请先在那边解绑" });
+    }
+
+    // 一个账号只允许绑一个微信身份，换绑前必须先解绑，避免留下无法登录的僵尸绑定。
+    const current = await prisma.oAuthIdentity.findFirst({
+      where: { userId: context.user.id, provider: WECHAT_PROVIDER },
+    });
+    if (current && current.providerUserId !== openid) {
+      return reply.code(409).send({ message: "当前账号已绑定其他微信，请先解绑" });
+    }
+
+    if (!owner) {
+      try {
+        await createManyDedup(
+          prisma.oAuthIdentity,
+          [{ userId: context.user.id, provider: WECHAT_PROVIDER, providerUserId: openid }],
+          (row) => `${row.provider}:${row.providerUserId}`,
+        );
+        app.log.info(`[wechat] bound openid -> user ${context.user.id} (session)`);
+      } catch (error) {
+        const raced = await prisma.oAuthIdentity.findUnique({
+          where: {
+            provider_providerUserId: {
+              provider: WECHAT_PROVIDER,
+              providerUserId: openid,
+            },
+          },
+        });
+        if (!raced || raced.userId !== context.user.id) {
+          app.log.warn({ err: error }, "wechat bind-session conflicted");
+          return reply.code(409).send({ message: "该微信已被其他账号绑定" });
+        }
+      }
+    }
+
+    return { ok: true, bound: true };
+  });
+
+  // ─── 解绑（供小程序「服务」页使用）────────────────────────────────────
+  app.post("/api/wechat/unbind", async (request, reply) => {
+    const context = await getSessionContext(request);
+    if (!context) {
+      return reply.code(401).send({ message: "请先登录" });
+    }
+    const removed = await prisma.oAuthIdentity.deleteMany({
+      where: { userId: context.user.id, provider: WECHAT_PROVIDER },
+    });
+    return { ok: true, removed: removed.count };
   });
 }

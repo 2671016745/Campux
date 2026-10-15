@@ -62,7 +62,8 @@
   </view>
 
   <view class="btn-row">
-    <view class="outline-btn outline-btn-danger" bindtap="unbindWechat">解绑微信</view>
+    <view class="outline-btn" wx:if="{{!wechatBound}}" bindtap="bindWechat">绑定微信</view>
+    <view class="outline-btn outline-btn-danger" wx:else bindtap="unbindWechat">解绑微信</view>
     <view class="postbtn btn-wide" bindtap="onLogout">
       <text>退出登录</text>
     </view>

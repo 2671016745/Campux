@@ -96,6 +96,26 @@ function passwordLogin(account, password, tenantId) {
   return request('/api/auth/token-login', { method: 'POST', data });
 }
 
+/**
+ * 已登录状态下绑定微信（「服务」页用）。
+ * 与 wechatBind 的区别：调用方已经登录，不需要再输账号密码；
+ * 服务端用本次新取的 code 换 openid 后，直接绑到当前会话账号上。
+ */
+function bindWechatToSession() {
+  return new Promise((resolve, reject) => {
+    wx.login({
+      success: (loginRes) => {
+        if (!loginRes.code) {
+          reject(new Error('微信登录失败：未取得 code'));
+          return;
+        }
+        request('/api/wechat/bind-session', { method: 'POST', data: { code: loginRes.code } }).then(resolve, reject);
+      },
+      fail: () => reject(new Error('微信登录失败，请重试')),
+    });
+  });
+}
+
 function logout() {
   return request('/api/auth/logout', { method: 'POST' }).catch(() => null);
 }
@@ -124,6 +144,7 @@ module.exports = {
   errorMessage,
   wechatLogin,
   wechatBind,
+  bindWechatToSession,
   passwordLogin,
   logout,
   fetchMe,
