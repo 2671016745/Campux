@@ -1,5 +1,11 @@
+<!--
+  登录页 —— 结构逐块对应 apps/web/src/features/auth/LoginScreen.tsx：
+    品牌区        ← div.mb-5.flex.items-center.gap-3
+    登录卡片      ← form.product-surface.px-4.py-5（页脚链接也在卡片内）
+    其他登录方式  ← AggregateLoginButtons（分隔线 + 小按钮）
+    注册区块      ← div.mt-3.product-surface.px-4.py-4
+-->
 <view class="login-page">
-  <!-- 品牌区：对应 app.campux.top 的 section>div.mb-5（52×52 方块 r18 + Campux 20px/600） -->
   <view class="login-brand">
     <view class="login-brand-box">
       <image class="login-brand-img" src="{{logoUrl || '/assets/logo.png'}}" mode="aspectFit" />
@@ -7,7 +13,6 @@
     <text class="login-brand-name">Campux</text>
   </view>
 
-  <!-- 登录卡片：对应 form.product-surface.px-4.py-5 -->
   <view class="surface login-card">
     <text class="login-title">登录到 Campux</text>
     <text class="login-sub">输入 QQ 号或邮箱，以及你的账号密码。</text>
@@ -28,31 +33,47 @@
       bindinput="onPasswordInput"
     />
 
-    <view class="postbtn login-btn {{loginBusy || !account || !password ? 'postbtn-disabled' : ''}}" bindtap="onPasswordLogin">
-      <text>{{loginBusy ? '登录中…' : (unbound ? '登录并绑定微信' : '登录')}}</text>
+    <view class="postbtn login-btn {{loginBusy ? 'postbtn-disabled' : ''}}" bindtap="onPasswordLogin">
+      <text>{{loginBusy ? '登录中' : '登录'}}</text>
     </view>
 
     <view class="login-tip" wx:if="{{unbound}}">
-      该微信还没绑定校园墙账号：填好上面的账号密码，点「登录并绑定微信」即可同时完成登录和绑定。
+      该微信还没绑定校园墙账号：填好上面的账号密码，点「登录」即可同时完成登录和绑定。
+    </view>
+
+    <view class="login-card-footer">
+      <text class="login-card-footer-text">由 Campux 提供技术支持</text>
     </view>
   </view>
 
-  <!-- 微信快捷登录区块 -->
-  <view class="surface login-extra">
-    <text class="login-extra-title">还没有绑定微信？</text>
-    <text class="login-extra-desc">微信快捷登录需要先自行登录后绑定：用上面的账号密码登录，在「服务」页绑定微信，之后即可一键登录。</text>
-    <view class="login-wxbtn {{loggingIn ? 'login-wxbtn-disabled' : ''}}" bindtap="onWechatLogin">
-      <image class="login-wxicon" src="/assets/wechat.png" mode="aspectFit" />
-      <text>{{loggingIn ? '登录中…' : '微信快捷登录'}}</text>
+  <!-- 其他登录方式：与网页端 AggregateLoginButtons 同款样式 -->
+  <view class="login-oauth">
+    <view class="login-oauth-divider">
+      <view class="login-oauth-line"></view>
+      <text class="login-oauth-label">其他登录方式</text>
+      <view class="login-oauth-line"></view>
+    </view>
+    <view class="login-oauth-row">
+      <view class="login-oauth-btn {{loggingIn ? 'login-oauth-btn-off' : ''}}" bindtap="onWechatLogin">
+        <image class="login-oauth-icon" src="/assets/wechat.png" mode="aspectFit" />
+        <text>{{loggingIn ? '处理中' : '微信登录'}}</text>
+      </view>
+    </view>
+    <view class="login-oauth-hint">
+      <text class="login-oauth-hint-text">{{wechatHint}}</text>
     </view>
   </view>
 
-  <!-- 注册区块：对应原版「墙号运营者第一次使用？」 -->
-  <view class="surface login-extra">
-    <text class="login-extra-title">第一次使用？</text>
-    <text class="login-extra-desc">注册运营管理员账号即可自助创建校园墙。普通用户请通过对应校园墙机器人注册，已有账号可直接登录。</text>
-    <view class="login-regbtn" bindtap="goRegister">注册</view>
+  <!-- 注册区块：与网页端 managementHost 下的区块一致 -->
+  <view class="surface login-regblock">
+    <view class="login-regrow">
+      <view class="login-regtext">
+        <text class="login-regtitle">墙号运营者第一次使用？</text>
+        <text class="login-regdesc">注册运营管理员账号即可自助创建校园墙。普通用户请通过对应校园墙机器人注册，已有账号可直接登录。</text>
+      </view>
+      <view class="login-reglink" bindtap="goRegister">
+        <text>注册</text>
+      </view>
+    </view>
   </view>
-
-  <text class="login-footer">由 Campux 提供技术支持</text>
 </view>

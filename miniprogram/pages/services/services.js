@@ -54,8 +54,8 @@ Page({
     // 查询微信绑定状态
     api.fetchMe().then((res) => {
       if (res.statusCode === 200 && res.data) {
-        const bound = (res.data.oauthBindings || []).some((b) => b.provider === 'wechat_miniprogram');
-        this.setData({ wechatBound: bound });
+        const providers = res.data.oauthProviders || [];
+        this.setData({ wechatBound: providers.indexOf('wechat_miniprogram') >= 0 });
       }
     }).catch(() => null);
   },

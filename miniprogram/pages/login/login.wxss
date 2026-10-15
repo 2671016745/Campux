@@ -1,21 +1,27 @@
 /*
  * 登录页样式 —— 数值取自 app.campux.top/login 在 375×812 视口的实测计算样式。
  * 对应关系：
- *   .login-page       ← section.mx-auto.flex.min-h-dvh.max-w-[420px].flex-col.justify-center.px-4.py-8
- *   .login-brand      ← div.mb-5.flex.items-center.gap-3（高 52，下边距 20，gap 12）
- *   .login-brand-box  ← span.flex.size-13.rounded-2xl.border（52×52，r18，1px #e2e8f0）
- *   .login-brand-name ← h1.text-xl.font-semibold（20px/600，lh25）
- *   .login-card       ← form.product-surface.px-4.py-5（白面 r8，padding 20/16）
- *   .login-title      ← p.text-lg.font-semibold（18px/600，lh28）
- *   .login-sub        ← p.mt-2.text-sm.leading-6（14px，lh24，mt8）
- *   .login-input      ← input.h-8.rounded-lg.border（高 32，r10，padding 0 10，16px）
- *   .login-btn        ← button.h-8.rounded-lg.w-full（高 32，r10，mt20，宽度铺满）
- *   .login-extra      ← div.mt-3.product-surface.px-4.py-4（mt12，白面 r8，padding 16）
+ *   .login-page        ← section.mx-auto.flex.min-h-dvh.max-w-[420px].flex-col.justify-center.px-4.py-8
+ *   .login-brand       ← div.mb-5.flex.items-center.gap-3（高 52，下边距 20，gap 12）
+ *   .login-brand-box   ← span.flex.size-13.rounded-2xl.border.shadow-sm（52×52，r18，1px #e2e8f0）
+ *   .login-brand-name  ← h1.text-xl.font-semibold（20px/600，lh25）
+ *   .login-card        ← form.product-surface.px-4.py-5（白面 r8，padding 20/16）
+ *   .login-title       ← p.text-lg.font-semibold（18px/600，lh28）
+ *   .login-sub         ← p.mt-2.text-sm.leading-6（14px，lh24，mt8）
+ *   .login-input       ← input.h-8.rounded-lg.border（高 32，r10，padding 0 10，16px）
+ *   .login-btn         ← button.mt-5.w-full.font-medium（高 32，r10，mt20，铺满整条）
+ *   .login-card-footer ← div.mt-5.border-t.border-slate-100.pt-3.text-center
+ *   .login-oauth       ← AggregateLoginButtons 的 div.mt-4 + 分隔行 + mt-3 按钮行
+ *   .login-oauth-btn   ← button.inline-flex…rounded-md.border.bg-white.px-2.5.py-1.5.text-xs
+ *   .login-regblock    ← div.mt-3.product-surface.px-4.py-4
+ *   .login-regtitle    ← p.text-sm.font-bold（14px/700）
+ *   .login-regdesc     ← p.mt-1.text-xs.font-semibold.leading-5（12px/600，lh20）
+ *   .login-reglink     ← button.shrink-0.text-sm.font-semibold.text-blue-700
  */
 
 .login-page {
   min-height: 100vh;
-  padding: 32px 16px 40px;
+  padding: 32px 16px;
   box-sizing: border-box;
   background-color: #f9fafb;
   display: flex;
@@ -43,6 +49,7 @@
   border-radius: 18px;
   background-color: #ffffff;
   box-sizing: border-box;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .login-brand-img {
@@ -98,7 +105,6 @@
   font-size: 16px;
 }
 
-/* 登录按钮：与网页端一致铺满整条（h-8 w-full） */
 .login-btn {
   width: 100%;
   height: 32px;
@@ -122,78 +128,126 @@
   line-height: 18px;
 }
 
-/* ── 底部区块（微信快捷登录 / 注册） ── */
-.login-extra {
+/* 卡片内页脚：对应原版 form 里的 mt-5 border-t pt-3 text-center */
+.login-card-footer {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+}
+
+.login-card-footer-text {
+  font-size: 12px;
+  line-height: 16px;
+  color: #94a3b8;
+}
+
+/* ── 其他登录方式 ── */
+.login-oauth {
+  margin-top: 16px;
+}
+
+.login-oauth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-oauth-line {
+  height: 1px;
+  flex: 1;
+  background-color: #e2e8f0;
+}
+
+.login-oauth-label {
+  font-size: 12px;
+  line-height: 16px;
+  color: #94a3b8;
+}
+
+.login-oauth-row {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.login-oauth-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #45556c;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.login-oauth-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.login-oauth-btn-off {
+  opacity: 0.6;
+}
+
+.login-oauth-hint {
+  margin-top: 8px;
+}
+
+.login-oauth-hint-text {
+  display: block;
+  font-size: 12px;
+  line-height: 16px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* ── 注册区块 ── */
+.login-regblock {
   margin-top: 12px;
   padding: 16px;
   box-sizing: border-box;
 }
 
-.login-extra-title {
+.login-regrow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.login-regtext {
+  flex: 1;
+  min-width: 0;
+}
+
+.login-regtitle {
   display: block;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 20px;
   color: #020618;
 }
 
-.login-extra-desc {
+.login-regdesc {
   display: block;
   margin-top: 4px;
   font-size: 12px;
-  line-height: 18px;
+  font-weight: 600;
+  line-height: 20px;
   color: #62748e;
 }
 
-/* 两个动作按钮都铺满整条，避免出现右侧留白 */
-.login-wxbtn {
-  width: 100%;
-  height: 32px;
-  margin-top: 12px;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border-radius: 10px;
-  background-color: #07c160;
-  color: #ffffff;
+.login-reglink {
+  flex-shrink: 0;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 20px;
-}
-
-.login-wxicon {
-  width: 18px;
-  height: 18px;
-}
-
-.login-wxbtn-disabled {
-  opacity: 0.5;
-}
-
-.login-regbtn {
-  width: 100%;
-  height: 32px;
-  margin-top: 12px;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  background-color: #ffffff;
   color: #1447e6;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-}
-
-/* ── 底部 ── */
-.login-footer {
-  margin-top: 24px;
-  font-size: 11px;
-  line-height: 16px;
-  color: #94a3b8;
-  text-align: center;
 }

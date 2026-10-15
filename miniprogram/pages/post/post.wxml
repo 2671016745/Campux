@@ -77,3 +77,19 @@
     <view class="badge">可投稿</view>
   </view>
 </view>
+
+<!-- 登录后自动检测：未绑定微信时询问是否绑定 -->
+<view class="bind-mask" wx:if="{{showBindSheet}}">
+  <view class="bind-sheet">
+    <text class="bind-title">绑定微信</text>
+    <text class="bind-desc">绑定后可以直接用微信一键登录，不用每次输入账号密码。现在绑定吗？</text>
+    <view class="bind-actions">
+      <view class="bind-btn bind-btn-primary" bindtap="onBindConfirm">
+        <text>{{bindBusy ? '绑定中…' : '确定绑定'}}</text>
+      </view>
+      <view class="bind-btn" bindtap="onBindLater"><text>不要</text></view>
+      <view class="bind-btn bind-btn-muted" bindtap="onBindNever"><text>不再提醒</text></view>
+    </view>
+    <view class="bind-foot" bindtap="goServicesForBind"><text>去「服务」页绑定</text></view>
+  </view>
+</view>

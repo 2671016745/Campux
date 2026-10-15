@@ -190,3 +190,85 @@
   line-height: 16px;
   color: #62748e;
 }
+
+/* ── 登录后「绑定微信」引导弹窗 ─────────────────────────────────────── */
+.bind-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 90;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bind-sheet {
+  width: 300px;
+  padding: 20px 16px 12px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background-color: #ffffff;
+}
+
+.bind-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  color: #020618;
+  text-align: center;
+}
+
+.bind-desc {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 20px;
+  color: #62748e;
+  text-align: center;
+}
+
+.bind-actions {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bind-btn {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #45556c;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.bind-btn-primary {
+  border-color: #2563eb;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.bind-btn-muted {
+  color: #94a3b8;
+}
+
+.bind-foot {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 12px;
+  line-height: 16px;
+  color: #94a3b8;
+  text-align: center;
+}

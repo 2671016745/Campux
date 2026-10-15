@@ -496,12 +496,18 @@ export function registerAuthRoutes(app: FastifyInstance, config: CampuxConfig) {
     const systemAccessibleTenants = await listSystemAccessibleTenants(context.user.systemRole);
     const visibleMemberships = context.memberships.filter((membership) => membership.tenant.status !== "archived");
     const needsTenantSelection = !context.selectedTenant && (visibleMemberships.length > 1 || systemAccessibleTenants.length > 0);
+    // 已绑定的第三方身份（供客户端判断是否需要引导绑定微信等）
+    const oauthIdentities = await prisma.oAuthIdentity.findMany({
+      where: { userId: context.user.id },
+      select: { provider: true },
+    });
 
     return {
       authenticated: true,
       user: toPublicUser(context.user),
       memberships: context.memberships.map(toMembership),
       systemAccessibleTenants,
+      oauthProviders: oauthIdentities.map((identity) => identity.provider),
       currentTenant: context.selectedTenant ? toTenantSummary(context.selectedTenant) : null,
       currentMembership: context.selectedMembership
         ? { id: context.selectedMembership.id, role: context.selectedMembership.role }

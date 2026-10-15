@@ -9,6 +9,7 @@ Page({
     loggingIn: false,
     loginBusy: false,
     unbound: false,
+    wechatHint: '还没绑定微信？先登录，再在「服务」页绑定，之后即可一键登录。',
   },
 
   onLoad(options) {
@@ -39,8 +40,12 @@ Page({
     wechatLogin()
       .then((res) => {
         if (res.data && res.data.unbound) {
-          // 未绑定：提示用户用下面的账号密码登录
-          this.setData({ unbound: true, loggingIn: false });
+          // 未绑定：提示用账号密码登录一次即完成绑定
+          this.setData({
+            unbound: true,
+            loggingIn: false,
+            wechatHint: '这个微信还没绑定账号，用上面的账号密码登录一次即可绑定。',
+          });
           return;
         }
         // 已绑定：直接登录成功
@@ -54,9 +59,15 @@ Page({
 
   /** 邮箱/密码登录（未绑定时自动走绑定流程） */
   onPasswordLogin() {
-    if (this.data.loginBusy) return;
+    if (this.data.loginBusy) {
+      return;
+    }
     const { account, password, unbound } = this.data;
-    if (!account || !password) return;
+    // 按钮与原版一致始终保持蓝色可点，因此这里做提示而不是静默返回
+    if (!account.trim() || !password) {
+      wx.showToast({ title: '请输入账号和密码', icon: 'none' });
+      return;
+    }
 
     this.setData({ loginBusy: true });
 

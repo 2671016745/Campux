@@ -59,7 +59,7 @@
       <text>{{busy && !bindMode ? '注册中…' : '注册'}}</text>
     </view>
     <view class="reg-bindbtn {{busy || !canSubmit ? 'reg-bindbtn-off' : ''}}" bindtap="onRegisterAndBind">
-      <image class="login-wxicon" src="/assets/wechat.png" mode="aspectFit" />
+      <image class="reg-wxicon" src="/assets/wechat.png" mode="aspectFit" />
       <text>{{busy && bindMode ? '注册中…' : '注册并绑定微信'}}</text>
     </view>
   </view>

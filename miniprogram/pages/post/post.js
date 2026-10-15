@@ -26,6 +26,9 @@ Page({
     anonymous: false,
     submitting: false,
     canSubmit: false,
+    // 登录后的绑定引导弹窗
+    showBindSheet: false,
+    bindBusy: false,
   },
 
   onShow() {
@@ -40,6 +43,82 @@ Page({
     }
     this.applyIdentity();
     this.loadMetadata();
+    this.checkWechatBinding();
+  },
+
+  /**
+   * 登录后自动检测微信是否已绑定：
+   * 未绑定且用户没选过「不再提醒」时，弹出询问（确定绑定 / 不要 / 不再提醒）。
+   */
+  checkWechatBinding() {
+    if (wx.getStorageSync('wechatBindNeverRemind')) {
+      return;
+    }
+    if (this.data.showBindSheet || this.data.bindBusy) {
+      return;
+    }
+    api.fetchMe().then((res) => {
+      if (res.statusCode !== 200 || !res.data || !res.data.authenticated) {
+        return;
+      }
+      const providers = res.data.oauthProviders || [];
+      if (providers.indexOf('wechat_miniprogram') >= 0) {
+        return;
+      }
+      this.setData({ showBindSheet: true });
+    }).catch(() => {
+      // 网络异常时不打扰登录后的正常使用
+    });
+  },
+
+  /** 弹窗「确定绑定」：拿当前微信身份绑到本账号 */
+  onBindConfirm() {
+    if (this.data.bindBusy) {
+      return;
+    }
+    this.setData({ showBindSheet: false, bindBusy: true });
+    wx.showLoading({ title: '绑定中…' });
+    api.bindWechatToSession().then((res) => {
+      wx.hideLoading();
+      this.setData({ bindBusy: false });
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        wx.showModal({
+          title: '微信已绑定',
+          content: '以后可以直接用微信一键登录，不用再输账号密码。也可以在「服务」页解绑。',
+          showCancel: false,
+          confirmText: '知道了',
+        });
+        return;
+      }
+      wx.showModal({ title: '绑定失败', content: api.errorMessage(res, '请稍后重试'), showCancel: false });
+    }).catch((err) => {
+      wx.hideLoading();
+      this.setData({ bindBusy: false });
+      wx.showModal({
+        title: '绑定失败',
+        content: (err && err.message) || '网络错误，请稍后重试',
+        showCancel: false,
+      });
+    });
+  },
+
+  /** 弹窗「不要」：本次跳过，下次登录仍会提示 */
+  onBindLater() {
+    this.setData({ showBindSheet: false });
+    wx.showToast({ title: '可随时在「服务」页绑定', icon: 'none' });
+  },
+
+  /** 弹窗「不再提醒」：写入本地标记，之后不再弹 */
+  onBindNever() {
+    wx.setStorageSync('wechatBindNeverRemind', true);
+    this.setData({ showBindSheet: false });
+    wx.showToast({ title: '已关闭提醒，可在「服务」页绑定', icon: 'none' });
+  },
+
+  /** 去「服务」页绑定 */
+  goServicesForBind() {
+    this.setData({ showBindSheet: false });
+    wx.switchTab({ url: '/pages/services/services' });
   },
 
   applyIdentity() {
