@@ -17,10 +17,9 @@ const LOGIN_PROMPT_DEBOUNCE_MS = 1500;
 
 App({
   globalData: {
-    // 线上地址。本地联调时改成 http://127.0.0.1:8989
-    // （配 D:/agent/hermes-data/campux-dev/start-server.sh 起的实例）。
-    // 真机还需在微信公众平台配置 request 合法域名；开发者工具里可勾选「不校验合法域名」先联调。
-    baseUrl: 'https://app.campux.top',
+    // 本地联调地址（配 D:/agent/hermes-data/campux-dev/start-server.sh 起的实例）。
+    // ⚠️ 发 PR 前再改成 https://app.campux.top —— 等用户明确说「PR」时再换。
+    baseUrl: 'http://127.0.0.1:8989',
     // 注册接口只对管理端域名开放（服务端按 Host 判定，即 SystemSetting.management_host）。
     // 留空即回退到 baseUrl。
     managementBaseUrl: '',
