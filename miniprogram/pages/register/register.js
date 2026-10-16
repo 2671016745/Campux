@@ -17,7 +17,13 @@ Page({
     busy: false,
     bindMode: false,
     canSubmit: false,
-    devCode: '',
+    message: '',
+  },
+
+  goBack() {
+    wx.navigateBack({
+      fail: () => wx.redirectTo({ url: '/pages/login/login' }),
+    });
   },
 
   onLoad() {
@@ -60,33 +66,32 @@ Page({
     this.setData({ password: e.detail.value }, () => this.refreshSubmit());
   },
 
-  /** 发送邮箱验证码（服务端在未配置邮件时会直接返回 devCode，页面显示出来便于联调）。 */
+  /** 获取验证码（与原版一致：结果写在表单内的提示行里） */
   sendCode() {
     if (this.data.sending || this.data.countdown > 0) {
       return;
     }
     const email = this.data.email.trim();
     if (!QQ_EMAIL.test(email)) {
-      wx.showToast({ title: '只能使用 QQ 邮箱，例如 123456@qq.com', icon: 'none' });
+      this.setData({ message: '只能使用 QQ 邮箱，例如 123456@qq.com' });
       return;
     }
-    this.setData({ sending: true });
+    this.setData({ sending: true, message: '' });
     api.requestRegisterCode(email)
       .then((res) => {
-        this.setData({ sending: false });
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          wx.showToast({ title: '验证码已发送', icon: 'success' });
+          const devCode = res.data && res.data.devCode;
+          this.setData({
+            sending: false,
+            message: devCode ? '开发环境验证码：' + devCode : '验证码已发送，请检查邮箱。',
+          });
           this.startCountdown();
-          if (res.data && res.data.devCode) {
-            this.setData({ devCode: res.data.devCode });
-          }
           return;
         }
-        wx.showModal({ title: '发送失败', content: api.errorMessage(res, '请稍后重试'), showCancel: false });
+        this.setData({ sending: false, message: api.errorMessage(res, '验证码发送失败') });
       })
       .catch(() => {
-        this.setData({ sending: false });
-        wx.showModal({ title: '发送失败', content: '网络错误，请稍后重试', showCancel: false });
+        this.setData({ sending: false, message: '网络错误，请稍后重试' });
       });
   },
 
@@ -127,12 +132,7 @@ Page({
       password,
     }).then((res) => {
       if (!(res.statusCode >= 200 && res.statusCode < 300) || !res.data || !res.data.token) {
-        this.setData({ busy: false });
-        wx.showModal({
-          title: '注册失败',
-          content: api.errorMessage(res, '注册失败（HTTP ' + res.statusCode + '）'),
-          showCancel: false,
-        });
+        this.setData({ busy: false, message: api.errorMessage(res, '注册失败（HTTP ' + res.statusCode + '）') });
         return;
       }
 
@@ -157,8 +157,7 @@ Page({
         this.finish('账号已注册，但微信绑定失败，请到「服务」页重试。');
       });
     }).catch(() => {
-      this.setData({ busy: false });
-      wx.showModal({ title: '注册失败', content: '网络错误，请稍后重试', showCancel: false });
+      this.setData({ busy: false, message: '网络错误，请稍后重试' });
     });
   },
 

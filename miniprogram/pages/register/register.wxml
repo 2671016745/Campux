@@ -1,5 +1,14 @@
+<!--
+  注册页 —— 结构对应 apps/web/src/features/auth/LoginScreen.tsx 的注册视图（单卡片）：
+    标题区 ← div.flex.items-start.justify-between.gap-3
+             （p.text-lg.font-semibold + p.mt-2.text-sm.leading-6 + 右侧 button.text-sm.font-semibold.text-blue-700）
+    表单   ← form.mt-4.grid.gap-3
+             （QQ 邮箱 / 邮箱验证码+获取验证码 / 账户名称 / 密码，至少 6 位）
+    提示   ← p.text-sm.font-medium.text-slate-600
+    提交   ← 小程序侧为「注册」与「注册并绑定微信」两个按钮（原版只有一个：注册并进入运营管理）
+    页脚   ← div.mt-5.border-t.border-slate-100.pt-3.text-center
+-->
 <view class="login-page">
-  <!-- 品牌区：与登录页同一套视觉 -->
   <view class="login-brand">
     <view class="login-brand-box">
       <image class="login-brand-img" src="{{logoUrl || '/assets/logo.png'}}" mode="aspectFit" />
@@ -8,61 +17,72 @@
   </view>
 
   <view class="surface login-card">
-    <text class="login-title">注册 Campux 账号</text>
-    <text class="login-sub">仅支持 QQ 邮箱注册；注册后可自助创建校园墙。</text>
-
-    <input
-      class="login-input"
-      placeholder="QQ 邮箱（如 123456@qq.com）"
-      placeholder-class="login-placeholder"
-      value="{{email}}"
-      bindinput="onEmailInput"
-    />
-
-    <view class="reg-code-row">
-      <input
-        class="login-input reg-code-input"
-        type="number"
-        maxlength="6"
-        placeholder="邮箱验证码"
-        placeholder-class="login-placeholder"
-        value="{{code}}"
-        bindinput="onCodeInput"
-      />
-      <view class="reg-code-btn {{countdown > 0 || sending ? 'reg-code-btn-off' : ''}}" bindtap="sendCode">
-        <text>{{countdown > 0 ? countdown + 's' : (sending ? '发送中…' : '发送验证码')}}</text>
+    <view class="reg-head">
+      <view class="reg-head-text">
+        <text class="login-title">注册运营管理员账号</text>
+        <text class="login-sub">这个入口只面向要创建并运营校园墙的运营者，注册后可自助开墙。普通用户请通过对应校园墙机器人注册。</text>
+      </view>
+      <view class="reg-back" bindtap="goBack">
+        <text>返回登录</text>
       </view>
     </view>
 
-    <input
-      class="login-input"
-      placeholder="显示名（投稿时对外展示）"
-      placeholder-class="login-placeholder"
-      value="{{displayName}}"
-      bindinput="onNameInput"
-    />
-    <input
-      class="login-input"
-      password
-      placeholder="密码（至少 6 位）"
-      placeholder-class="login-placeholder"
-      value="{{password}}"
-      bindinput="onPasswordInput"
-    />
+    <view class="reg-form">
+      <input
+        class="login-input"
+        placeholder="QQ 邮箱（如 123456@qq.com）"
+        placeholder-class="login-placeholder"
+        value="{{email}}"
+        bindinput="onEmailInput"
+      />
 
-    <view class="login-tip" wx:if="{{devCode}}">开发环境验证码：{{devCode}}</view>
-  </view>
+      <view class="reg-code-row">
+        <input
+          class="login-input reg-code-input"
+          type="number"
+          maxlength="6"
+          placeholder="邮箱验证码"
+          placeholder-class="login-placeholder"
+          value="{{code}}"
+          bindinput="onCodeInput"
+        />
+        <view class="reg-code-btn {{countdown > 0 || sending || !email ? 'reg-code-btn-off' : ''}}" bindtap="sendCode">
+          <text>{{countdown > 0 ? countdown + 's' : (sending ? '发送中' : '获取验证码')}}</text>
+        </view>
+      </view>
 
-  <!-- 底部两个按钮：注册 / 注册并绑定微信 -->
-  <view class="surface reg-actions">
-    <view class="postbtn reg-btn-main {{busy || !canSubmit ? 'postbtn-disabled' : ''}}" bindtap="onRegister">
-      <text>{{busy && !bindMode ? '注册中…' : '注册'}}</text>
+      <input
+        class="login-input"
+        placeholder="账户名称"
+        placeholder-class="login-placeholder"
+        value="{{displayName}}"
+        bindinput="onNameInput"
+      />
+      <input
+        class="login-input"
+        password
+        placeholder="密码，至少 6 位"
+        placeholder-class="login-placeholder"
+        value="{{password}}"
+        bindinput="onPasswordInput"
+      />
+
+      <text class="reg-message" wx:if="{{message}}">{{message}}</text>
     </view>
-    <view class="reg-bindbtn {{busy || !canSubmit ? 'reg-bindbtn-off' : ''}}" bindtap="onRegisterAndBind">
-      <image class="reg-wxicon" src="/assets/wechat.png" mode="aspectFit" />
-      <text>{{busy && bindMode ? '注册中…' : '注册并绑定微信'}}</text>
+
+    <!-- 提交：小程序端提供两个按钮 -->
+    <view class="reg-submit">
+      <view class="postbtn reg-btn-main {{busy || !canSubmit ? 'reg-btn-off' : ''}}" bindtap="onRegister">
+        <text>{{busy && !bindMode ? '注册中' : '注册'}}</text>
+      </view>
+      <view class="reg-bindbtn {{busy || !canSubmit ? 'reg-bindbtn-off' : ''}}" bindtap="onRegisterAndBind">
+        <image class="reg-wxicon" src="/assets/wechat.png" mode="aspectFit" />
+        <text>{{busy && bindMode ? '注册中' : '注册并绑定微信'}}</text>
+      </view>
+    </view>
+
+    <view class="login-card-footer">
+      <text class="login-card-footer-text">由 Campux 提供技术支持</text>
     </view>
   </view>
-
-  <text class="login-footer">由 Campux 提供技术支持</text>
 </view>
