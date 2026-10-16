@@ -1,6 +1,6 @@
 <app-header tenant-name="{{tenantName}}" logo-url="{{logoUrl}}" role-label="{{roleLabel}}"></app-header>
 
-<view class="screen">
+<view class="screen" wx:if="{{!loggedOut}}">
   <view class="list-head">
     <view class="list-title">你的稿件</view>
     <view class="list-actions">
@@ -104,5 +104,15 @@
       <view class="pager-btn {{page <= 1 ? 'pager-btn-disabled' : ''}}" bindtap="prevPage">上一页</view>
       <view class="pager-btn {{page >= pageCount ? 'pager-btn-disabled' : ''}}" bindtap="nextPage">下一页</view>
     </view>
+  </view>
+</view>
+
+<!-- 未登录（或 token 已失效）：不硬跳登录页，留在本页给一个入口 -->
+<view class="screen" wx:else>
+  <view class="list-empty">
+    <text class="muted">登录后才能查看自己的稿件。</text>
+  </view>
+  <view class="loggedout-btn">
+    <view class="postbtn" bindtap="goLogin"><text>去登录</text></view>
   </view>
 </view>

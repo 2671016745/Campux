@@ -17,6 +17,7 @@ Page({
     account: '',
     rules: [],
     wechatBound: false,
+    loggedOut: false,
   },
 
   onShow() {
@@ -25,12 +26,24 @@ Page({
       this.getTabBar().setSelected(2);
     }
     const app = getApp();
+    // 未登录不硬跳登录页：弹「去登录 / 随便看看」，页面显示未登录占位
     if (!app.globalData.token) {
-      wx.redirectTo({ url: '/pages/login/login' });
+      this.setData({ loggedOut: true });
+      app.promptLogin();
       return;
+    }
+    if (this.data.loggedOut) {
+      this.setData({ loggedOut: false });
     }
     this.applyIdentity();
     this.loadMetadata();
+  },
+
+  goLogin() {
+    wx.navigateTo({
+      url: '/pages/login/login',
+      fail: () => wx.redirectTo({ url: '/pages/login/login' }),
+    });
   },
 
   applyIdentity() {

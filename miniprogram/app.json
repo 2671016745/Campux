@@ -1,11 +1,11 @@
 {
   "pages": [
-    "pages/login/login",
-    "pages/register/register",
     "pages/post/post",
     "pages/posts/posts",
     "pages/services/services",
-    "pages/admin/admin"
+    "pages/admin/admin",
+    "pages/login/login",
+    "pages/register/register"
   ],
   "window": {
     "backgroundColor": "#f9fafb",

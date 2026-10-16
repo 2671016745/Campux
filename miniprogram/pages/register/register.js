@@ -20,12 +20,6 @@ Page({
     message: '',
   },
 
-  goBack() {
-    wx.navigateBack({
-      fail: () => wx.redirectTo({ url: '/pages/login/login' }),
-    });
-  },
-
   onLoad() {
     this.setData({ logoUrl: app.globalData.logoUrl || '' });
   },

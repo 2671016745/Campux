@@ -52,6 +52,7 @@ Page({
     total: 0,
     keyword: '',
     loading: false,
+    loggedOut: false,
   },
 
   onShow() {
@@ -60,9 +61,14 @@ Page({
       this.getTabBar().setSelected(1);
     }
     const app = getApp();
+    // 未登录不硬跳登录页：弹「去登录 / 随便看看」，页面显示未登录占位
     if (!app.globalData.token) {
-      wx.redirectTo({ url: '/pages/login/login' });
+      this.setData({ loggedOut: true, posts: [], total: 0, pageCount: 1 });
+      app.promptLogin();
       return;
+    }
+    if (this.data.loggedOut) {
+      this.setData({ loggedOut: false });
     }
     const tenant = app.globalData.currentTenant || {};
     this.setData({
@@ -71,6 +77,13 @@ Page({
       roleLabel: ROLE_LABELS[app.role] || '',
     });
     this.load(this.data.page);
+  },
+
+  goLogin() {
+    wx.navigateTo({
+      url: '/pages/login/login',
+      fail: () => wx.redirectTo({ url: '/pages/login/login' }),
+    });
   },
 
   onPullDownRefresh() {
@@ -107,7 +120,8 @@ Page({
     return api.request(path).then((res) => {
       if (res.statusCode === 401) {
         getApp().clearSession();
-        wx.redirectTo({ url: '/pages/login/login' });
+        this.setData({ loggedOut: true, posts: [], total: 0, pageCount: 1, loading: false });
+        getApp().promptLogin();
         return null;
       }
       const data = res.data || {};
@@ -177,7 +191,7 @@ Page({
     const id = event.currentTarget.dataset.id;
     const token = api.getToken();
     if (!token) {
-      wx.redirectTo({ url: '/pages/login/login' });
+      getApp().promptLogin({ force: true });
       return;
     }
     wx.showLoading({ title: '生成预览图…' });

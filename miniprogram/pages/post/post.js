@@ -37,11 +37,12 @@ Page({
       this.getTabBar().setSelected(0);
     }
     const app = getApp();
+    this.applyIdentity();
+    // 未登录也允许进来看看：由 app 统一弹「去登录 / 随便看看」，不再硬跳登录页
     if (!app.globalData.token) {
-      wx.redirectTo({ url: '/pages/login/login' });
+      app.promptLogin();
       return;
     }
-    this.applyIdentity();
     this.loadMetadata();
     this.checkWechatBinding();
   },
@@ -216,6 +217,11 @@ Page({
       return;
     }
     const app = getApp();
+    // 未登录（或 token 已失效）时不提交，先引导登录
+    if (!app.globalData.token) {
+      app.promptLogin({ force: true });
+      return;
+    }
     const fields = { text: text.trim(), anonymous: anonymous ? 'true' : 'false' };
     const files = imageUrls.map((filePath) => ({ fieldName: 'images', filePath }));
 

@@ -19,14 +19,6 @@
   margin-bottom: 0;
 }
 
-.reg-back {
-  flex-shrink: 0;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 20px;
-  color: #1447e6;
-}
-
 /* ── 表单：对应 form.mt-4.grid.gap-3 ── */
 .reg-form {
   margin-top: 16px;

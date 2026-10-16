@@ -16,6 +16,7 @@ Page({
     roleLabel: '',
     pendingCount: 0,
     consoleUrl: '',
+    loggedOut: false,
   },
 
   onShow() {
@@ -24,9 +25,14 @@ Page({
       this.getTabBar().setSelected(3);
     }
     const app = getApp();
+    // 未登录不硬跳登录页：弹「去登录 / 随便看看」，页面显示未登录占位
     if (!app.globalData.token) {
-      wx.redirectTo({ url: '/pages/login/login' });
+      this.setData({ loggedOut: true, pendingCount: 0 });
+      app.promptLogin();
       return;
+    }
+    if (this.data.loggedOut) {
+      this.setData({ loggedOut: false });
     }
     const tenant = app.globalData.currentTenant || {};
     this.setData({
@@ -48,6 +54,13 @@ Page({
       }
     }).catch(() => {
       // 网络错误时保持已有数据
+    });
+  },
+
+  goLogin() {
+    wx.navigateTo({
+      url: '/pages/login/login',
+      fail: () => wx.redirectTo({ url: '/pages/login/login' }),
     });
   },
 

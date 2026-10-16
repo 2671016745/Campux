@@ -66,6 +66,12 @@
   text-align: center;
 }
 
+/* 未登录占位里的「去登录」按钮：居中，宽度跟随内容 */
+.loggedout-btn {
+  display: flex;
+  justify-content: center;
+}
+
 /* 卡片：白底 + 1px 描边 + 8px 圆角 + 内距 10px（实测 grid gap-2 p-2.5） */
 .postcard {
   display: flex;
