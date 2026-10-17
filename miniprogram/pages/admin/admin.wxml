@@ -22,14 +22,6 @@
   <view class="section-title section-gap">审核与管理</view>
   <view class="section-sub">小程序端当前只覆盖投稿与稿件；审核、发布目标、统计等请在网页端完成。</view>
   <view class="surface rows">
-    <view class="row" bindtap="goPlugins">
-      <view class="row-text">
-        <view class="row-title">插件配置</view>
-        <view class="row-desc">启用或禁用墙上的插件功能</view>
-      </view>
-      <view class="row-chevron icon" style="background-image: url('{{icons.chevronDown.gray}}')"></view>
-    </view>
-    <view class="row-divider"></view>
     <view class="row" bindtap="copyConsoleUrl">
       <view class="row-text">
         <view class="row-title">复制管理端地址</view>
