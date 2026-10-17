@@ -18,7 +18,7 @@
     </view>
 
     <textarea
-      class="compose-textarea"
+      class="compose-textarea {{text ? 'is-filled' : 'is-empty'}}"
       placeholder="写下想投稿的内容，地点、时间、联系方式等信息尽量写清楚。"
       placeholder-class="compose-placeholder"
       maxlength="1000"

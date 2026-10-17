@@ -35,7 +35,8 @@
   color: #62748e;
 }
 
-/* 无边框、白底、16px/28px —— 与网页端 Textarea 一致 */
+/* 无边框、白底、16px/28px —— 与网页端 Textarea 一致（实测 font-size:16px / line-height:28px /
+   min-height:144px / padding:4px 0） */
 .compose-textarea {
   width: 100%;
   min-height: 144px;
@@ -48,8 +49,16 @@
   color: #0f172b;
 }
 
+/* 未输入时把行高压回字号：小程序原生 textarea 的光标是按行高画的，28px 行高会让空态的
+   闪烁光标比 16px 的字高一截（网页浏览器不会，所以原版没这个问题）。
+   一输入文字就切回 28px，正文行距与网页端完全一致；占位文字的行距由下面单独维持。 */
+.compose-textarea.is-empty {
+  line-height: 16px;
+}
+
 .compose-placeholder {
   color: #94a3b8;
+  line-height: 28px;
 }
 
 .attach-row {
