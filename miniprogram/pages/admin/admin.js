@@ -64,6 +64,11 @@ Page({
     });
   },
 
+  /** 插件配置（管理台子页） */
+  goPlugins() {
+    wx.navigateTo({ url: '/pages/plugins/plugins' });
+  },
+
   copyConsoleUrl() {
     wx.setClipboardData({
       data: this.data.consoleUrl,

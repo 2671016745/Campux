@@ -1,0 +1,179 @@
+/* 插件配置页 —— 数值取自网页端管理台「插件配置」的实测计算样式
+   实测来源：列表项 52px 高 / 内距 8px / 圆角 8px / 选中底色 #f1f5f9；
+             名称 14px/500/#0f172b；状态 12px/#90a1b9；开关 32×18、关 #d8dbdf、开 #007cdf */
+
+.screen {
+  padding: 16px 16px 96px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: #0f172b;
+}
+
+.section-sub {
+  margin-top: 4px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #62748e;
+}
+
+.btn-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-wide {
+  flex: 1;
+}
+
+/* ── 插件卡片 ────────────────────────────────────────────────────────── */
+.plugin-card {
+  padding: 12px;
+}
+
+.plugin-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plugin-head-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.plugin-head-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.plugin-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: #0f172b;
+}
+
+.plugin-count {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: #62748e;
+}
+
+/* 原版头部右侧是一个向下箭头（列表可折叠） */
+.plugin-head-chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transform: rotate(-90deg);
+}
+
+/* ── 插件列表 ────────────────────────────────────────────────────────── */
+.plugin-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.plugin-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+/* 选中态：与网页端一致（bg-slate-100） */
+.plugin-row-active {
+  background-color: #f1f5f9;
+}
+
+.plugin-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.plugin-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.plugin-name {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #0f172b;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.plugin-state {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: #90a1b9;
+}
+
+/* 已启用时显示插件的英文短名（tagline），颜色 slate-500 */
+.plugin-state-on {
+  color: #62748e;
+}
+
+/* ── 开关（iOS 胶囊，32×18，圆点 16）───────────────────────────────── */
+.plugin-switch {
+  width: 32px;
+  height: 18px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  padding: 1px;
+  border-radius: 999px;
+  background-color: #d8dbdf;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.plugin-switch-on {
+  background-color: #007cdf;
+}
+
+.plugin-switch-knob {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  transition: transform 0.2s ease;
+}
+
+.plugin-switch-on .plugin-switch-knob {
+  transform: translateX(14px);
+}
+
+.plugin-empty {
+  padding: 32px 0;
+  text-align: center;
+}
+
+.plugin-hint {
+  margin-top: 16px;
+}
+
+.plugin-hint-text {
+  font-size: 12px;
+  line-height: 18px;
+  color: #62748e;
+}

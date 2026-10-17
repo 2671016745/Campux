@@ -4,6 +4,7 @@
     "pages/posts/posts",
     "pages/services/services",
     "pages/admin/admin",
+    "pages/plugins/plugins",
     "pages/login/login",
     "pages/register/register"
   ],

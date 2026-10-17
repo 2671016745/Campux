@@ -1,0 +1,57 @@
+<!-- 插件配置：对齐网页端管理台的「插件配置 → 左栏插件卡片」
+     结构：卡片头部（图标 + 插件 + N 个插件 · M 个已启用）+ 插件列表（图标 + 名称 + 状态 + 开关）
+     开关行为与网页端一致：点一下即时生效（PATCH /api/admin/plugins/:name/status） -->
+<view class="screen">
+
+  <view class="surface plugin-card" wx:if="{{!loggedOut}}">
+    <view class="plugin-head">
+      <view class="plugin-head-icon icon" style="background-image: url('{{headIcon}}')"></view>
+      <view class="plugin-head-text">
+        <text class="plugin-title">插件</text>
+        <text class="plugin-count">{{plugins.length}} 个插件 · {{enabledCount}} 个已启用</text>
+      </view>
+      <view class="plugin-head-chevron icon" style="background-image: url('{{icons.chevronDown.gray}}')"></view>
+    </view>
+
+    <view class="plugin-list" wx:if="{{plugins.length}}">
+      <view
+        class="plugin-row {{selectedIndex === index ? 'plugin-row-active' : ''}}"
+        wx:for="{{plugins}}"
+        wx:key="name"
+        data-index="{{index}}"
+        bindtap="selectPlugin"
+      >
+        <view class="plugin-icon icon" style="background-image: url('{{item.icon}}'); opacity: {{item.enabled ? 1 : 0.5}}"></view>
+        <view class="plugin-text">
+          <text class="plugin-name">{{item.displayName}}</text>
+          <text class="plugin-state {{item.enabled ? 'plugin-state-on' : ''}}">{{item.enabled ? item.tagline : '已禁用'}}</text>
+        </view>
+        <view
+          class="plugin-switch {{item.enabled ? 'plugin-switch-on' : ''}}"
+          data-name="{{item.name}}"
+          data-enabled="{{item.enabled}}"
+          catchtap="togglePlugin"
+        >
+          <view class="plugin-switch-knob"></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="plugin-empty" wx:else>
+      <text class="muted">{{loading ? '正在加载…' : '没有可配置的插件。'}}</text>
+    </view>
+  </view>
+
+  <view class="plugin-hint" wx:if="{{!loggedOut}}">
+    <text class="plugin-hint-text">开关即时生效。各插件的配置项（如多彩投稿的色板、竞选的数值上限）请在网页端管理台的同一页面调整。</text>
+  </view>
+</view>
+
+<!-- 未登录（或 token 已失效） -->
+<view class="screen" wx:else>
+  <view class="section-title">需要先登录</view>
+  <view class="section-sub">插件配置需要管理员权限。</view>
+  <view class="btn-row">
+    <view class="postbtn btn-wide" bindtap="goLogin"><text>去登录</text></view>
+  </view>
+</view>
