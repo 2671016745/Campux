@@ -96,6 +96,8 @@ function uploadMultipart(path, fields, files, extraHeader) {
       method: 'POST',
       header: Object.assign({
         'content-type': 'multipart/form-data; boundary=' + boundary,
+        // 与 api.js 的 buildHeader 保持一致：服务端据此把投稿记为「小程序投稿」
+        'X-Campux-Client': 'miniprogram',
       }, extraHeader || {}),
       data: body.buffer,
       success: resolve,
