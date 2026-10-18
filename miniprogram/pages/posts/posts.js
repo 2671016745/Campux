@@ -32,7 +32,10 @@ const STATUS_TONES = {
   published: 'active',
 };
 
-const CANCELLABLE = ['pending_approval', 'publishing', 'failed', 'partially_failed'];
+// 与服务端一致：只有待审核稿件可以取消（其余状态要走「撤回」流程）。
+// 之前这里多了 publishing/failed/partially_failed，按钮会显示但接口 409，
+// 又因为缺 .catch 而没有任何提示 —— 表现就是「点了没反应」。
+const CANCELLABLE = ['pending_approval'];
 
 const CHANNEL_LABELS = {
   web: '网页投稿',
@@ -352,13 +355,12 @@ Page({
         if (!res.confirm) {
           return;
         }
-        api.cancelPost(id).then((resp) => {
-          if (resp.statusCode >= 200 && resp.statusCode < 300) {
-            wx.showToast({ title: '已取消', icon: 'success' });
-            this.load(this.data.page);
-            return;
-          }
-          wx.showModal({ title: '取消失败', content: api.errorMessage(resp, '请稍后重试'), showCancel: false });
+        api.cancelPost(id).then(() => {
+          wx.showToast({ title: '已取消', icon: 'success' });
+          this.load(this.data.page);
+        }).catch((err) => {
+          // 服务端对非待审核稿件回 409「只有待审核稿件可以取消」—— 原因要显示出来
+          wx.showModal({ title: '取消失败', content: api.errorMessage(err, '请稍后重试'), showCancel: false });
         });
       },
     });
