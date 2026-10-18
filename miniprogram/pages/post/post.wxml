@@ -17,7 +17,12 @@
       <view class="pill">{{textLength}}/1000</view>
     </view>
 
+    <!-- 弹层打开时不渲染原生 textarea：原生组件层级高于普通 view，
+         固定定位的弹层与它共存容易在真机上留下白块/遮罩残留（关闭后整页发白）。
+         用同尺寸的空 view 占位，布局不跳。 -->
+    <view class="compose-textarea compose-textarea-hold" wx:if="{{showBindSheet}}"></view>
     <textarea
+      wx:else
       class="compose-textarea {{text ? 'is-filled' : 'is-empty'}}"
       placeholder="写下想投稿的内容，地点、时间、联系方式等信息尽量写清楚。"
       placeholder-class="compose-placeholder"

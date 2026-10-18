@@ -55,6 +55,9 @@ Page({
     if (wx.getStorageSync('wechatBindNeverRemind')) {
       return;
     }
+    if (getApp().globalData.bindPrompted) {
+      return;   // 本次运行里已经问过了（点了「不要」）
+    }
     if (this.data.showBindSheet || this.data.bindBusy) {
       return;
     }
@@ -105,6 +108,9 @@ Page({
 
   /** 弹窗「不要」：本次跳过，下次登录仍会提示 */
   onBindLater() {
+    // 只在本次运行内不再打扰（下次启动还会问一次）；「不再提醒」才是持久化关闭。
+    // 之前这里什么都不记，导致每次 onShow 都重新弹，看起来像页面卡住/白屏。
+    getApp().globalData.bindPrompted = true;
     this.setData({ showBindSheet: false });
     wx.showToast({ title: '可随时在「服务」页绑定', icon: 'none' });
   },
@@ -112,6 +118,7 @@ Page({
   /** 弹窗「不再提醒」：写入本地标记，之后不再弹 */
   onBindNever() {
     wx.setStorageSync('wechatBindNeverRemind', true);
+    getApp().globalData.bindPrompted = true;
     this.setData({ showBindSheet: false });
     wx.showToast({ title: '已关闭提醒，可在「服务」页绑定', icon: 'none' });
   },

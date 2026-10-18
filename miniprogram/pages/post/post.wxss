@@ -61,6 +61,11 @@
   line-height: 28px;
 }
 
+/* 弹层打开时替 textarea 占位（尺寸与它一致，避免布局跳动） */
+.compose-textarea-hold {
+  display: block;
+}
+
 .attach-row {
   display: flex;
   flex-wrap: wrap;

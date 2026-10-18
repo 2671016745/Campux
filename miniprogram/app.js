@@ -27,6 +27,8 @@ App({
     user: null,
     currentTenant: null,
     currentMembership: null,
+    // 本次运行里是否已经问过「绑定微信」（点「不要」后置 true，冷启动重置）
+    bindPrompted: false,
     metadata: null,
     logoUrl: '',
     /** 最近一次未登录弹窗的时间戳，用于防抖 */
