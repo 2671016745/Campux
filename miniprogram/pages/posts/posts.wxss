@@ -32,6 +32,36 @@
   height: 14px;
 }
 
+/* 「我的稿件 / 待审核」分段控件（仅审核员及以上可见） */
+.seg {
+  display: flex;
+  gap: 2px;
+  margin-top: 12px;
+  padding: 3px;
+  background-color: #f1f5f9;
+  border-radius: 10px;
+}
+
+.seg-item {
+  flex: 1;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: #62748e;
+}
+
+.seg-item-active {
+  background-color: #ffffff;
+  color: #0f172b;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(15, 23, 43, 0.08);
+}
+
 .search-box {
   display: flex;
   align-items: center;
@@ -160,6 +190,25 @@
   line-height: 16px;
 }
 
+/* 审核模式：投稿人（与网页端 postcard 里的作者标签同形态） */
+.tag-author {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background-color: #f1f5f9;
+  border-radius: 8px;
+  color: #45556c;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.tag-author-qq {
+  font-weight: 400;
+  color: #62748e;
+}
+
 /* 标题行：14px/600 + 截断（实测 h3 line-clamp-1 text-sm font-semibold text-slate-950） */
 .postcard-title {
   margin-top: 6px;
@@ -198,6 +247,13 @@
 .action-danger {
   height: 32px;
   color: #c10007;
+}
+
+/* 审核通过：绿色（与「已通过」状态同色系） */
+.action-ok {
+  height: 32px;
+  color: #007a55;
+  font-weight: 600;
 }
 
 .action-icon {

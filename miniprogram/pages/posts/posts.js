@@ -55,6 +55,10 @@ Page({
     keyword: '',
     loading: false,
     loggedOut: false,
+    // 'mine' = 我的稿件；'review' = 待审核队列（reviewer 及以上才显示这个 tab）
+    mode: 'mine',
+    canReview: false,
+    reviewBusyId: '',
   },
 
   onShow() {
@@ -73,10 +77,14 @@ Page({
       this.setData({ loggedOut: false });
     }
     const tenant = app.globalData.currentTenant || {};
+    const canReview = (ROLE_RANK[app.role] || 0) >= (ROLE_RANK.reviewer || 3);
     this.setData({
       tenantName: tenant.name || '校园墙',
       logoUrl: tenant.logoUrl || '',
       roleLabel: ROLE_LABELS[app.role] || '',
+      canReview,
+      // 角色不够时退回「我的稿件」，避免停在一个无权访问的 tab 上
+      mode: canReview ? this.data.mode : 'mine',
     });
     this.load(this.data.page);
   },
@@ -112,23 +120,37 @@ Page({
     }
   },
 
+  /** 切换「我的稿件 / 待审核」 */
+  switchMode(event) {
+    const mode = event.currentTarget.dataset.mode;
+    if (!mode || mode === this.data.mode) {
+      return;
+    }
+    if (mode === 'review' && !this.data.canReview) {
+      return;
+    }
+    this.setData({ mode, page: 1, posts: [], total: 0, pageCount: 1 });
+    this.load(1);
+  },
+
   load(page) {
     this.setData({ loading: true });
+    const isReview = this.data.mode === 'review';
     const keyword = this.data.keyword.trim();
-    let path = '/api/posts/mine?page=' + page + '&limit=' + PAGE_SIZE;
-    if (keyword) {
-      path += '&q=' + encodeURIComponent(keyword);
-    }
-    return api.request(path).then((res) => {
-      if (res.statusCode === 401) {
-        getApp().clearSession();
-        this.setData({ loggedOut: true, posts: [], total: 0, pageCount: 1, loading: false });
-        getApp().promptLogin();
-        return null;
+    let req;
+    if (isReview) {
+      req = api.fetchReviewPosts(page, PAGE_SIZE);
+    } else {
+      let path = '/api/posts/mine?page=' + page + '&limit=' + PAGE_SIZE;
+      if (keyword) {
+        path += '&q=' + encodeURIComponent(keyword);
       }
+      req = api.request(path);
+    }
+    return req.then((res) => {
       const data = res.data || {};
       const pagination = data.pagination || {};
-      const posts = (data.posts || []).map((post) => this.toView(post));
+      const posts = (data.posts || []).map((post) => this.toView(post, isReview));
       this.setData({
         posts,
         loading: false,
@@ -138,15 +160,83 @@ Page({
       });
       this.resolveImages(posts);
       return null;
-    }).catch(() => {
+    }).catch((err) => {
       this.setData({ loading: false });
+      // 401 现在走 reject：这里统一清会话并引导登录
+      if (err && err.res && err.res.statusCode === 401) {
+        getApp().clearSession();
+        this.setData({ loggedOut: true, posts: [], total: 0, pageCount: 1 });
+        getApp().promptLogin();
+        return null;
+      }
+      if (err && err.res && err.res.statusCode === 403) {
+        wx.showToast({ title: '没有审核权限', icon: 'none' });
+        return null;
+      }
       wx.showToast({ title: '加载失败，请检查网络', icon: 'none' });
       return null;
     });
   },
 
+  /** 通过这条稿件 */
+  approveReview(event) {
+    const id = event.currentTarget.dataset.id;
+    if (!id || this.data.reviewBusyId) {
+      return;
+    }
+    wx.showModal({
+      title: '通过这条稿件？',
+      content: '通过后会进入发布流程。',
+      confirmText: '通过',
+      cancelText: '再看看',
+      success: (res) => {
+        if (!res.confirm) {
+          return;
+        }
+        this.setData({ reviewBusyId: id });
+        api.approveReviewPost(id, '').then(() => {
+          this.setData({ reviewBusyId: '' });
+          wx.showToast({ title: '已通过', icon: 'success' });
+          this.load(1);
+        }).catch((err) => {
+          this.setData({ reviewBusyId: '' });
+          wx.showModal({ title: '操作失败', content: api.errorMessage(err, '请稍后重试'), showCancel: false });
+        });
+      },
+    });
+  },
+
+  /** 拒绝这条稿件（可填理由） */
+  rejectReview(event) {
+    const id = event.currentTarget.dataset.id;
+    if (!id || this.data.reviewBusyId) {
+      return;
+    }
+    wx.showModal({
+      title: '拒绝这条稿件',
+      editable: true,
+      placeholderText: '拒绝理由（可选，会记进时间线）',
+      confirmText: '拒绝',
+      cancelText: '取消',
+      success: (res) => {
+        if (!res.confirm) {
+          return;
+        }
+        this.setData({ reviewBusyId: id });
+        api.rejectReviewPost(id, (res.content || '').trim()).then(() => {
+          this.setData({ reviewBusyId: '' });
+          wx.showToast({ title: '已拒绝', icon: 'none' });
+          this.load(1);
+        }).catch((err) => {
+          this.setData({ reviewBusyId: '' });
+          wx.showModal({ title: '操作失败', content: api.errorMessage(err, '请稍后重试'), showCancel: false });
+        });
+      },
+    });
+  },
+
   /** 与服务端 toPostListItem 的字段对齐（title 即截断后的正文）。 */
-  toView(post) {
+  toView(post, isReview) {
     const attachments = normalizeAttachments(post.attachments);
     return {
       id: post.id,
@@ -156,8 +246,11 @@ Page({
       anonymous: post.anonymous,
       statusLabel: STATUS_LABELS[post.status] || post.status,
       statusTone: STATUS_TONES[post.status] || 'neutral',
-      cancellable: CANCELLABLE.indexOf(post.status) >= 0,
+      // 审核队列里不能取消别人的稿件
+      cancellable: !isReview && CANCELLABLE.indexOf(post.status) >= 0,
       channelLabel: CHANNEL_LABELS[post.submissionChannel] || '',
+      author: post.author ? post.author.displayName || '' : '',
+      authorQq: post.author ? String(post.author.qqUin || '') : '',
       attachmentCount: attachments.length,
       imageUrls: attachments.map((a) => a.url),
       textLength: (post.text || '').length,

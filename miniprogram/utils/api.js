@@ -186,6 +186,31 @@ function cancelPost(id) {
   return request('/api/posts/' + id + '/cancel', { method: 'POST' });
 }
 
+// ─── 审核（审核员及以上）─────────────────────────────────────────────────
+/** 待审核队列。服务端只允许 reviewer+ 访问。 */
+function fetchReviewPosts(page, limit, status) {
+  return request(
+    '/api/review/posts?status=' + (status || 'pending_approval') +
+    '&page=' + (page || 1) + '&limit=' + (limit || 10),
+  );
+}
+
+/** 通过：comment 可选（会写进时间线） */
+function approveReviewPost(id, comment) {
+  return request('/api/review/posts/' + id + '/approve', {
+    method: 'POST',
+    data: { comment: comment || '' },
+  });
+}
+
+/** 拒绝：comment 即拒绝理由 */
+function rejectReviewPost(id, comment) {
+  return request('/api/review/posts/' + id + '/reject', {
+    method: 'POST',
+    data: { comment: comment || '' },
+  });
+}
+
 module.exports = {
   baseUrl,
   getToken,
@@ -202,4 +227,7 @@ module.exports = {
   fetchMetadata,
   fetchMyPosts,
   cancelPost,
+  fetchReviewPosts,
+  approveReviewPost,
+  rejectReviewPost,
 };
