@@ -81,14 +81,20 @@ Page({
     }
     // 冷启动时 user/tenant 可能还没落地（/api/me 在飞）：等校验完再渲染，
     // 否则页头会先显示「校园墙」这种空值，看起来像登录态坏了。
+    // 顺便用服务端确认一次审核权限（拉得动队列就显示「待审核」），
+    // 不再只靠 app.role 推断 —— 角色字符串一有偏差，审核入口就整块消失。
     const render = () => {
       const t = app.globalData.currentTenant || {};
+      const rank = ROLE_RANK[app.role] || 0;
+      const canReview = rank >= ROLE_RANK.reviewer || app.globalData.reviewAllowed === true;
+      // 排查用：截图这行就能看出角色判定对不对
+      console.log('[posts] role=' + app.role + ' reviewAllowed=' + app.globalData.reviewAllowed + ' canReview=' + canReview);
       this.setData({
         tenantName: t.name || '校园墙',
         logoUrl: t.logoUrl || '',
         roleLabel: ROLE_LABELS[app.role] || '',
-        canReview: (ROLE_RANK[app.role] || 0) >= (ROLE_RANK.reviewer || 3),
-        mode: (ROLE_RANK[app.role] || 0) >= (ROLE_RANK.reviewer || 3) ? this.data.mode : 'mine',
+        canReview,
+        mode: canReview ? this.data.mode : 'mine',
       });
     };
     app.checkSession({ prompt: true }).then((ok) => {
@@ -96,8 +102,24 @@ Page({
         this.setData({ loggedOut: true, posts: [], total: 0, pageCount: 1 });
         return;
       }
-      render();
-      this.load(this.data.page);
+      this.probeReviewPermission().then(() => {
+        render();
+        this.load(this.data.page);
+      });
+    });
+  },
+
+  /** 用服务端确认能不能审核（拉 1 条待审核队列），结果缓存在 globalData 里 */
+  probeReviewPermission() {
+    const app = getApp();
+    if (app.globalData.reviewAllowed === true || (ROLE_RANK[app.role] || 0) >= ROLE_RANK.reviewer) {
+      app.globalData.reviewAllowed = true;
+      return Promise.resolve();
+    }
+    return api.fetchReviewPosts(1, 1).then(() => {
+      app.globalData.reviewAllowed = true;
+    }).catch(() => {
+      app.globalData.reviewAllowed = false;
     });
   },
 

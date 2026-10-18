@@ -144,6 +144,7 @@ App({
     this.globalData.currentTenant = null;
     this.globalData.currentMembership = null;
     this.globalData.metadata = null;
+    this.globalData.reviewAllowed = undefined;   // 换账号后重新判定审核权限
     wx.removeStorageSync('token');
   },
 
