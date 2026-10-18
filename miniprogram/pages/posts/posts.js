@@ -8,6 +8,9 @@ const ROLE_LABELS = {
   admin: '管理员',
 };
 
+// 角色等级：与 custom-tab-bar/index.js 保持一致（审核相关入口按这个判权限）
+const ROLE_RANK = { submitter: 1, broadcaster: 2, reviewer: 3, admin: 4 };
+
 // 与网页端 app-model.ts 的 statusLabels 一致
 const STATUS_LABELS = {
   pending_approval: '待审核',
