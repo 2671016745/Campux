@@ -76,17 +76,26 @@ Page({
     if (this.data.loggedOut) {
       this.setData({ loggedOut: false });
     }
-    const tenant = app.globalData.currentTenant || {};
-    const canReview = (ROLE_RANK[app.role] || 0) >= (ROLE_RANK.reviewer || 3);
-    this.setData({
-      tenantName: tenant.name || '校园墙',
-      logoUrl: tenant.logoUrl || '',
-      roleLabel: ROLE_LABELS[app.role] || '',
-      canReview,
-      // 角色不够时退回「我的稿件」，避免停在一个无权访问的 tab 上
-      mode: canReview ? this.data.mode : 'mine',
+    // 冷启动时 user/tenant 可能还没落地（/api/me 在飞）：等校验完再渲染，
+    // 否则页头会先显示「校园墙」这种空值，看起来像登录态坏了。
+    const render = () => {
+      const t = app.globalData.currentTenant || {};
+      this.setData({
+        tenantName: t.name || '校园墙',
+        logoUrl: t.logoUrl || '',
+        roleLabel: ROLE_LABELS[app.role] || '',
+        canReview: (ROLE_RANK[app.role] || 0) >= (ROLE_RANK.reviewer || 3),
+        mode: (ROLE_RANK[app.role] || 0) >= (ROLE_RANK.reviewer || 3) ? this.data.mode : 'mine',
+      });
+    };
+    app.checkSession({ prompt: true }).then((ok) => {
+      if (!ok) {
+        this.setData({ loggedOut: true, posts: [], total: 0, pageCount: 1 });
+        return;
+      }
+      render();
+      this.load(this.data.page);
     });
-    this.load(this.data.page);
   },
 
   goLogin() {

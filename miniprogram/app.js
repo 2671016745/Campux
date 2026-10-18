@@ -77,8 +77,18 @@ App({
         this.promptLogin();
       }
       return false;
-    }).catch(() => {
-      // 网络异常不当作未登录：一次抖动不该把人弹去登录页
+    }).catch((err) => {
+      // 401/403 = token 已失效：必须清会话并引导登录。
+      // 只有网络层错误（没有 res）才按「已登录」处理，避免一次抖动把人踢出去。
+      // 之前这里不区分，导致失效 token 让 App 停在「已登录但没有任何数据」的半空状态。
+      const status = err && err.res && err.res.statusCode;
+      if (status === 401 || status === 403) {
+        this.clearSession();
+        if (opts.prompt) {
+          this.promptLogin();
+        }
+        return false;
+      }
       return Boolean(this.globalData.token);
     });
   },

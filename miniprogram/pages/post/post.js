@@ -37,14 +37,22 @@ Page({
       this.getTabBar().setSelected(0);
     }
     const app = getApp();
-    this.applyIdentity();
     // 未登录也允许进来看看：由 app 统一弹「去登录 / 随便看看」，不再硬跳登录页
     if (!app.globalData.token) {
+      this.applyIdentity();
       app.promptLogin();
       return;
     }
-    this.loadMetadata();
-    this.checkWechatBinding();
+    // 冷启动时 token 已从本地恢复，但 user/tenant 还没落地（/api/me 在飞）。
+    // 这里等校验完再渲染身份，否则页头会先显示「校园墙」这种空值。
+    app.checkSession({ prompt: true }).then((ok) => {
+      this.applyIdentity();
+      if (!ok) {
+        return;
+      }
+      this.loadMetadata();
+      this.checkWechatBinding();
+    });
   },
 
   /**

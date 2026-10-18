@@ -32,11 +32,20 @@ Page({
       app.promptLogin();
       return;
     }
-    if (this.data.loggedOut) {
-      this.setData({ loggedOut: false });
-    }
-    this.applyIdentity();
-    this.loadMetadata();
+    // token 存在 ≠ 有效（服务端可能已清掉）：先校验一次。
+    // checkSession 拿到 401/403 会清掉会话并返回 false，页面就回到未登录态，
+    // 不会出现「有按钮、但校园墙/身份/账号全空」的半空页面。
+    app.checkSession({ prompt: true }).then((ok) => {
+      if (!ok) {
+        this.setData({ loggedOut: true });
+        return;
+      }
+      if (this.data.loggedOut) {
+        this.setData({ loggedOut: false });
+      }
+      this.applyIdentity();
+      this.loadMetadata();
+    });
   },
 
   goLogin() {

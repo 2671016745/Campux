@@ -52,8 +52,13 @@ Page({
           pendingCount: fresh.pendingPostCount || 0,
         });
       }
-    }).catch(() => {
-      // 网络错误时保持已有数据
+    }).catch((err) => {
+      // 401/403 = token 失效：清会话并回未登录态；网络错误时保持已有数据
+      const status = err && err.res && err.res.statusCode;
+      if (status === 401 || status === 403) {
+        getApp().clearSession();
+        this.setData({ loggedOut: true });
+      }
     });
   },
 
