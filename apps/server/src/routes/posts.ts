@@ -1009,7 +1009,11 @@ export function registerPostRoutes(app: FastifyInstance, config: CampuxConfig, q
       }
 
       const initialStatus: "pending_approval" = "pending_approval";
-      const logComment = "投稿创建";
+      // 来源标记：小程序端每个请求都带 X-Campux-Client: miniprogram。
+      // 写进创建日志，读取时由 lib/posts.ts 的 inferSubmissionChannel 认成 miniprogram，
+      // 否则小程序投的稿会和网页投稿一样被标成「网页投稿」。
+      const fromMiniProgram = String(request.headers["x-campux-client"] ?? "") === "miniprogram";
+      const logComment = fromMiniProgram ? "投稿创建（小程序）" : "投稿创建";
       const parsedPendingTagNames = Array.isArray(pendingTagNames)
         ? [...new Set(pendingTagNames.filter((name): name is string => typeof name === "string" && name.trim().length > 0))].slice(0, MAX_PENDING_TAGS_PER_POST)
         : [];

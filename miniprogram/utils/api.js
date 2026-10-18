@@ -22,6 +22,8 @@ function getToken() {
 
 function buildHeader(extra) {
   const header = Object.assign({ 'content-type': 'application/json' }, extra || {});
+  // 标识请求来自小程序：服务端据此把投稿记为「小程序投稿」而不是「网页投稿」
+  header['X-Campux-Client'] = 'miniprogram';
   const token = getToken();
   if (token) {
     header.Authorization = 'Bearer ' + token;

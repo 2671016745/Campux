@@ -467,10 +467,10 @@ export function formatNewPostReviewNotification(
   qqUin: bigint | string,
   text: string,
   imageCount: number,
-  channel: "web" | "private" = "web",
+  channel: "web" | "private" | "miniprogram" = "web",
 ): string[] {
   const attachmentSummary = imageCount > 0 ? `图片：${imageCount} 张` : "图片：0 张";
-  const channelLabel = channel === "private" ? "对话投稿" : "网页投稿";
+  const channelLabel = channel === "private" ? "对话投稿" : channel === "miniprogram" ? "小程序投稿" : "网页投稿";
   const authorLine = anonymous
     ? `投稿人：匿名（QQ ${qqUin.toString()}）`
     : `投稿人：${authorDisplay}（QQ ${qqUin.toString()}）`;

@@ -54,7 +54,11 @@ export type PostQZoneMetric = {
  * - 日志 comment 包含 "私聊" → 对话投稿（bot 私聊）
  * - 否则 → 网页投稿
  */
-function inferSubmissionChannel(logs?: Array<{ comment: string }>): "private" | "web" {
+function inferSubmissionChannel(logs?: Array<{ comment: string }>): "private" | "web" | "miniprogram" {
+  // 小程序投稿：创建日志里带「小程序」标记（见 routes/posts.ts 的 logComment）
+  if (logs && logs.some((log) => log.comment.includes("小程序"))) {
+    return "miniprogram";
+  }
   if (logs && logs.some((log) => log.comment.includes("私聊"))) {
     return "private";
   }

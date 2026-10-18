@@ -2355,6 +2355,7 @@ function PostCard({
 const submissionChannelLabels: Record<string, { label: string; className: string }> = {
   web: { label: "网页投稿", className: "bg-sky-100 text-sky-700" },
   private: { label: "对话投稿", className: "bg-amber-100 text-amber-700" },
+  miniprogram: { label: "小程序投稿", className: "bg-emerald-100 text-emerald-700" },
 };
 
 function PostMetaHeader({

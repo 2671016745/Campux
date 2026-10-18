@@ -33,6 +33,8 @@ const CANCELLABLE = ['pending_approval', 'publishing', 'failed', 'partially_fail
 
 const CHANNEL_LABELS = {
   web: '网页投稿',
+  private: '对话投稿',
+  miniprogram: '小程序投稿',
   bot: '私聊投稿',
   onebot: '私聊投稿',
   qzone: '空间投稿',
