@@ -31,15 +31,27 @@ function buildHeader(extra) {
   return header;
 }
 
+// 请求超时：不设就会挂满默认 60s，网络差时「正在加载…」一直转
+const DEFAULT_TIMEOUT = 15000;
+
+// 这些路径的 401 是「凭据不对」（账号密码错），不是会话失效，不能触发全局登出
+const AUTH_PATHS = ['/api/auth/', '/api/wechat/'];
+
+function isAuthPath(path) {
+  return AUTH_PATHS.some((prefix) => path.indexOf(prefix) === 0);
+}
+
 function request(path, options) {
   const opts = options || {};
+  const header = buildHeader(opts.header);
   return new Promise((resolve, reject) => {
     wx.request({
       // 注册类接口服务端按 Host 判定「管理端域名」，故允许按调用点覆盖基地址
       url: (opts.baseUrl || baseUrl()) + path,
       method: opts.method || 'GET',
       data: opts.data || {},
-      header: buildHeader(opts.header),
+      header,
+      timeout: opts.timeout || DEFAULT_TIMEOUT,
       success: (res) => {
         // ⚠ wx.request 对 4xx/5xx 也走 success（只在断网时才走 fail）。
         // 不在这里分流的话，登录失败会一路走到「未获取到令牌」这类兜底文案，
@@ -47,6 +59,17 @@ function request(path, options) {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res);
           return;
+        }
+        // 会话失效：带着 token 仍被 401，说明服务端已不认这个会话。
+        // 统一在这里清会话 + 引导登录，各页面不用再各写一套（以前有的页面直接静默失败）。
+        if (res.statusCode === 401 && header.Authorization && !isAuthPath(path)) {
+          const app = getApp();
+          if (app && app.clearSession) {
+            app.clearSession();
+            if (app.promptLogin) {
+              app.promptLogin();
+            }
+          }
         }
         const message = errorMessage(res, '请求失败（HTTP ' + res.statusCode + '）');
         // 制造成 Error 抛给调用方的 catch；err.res 保留原始响应，errorMessage() 认得它
@@ -178,6 +201,11 @@ function fetchMetadata() {
   return request('/api/tenant/metadata');
 }
 
+/** 切换当前校园墙（多墙账号用）。返回体不含 token，调用方要合并进现有会话。 */
+function switchTenant(tenantId) {
+  return request('/api/session/tenant', { method: 'POST', data: { tenantId } });
+}
+
 function fetchMyPosts(page, limit) {
   return request('/api/posts/mine?page=' + (page || 1) + '&limit=' + (limit || 10));
 }
@@ -225,6 +253,7 @@ module.exports = {
   logout,
   fetchMe,
   fetchMetadata,
+  switchTenant,
   fetchMyPosts,
   cancelPost,
   fetchReviewPosts,

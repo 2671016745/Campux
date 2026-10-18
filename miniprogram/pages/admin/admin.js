@@ -1,4 +1,3 @@
-const api = require('../../utils/api.js');
 const icons = require('../../utils/icons.js');
 
 const ROLE_LABELS = {
@@ -31,33 +30,28 @@ Page({
       app.promptLogin();
       return;
     }
-    if (this.data.loggedOut) {
-      this.setData({ loggedOut: false });
-    }
-    const tenant = app.globalData.currentTenant || {};
-    this.setData({
-      tenantName: tenant.name || '校园墙',
-      logoUrl: tenant.logoUrl || '',
-      roleLabel: ROLE_LABELS[app.role] || '',
-      pendingCount: tenant.pendingPostCount || 0,
-      consoleUrl: app.globalData.baseUrl,
-    });
-    // 刷新一次待审核数（与网页端 tenant summary 同源）
-    api.fetchMe().then((res) => {
-      if (res.statusCode === 200 && res.data && res.data.authenticated) {
-        const fresh = res.data.currentTenant || {};
-        this.setData({
-          tenantName: fresh.name || this.data.tenantName,
-          logoUrl: fresh.logoUrl || this.data.logoUrl,
-          pendingCount: fresh.pendingPostCount || 0,
-        });
+    // 与其它 tab 页一致：等 /api/me 回来再渲染，避免冷启动先显示「校园墙」+ 0
+    app.checkSession({ prompt: true }).then((ok) => {
+      if (!ok) {
+        this.setData({ loggedOut: true, pendingCount: 0 });
+        return;
       }
-    }).catch((err) => {
-      // 401/403 = token 失效：清会话并回未登录态；网络错误时保持已有数据
-      const status = err && err.res && err.res.statusCode;
-      if (status === 401 || status === 403) {
-        getApp().clearSession();
-        this.setData({ loggedOut: true });
+      if (this.data.loggedOut) {
+        this.setData({ loggedOut: false });
+      }
+      const tenant = app.globalData.currentTenant || {};
+      this.setData({
+        tenantName: tenant.name || '校园墙',
+        logoUrl: tenant.logoUrl || '',
+        roleLabel: ROLE_LABELS[app.role] || '',
+        pendingCount: tenant.pendingPostCount || 0,
+        consoleUrl: app.globalData.baseUrl,
+      });
+      // 角色这时才落地，补刷一次 tabBar
+      const tabBar = typeof this.getTabBar === 'function' ? this.getTabBar() : null;
+      if (tabBar) {
+        tabBar.refresh();
+        tabBar.setSelected(3);
       }
     });
   },

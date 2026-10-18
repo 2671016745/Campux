@@ -1,6 +1,6 @@
 /* 「稿件」页 —— 数值取自网页端 /posts（你的稿件）卡片的实测计算样式 */
 .screen {
-  padding: 16px 16px 96px;
+  padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
 }
 
 .list-head {
@@ -330,6 +330,11 @@
   line-height: 20px;
   color: #13181e;
   word-break: break-word;
+  /* 与网页端 line-clamp-3 对齐：长稿在列表里只露 3 行，卡片不会被拉到很长 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
 }
 
 .postcard-images {

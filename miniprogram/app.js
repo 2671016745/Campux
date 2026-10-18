@@ -27,16 +27,21 @@ App({
     user: null,
     currentTenant: null,
     currentMembership: null,
+    memberships: [],
     // 本次运行里是否已经问过「绑定微信」（点「不要」后置 true，冷启动重置）
     bindPrompted: false,
     metadata: null,
     logoUrl: '',
+    /** 当前账号是否已绑定微信；undefined = 尚未确认 */
+    wechatBound: undefined,
     /** 最近一次未登录弹窗的时间戳，用于防抖 */
     loginPromptAt: 0,
   },
 
   onLaunch() {
     this.globalData.token = wx.getStorageSync('token') || '';
+    // 先用上次的会话快照把身份铺上，避免冷启动那几帧显示「校园墙 / 身份空白」
+    this.restoreSessionCache();
     // 冷启动先静默校验一次：token 还有效就刷新会话数据，已失效就清掉
     this.checkSession({ prompt: false });
   },
@@ -69,6 +74,10 @@ App({
         this.globalData.currentTenant = data.currentTenant || null;
         this.globalData.currentMembership = data.currentMembership || null;
         this.globalData.logoUrl = (data.currentTenant && data.currentTenant.logoUrl) || '';
+        this.globalData.memberships = data.memberships || [];
+        const providers = data.oauthProviders || [];
+        this.globalData.wechatBound = providers.indexOf('wechat_miniprogram') >= 0;
+        this.saveSessionCache();
         return true;
       }
       // authenticated=false（或 401/403）：这个 token 已经不能用了
@@ -89,8 +98,49 @@ App({
         }
         return false;
       }
+      // 网络层错误：会话没坏，只是这次没问到。用本地快照把身份补上，
+      // 否则页面会拿着空的 currentTenant 渲染出「校园墙 / 身份空白」那一屏。
+      this.restoreSessionCache();
       return Boolean(this.globalData.token);
     });
+  },
+
+  /** 会话快照：网络抖动 / 冷启动首帧用它兜底，避免身份区空白 */
+  saveSessionCache() {
+    try {
+      wx.setStorageSync('sessionCache', {
+        user: this.globalData.user,
+        currentTenant: this.globalData.currentTenant,
+        currentMembership: this.globalData.currentMembership,
+        memberships: this.globalData.memberships,
+        wechatBound: this.globalData.wechatBound,
+      });
+    } catch (e) {
+      // 存储失败不影响主流程
+    }
+  },
+
+  restoreSessionCache() {
+    let cached = null;
+    try {
+      cached = wx.getStorageSync('sessionCache');
+    } catch (e) {
+      cached = null;
+    }
+    if (!cached || !cached.user) {
+      return false;
+    }
+    this.globalData.user = cached.user;
+    this.globalData.currentTenant = cached.currentTenant || null;
+    this.globalData.currentMembership = cached.currentMembership || null;
+    this.globalData.logoUrl = (cached.currentTenant && cached.currentTenant.logoUrl) || '';
+    if (Array.isArray(cached.memberships)) {
+      this.globalData.memberships = cached.memberships;
+    }
+    if (typeof cached.wechatBound === 'boolean') {
+      this.globalData.wechatBound = cached.wechatBound;
+    }
+    return true;
   },
 
   /**
@@ -133,9 +183,14 @@ App({
     this.globalData.currentTenant = payload.currentTenant || null;
     this.globalData.currentMembership = payload.currentMembership || null;
     this.globalData.logoUrl = (payload.currentTenant && payload.currentTenant.logoUrl) || '';
+    this.globalData.memberships = payload.memberships || [];
+    // 登录接口不返回 oauthProviders，绑定状态等下一次 /api/me 确认
+    this.globalData.wechatBound = undefined;
+    this.globalData.bindPrompted = false;
     if (payload.token) {
       wx.setStorageSync('token', payload.token);
     }
+    this.saveSessionCache();
   },
 
   clearSession() {
@@ -144,8 +199,14 @@ App({
     this.globalData.currentTenant = null;
     this.globalData.currentMembership = null;
     this.globalData.metadata = null;
+    this.globalData.memberships = [];
+    this.globalData.logoUrl = '';          // 否则换账号后登录页还挂着上一个墙的 logo
+    this.globalData.bindPrompted = false;  // 换账号后要重新走一次绑定引导
+    this.globalData.wechatBound = undefined;
     this.globalData.reviewAllowed = undefined;   // 换账号后重新判定审核权限
+    this.globalData.reviewProbedAt = 0;
     wx.removeStorageSync('token');
+    wx.removeStorageSync('sessionCache');
   },
 
   get role() {

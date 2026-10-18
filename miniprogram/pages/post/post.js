@@ -50,37 +50,41 @@ Page({
       if (!ok) {
         return;
       }
+      // 角色这时才落地，补刷一次 tabBar（否则管理员冷启动少「管理」入口）
+      const tabBar = typeof this.getTabBar === 'function' ? this.getTabBar() : null;
+      if (tabBar) {
+        tabBar.refresh();
+        tabBar.setSelected(0);
+      }
       this.loadMetadata();
       this.checkWechatBinding();
     });
   },
 
   /**
-   * 登录后自动检测微信是否已绑定：
-   * 未绑定且用户没选过「不再提醒」时，弹出询问（确定绑定 / 不要 / 不再提醒）。
+   * 登录后自动检测微信是否已绑定：未绑定且用户没选过「不再提醒」时弹出询问。
+   * 绑定状态由 app.checkSession 里的 /api/me 一并取回（globalData.wechatBound），
+   * 这里不再单独请求一次。
    */
   checkWechatBinding() {
     if (wx.getStorageSync('wechatBindNeverRemind')) {
       return;
     }
-    if (getApp().globalData.bindPrompted) {
+    const app = getApp();
+    if (app.globalData.bindPrompted) {
       return;   // 本次运行里已经问过了（点了「不要」）
     }
     if (this.data.showBindSheet || this.data.bindBusy) {
       return;
     }
-    api.fetchMe().then((res) => {
-      if (res.statusCode !== 200 || !res.data || !res.data.authenticated) {
-        return;
-      }
-      const providers = res.data.oauthProviders || [];
-      if (providers.indexOf('wechat_miniprogram') >= 0) {
-        return;
-      }
-      this.setData({ showBindSheet: true });
-    }).catch(() => {
-      // 网络异常时不打扰登录后的正常使用
-    });
+    const bound = app.globalData.wechatBound;
+    if (bound === undefined) {
+      return;   // 状态还没确认，等下次 onShow
+    }
+    if (bound) {
+      return;
+    }
+    this.setData({ showBindSheet: true });
   },
 
   /** 弹窗「确定绑定」：拿当前微信身份绑到本账号 */
@@ -106,9 +110,11 @@ Page({
     }).catch((err) => {
       wx.hideLoading();
       this.setData({ bindBusy: false });
+      // 绑定失败（含用户取消微信授权）：本次运行内不再反复弹，避免每次切回都打扰
+      getApp().globalData.bindPrompted = true;
       wx.showModal({
         title: '绑定失败',
-        content: (err && err.message) || '网络错误，请稍后重试',
+        content: api.errorMessage(err, '网络错误，请稍后重试'),
         showCancel: false,
       });
     });
@@ -228,7 +234,12 @@ Page({
 
   submitPost() {
     const { text, imageUrls, anonymous, submitting, canSubmit } = this.data;
-    if (submitting || !canSubmit) {
+    if (submitting) {
+      return;
+    }
+    if (!canSubmit) {
+      // 按钮看起来是禁用样式，但点击仍会触发事件：不给提示就是「点了没反应」
+      wx.showToast({ title: '先写点内容再提交', icon: 'none' });
       return;
     }
     const app = getApp();
@@ -258,9 +269,11 @@ Page({
       });
     }).catch((err) => {
       this.setData({ submitting: false });
+      // 4xx 由 uploadMultipart 原样 resolve，走到这里通常是网络/超时；
+      // 服务端真给了原因就用它，别再一律「网络错误」
       wx.showModal({
         title: '投稿未提交',
-        content: (err && err.errMsg) || '网络错误，请稍后重试',
+        content: api.errorMessage(err, '') || (err && err.errMsg) || '网络错误，请稍后重试',
         showCancel: false,
       });
     });

@@ -7,6 +7,10 @@
  * 以 ArrayBuffer 形式发送。
  */
 
+// 微信请求体上限约 10MB：留一点余量，超限时给明确提示，而不是让请求莫名失败
+const MAX_TOTAL_BYTES = 9 * 1024 * 1024;
+const MAX_FILE_BYTES = 8 * 1024 * 1024;
+
 function randomBoundary() {
   return '----CampuxMiniProgram' + Math.random().toString(16).slice(2) + Date.now().toString(16);
 }
@@ -44,8 +48,29 @@ function guessContentType(filePath) {
 }
 
 function baseName(filePath) {
-  const parts = String(filePath || '').split('/');
+  // 兼容 Windows 开发者工具给的带反斜杠路径
+  const parts = String(filePath || '').split(/[\\/]/);
   return parts[parts.length - 1] || 'upload.jpg';
+}
+
+/** 只取大小，不读内容（一次读 9 张大图会把内存和主线程拖死） */
+function statSize(filePath) {
+  try {
+    const stat = wx.getFileSystemManager().statSync(filePath);
+    return (stat && stat.size) || 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+function readFileAsync(filePath) {
+  return new Promise((resolve, reject) => {
+    wx.getFileSystemManager().readFile({
+      filePath,
+      success: (res) => resolve(res.data),
+      fail: (err) => reject(new Error('读取图片失败：' + ((err && err.errMsg) || '未知错误'))),
+    });
+  });
 }
 
 /**
@@ -56,6 +81,23 @@ function baseName(filePath) {
  * @param {object} extraHeader 额外请求头（Authorization 由调用方给）
  */
 function uploadMultipart(path, fields, files, extraHeader) {
+  const list = files || [];
+
+  // 体积预检：单张 8MB、整包 9MB。超限直接 reject，由页面显示人话
+  let total = 0;
+  for (const file of list) {
+    const size = statSize(file.filePath);
+    if (size > MAX_FILE_BYTES) {
+      return Promise.reject(new Error('单张图片不能超过 8MB，请换一张或先压缩'));
+    }
+    total += size;
+  }
+  if (total > MAX_TOTAL_BYTES) {
+    return Promise.reject(new Error('图片总大小超过 9MB，请减少图片数量或压缩后再传'));
+  }
+
+  // 异步读取所有文件再组包：readFileSync 在 9 张大图时会明显卡住界面
+  return Promise.all(list.map((file) => readFileAsync(file.filePath))).then((buffers) => {
   const boundary = randomBoundary();
   const chunks = [];
 
@@ -71,19 +113,17 @@ function uploadMultipart(path, fields, files, extraHeader) {
     ));
   });
 
-  (files || []).forEach((file) => {
+  list.forEach((file, index) => {
     const filePath = file.filePath;
     const name = baseName(filePath);
     const contentType = guessContentType(filePath);
-    // 同步读文件：投稿图片通常几百 KB，可接受。
-    const buffer = wx.getFileSystemManager().readFileSync(filePath);
     chunks.push(stringToUint8Array(
       '--' + boundary + '\r\n' +
       'Content-Disposition: form-data; name="' + (file.fieldName || 'images') +
       '"; filename="' + name + '"\r\n' +
       'Content-Type: ' + contentType + '\r\n\r\n'
     ));
-    chunks.push(new Uint8Array(buffer));
+    chunks.push(new Uint8Array(buffers[index]));
     chunks.push(stringToUint8Array('\r\n'));
   });
 
@@ -100,9 +140,11 @@ function uploadMultipart(path, fields, files, extraHeader) {
         'X-Campux-Client': 'miniprogram',
       }, extraHeader || {}),
       data: body.buffer,
+      timeout: 60000,   // 上传比普通请求慢，单独放宽
       success: resolve,
       fail: reject,
     });
+  });
   });
 }
 

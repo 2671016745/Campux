@@ -51,7 +51,9 @@ Component({
       }
       let width = 375;
       try {
-        width = wx.getSystemInfoSync().windowWidth || 375;
+        // getSystemInfoSync 已废弃，优先用 getWindowInfo
+        const info = typeof wx.getWindowInfo === 'function' ? wx.getWindowInfo() : wx.getSystemInfoSync();
+        width = (info && info.windowWidth) || 375;
       } catch (e) {
         width = 375;
       }

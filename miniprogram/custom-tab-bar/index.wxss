@@ -5,10 +5,11 @@
   right: 0;
   bottom: 0;
   z-index: 40;
-  height: 64px;
+  /* 64px 是设计高度，再加 iPhone 底部安全区，否则文字被 home indicator 压住 */
+  height: calc(64px + env(safe-area-inset-bottom));
   width: 100%;
   box-sizing: border-box;
-  padding: 6px 12px 8px;
+  padding: 6px 12px calc(8px + env(safe-area-inset-bottom));
   background-color: #ffffff;
   border-top: 1px solid #e2e8f0;
 }

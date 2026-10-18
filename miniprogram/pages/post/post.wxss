@@ -1,6 +1,6 @@
 /* 「投稿」页 —— 数值取自网页端 /post 的实测计算样式 */
 .screen {
-  padding: 16px 16px 96px;
+  padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
 }
 
 .compose {

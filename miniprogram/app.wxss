@@ -165,5 +165,5 @@ page {
 
 /* 页面滚动容器（网页端：px-4 py-4 pb-24） */
 .screen {
-  padding: 16px 16px 96px;
+  padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
 }

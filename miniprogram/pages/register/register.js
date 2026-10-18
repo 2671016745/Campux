@@ -73,19 +73,16 @@ Page({
     this.setData({ sending: true, message: '' });
     api.requestRegisterCode(email)
       .then((res) => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          const devCode = res.data && res.data.devCode;
-          this.setData({
-            sending: false,
-            message: devCode ? '开发环境验证码：' + devCode : '验证码已发送，请检查邮箱。',
-          });
-          this.startCountdown();
-          return;
-        }
-        this.setData({ sending: false, message: api.errorMessage(res, '验证码发送失败') });
+        const devCode = res.data && res.data.devCode;
+        this.setData({
+          sending: false,
+          message: devCode ? '开发环境验证码：' + devCode : '验证码已发送，请检查邮箱。',
+        });
+        this.startCountdown();
       })
-      .catch(() => {
-        this.setData({ sending: false, message: '网络错误，请稍后重试' });
+      .catch((err) => {
+        // 服务端原因（邮箱已注册、发送太频繁等）原样显示
+        this.setData({ sending: false, message: api.errorMessage(err, '验证码发送失败') });
       });
   },
 
@@ -125,8 +122,8 @@ Page({
       displayName: displayName.trim(),
       password,
     }).then((res) => {
-      if (!(res.statusCode >= 200 && res.statusCode < 300) || !res.data || !res.data.token) {
-        this.setData({ busy: false, message: api.errorMessage(res, '注册失败（HTTP ' + res.statusCode + '）') });
+      if (!res.data || !res.data.token) {
+        this.setData({ busy: false, message: '注册失败：服务端未返回登录态' });
         return;
       }
 
@@ -141,17 +138,18 @@ Page({
 
       api.bindWechatToSession().then((bindRes) => {
         this.setData({ busy: false });
-        if (bindRes.statusCode >= 200 && bindRes.statusCode < 300) {
+        if (bindRes && bindRes.data) {
           this.finish('微信已同时绑定。');
           return;
         }
-        this.finish('账号已注册，但微信绑定失败：' + api.errorMessage(bindRes, '请到「服务」页重试') + '。');
-      }).catch(() => {
+        this.finish('账号已注册，但微信绑定未完成，请到「服务」页重试。');
+      }).catch((err) => {
         this.setData({ busy: false });
-        this.finish('账号已注册，但微信绑定失败，请到「服务」页重试。');
+        this.finish('账号已注册，但微信绑定失败：' + api.errorMessage(err, '请到「服务」页重试') + '。');
       });
-    }).catch(() => {
-      this.setData({ busy: false, message: '网络错误，请稍后重试' });
+    }).catch((err) => {
+      // 验证码错误 / 邮箱被占用等，把服务端原因显示出来
+      this.setData({ busy: false, message: api.errorMessage(err, '注册失败，请稍后重试') });
     });
   },
 

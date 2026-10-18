@@ -5,6 +5,14 @@
   <view class="section-sub">管理你在当前校园墙里的基本账号信息。</view>
 
   <view class="surface rows">
+    <view class="row" wx:if="{{tenants.length > 1}}" bindtap="switchTenant">
+      <view class="row-text">
+        <view class="row-title">切换校园墙</view>
+        <view class="row-desc">你有 {{tenants.length}} 个校园墙</view>
+      </view>
+      <text class="row-value">{{tenantName}}</text>
+    </view>
+    <view class="row-divider" wx:if="{{tenants.length > 1}}"></view>
     <view class="row" bindtap="renameAccount">
       <view class="row-text">
         <view class="row-title">修改名称</view>

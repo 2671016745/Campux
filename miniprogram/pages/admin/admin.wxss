@@ -1,6 +1,6 @@
 /* 「管理」页 —— 沿用 Campux 的信息面 + 行式列表 */
 .screen {
-  padding: 16px 16px 96px;
+  padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
 }
 
 .section-title {

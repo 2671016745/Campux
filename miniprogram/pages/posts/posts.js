@@ -48,6 +48,9 @@ const CHANNEL_LABELS = {
 
 const PAGE_SIZE = 10;
 
+// 审核权限探测结果的缓存时长：普通用户不必每次进页面都白打一次 403
+const REVIEW_PROBE_TTL = 5 * 60 * 1000;
+
 Page({
   data: {
     icons,
@@ -90,8 +93,6 @@ Page({
       const t = app.globalData.currentTenant || {};
       const rank = ROLE_RANK[app.role] || 0;
       const canReview = rank >= ROLE_RANK.reviewer || app.globalData.reviewAllowed === true;
-      // 排查用：截图这行就能看出角色判定对不对
-      console.log('[posts] role=' + app.role + ' reviewAllowed=' + app.globalData.reviewAllowed + ' canReview=' + canReview);
       this.setData({
         tenantName: t.name || '校园墙',
         logoUrl: t.logoUrl || '',
@@ -107,6 +108,13 @@ Page({
       }
       this.probeReviewPermission().then(() => {
         render();
+        // 角色这时才落地：tabBar 在 onShow 开头刷新时可能还按 submitter 渲染，
+        // 管理员会少一个「管理」入口，这里补一次
+        const tabBar = typeof this.getTabBar === 'function' ? this.getTabBar() : null;
+        if (tabBar) {
+          tabBar.refresh();
+          tabBar.setSelected(1);
+        }
         this.load(this.data.page);
       });
     });
@@ -115,14 +123,21 @@ Page({
   /** 用服务端确认能不能审核（拉 1 条待审核队列），结果缓存在 globalData 里 */
   probeReviewPermission() {
     const app = getApp();
-    if (app.globalData.reviewAllowed === true || (ROLE_RANK[app.role] || 0) >= ROLE_RANK.reviewer) {
+    if ((ROLE_RANK[app.role] || 0) >= ROLE_RANK.reviewer) {
       app.globalData.reviewAllowed = true;
+      return Promise.resolve();
+    }
+    // true / false 都缓存：以前只缓存 true，普通用户每次切到本页都会再打一次 403
+    const probedAt = app.globalData.reviewProbedAt || 0;
+    if (typeof app.globalData.reviewAllowed === 'boolean' && Date.now() - probedAt < REVIEW_PROBE_TTL) {
       return Promise.resolve();
     }
     return api.fetchReviewPosts(1, 1).then(() => {
       app.globalData.reviewAllowed = true;
+      app.globalData.reviewProbedAt = Date.now();
     }).catch(() => {
       app.globalData.reviewAllowed = false;
+      app.globalData.reviewProbedAt = Date.now();
     });
   },
 
@@ -172,6 +187,10 @@ Page({
 
   load(page) {
     this.setData({ loading: true });
+    // 请求序号：快速切「我的稿件 / 待审核」或连点翻页时，
+    // 先发后到的慢响应不许覆盖当前视图（否则会出现 tab 与列表对不上）
+    this._loadSeq = (this._loadSeq || 0) + 1;
+    const seq = this._loadSeq;
     const isReview = this.data.mode === 'review';
     const keyword = this.data.keyword.trim();
     let req;
@@ -185,6 +204,9 @@ Page({
       req = api.request(path);
     }
     return req.then((res) => {
+      if (seq !== this._loadSeq) {
+        return null;   // 已经有更新的请求了，丢弃这次结果
+      }
       const data = res.data || {};
       const pagination = data.pagination || {};
       const posts = (data.posts || []).map((post) => this.toView(post, isReview));
@@ -198,19 +220,24 @@ Page({
       this.resolveImages(posts);
       return null;
     }).catch((err) => {
+      if (seq !== this._loadSeq) {
+        return null;
+      }
       this.setData({ loading: false });
-      // 401 现在走 reject：这里统一清会话并引导登录
-      if (err && err.res && err.res.statusCode === 401) {
-        getApp().clearSession();
+      const status = err && err.res && err.res.statusCode;
+      // 401 现在也走 reject（api 层已统一清会话），这里只把页面切到未登录态
+      if (status === 401) {
         this.setData({ loggedOut: true, posts: [], total: 0, pageCount: 1 });
-        getApp().promptLogin();
         return null;
       }
-      if (err && err.res && err.res.statusCode === 403) {
+      if (status === 403 && isReview) {
+        // 权限不够：退回「我的稿件」，别让人停在空的待审核页
         wx.showToast({ title: '没有审核权限', icon: 'none' });
+        this.setData({ canReview: false, mode: 'mine' });
+        this.load(1);
         return null;
       }
-      wx.showToast({ title: '加载失败，请检查网络', icon: 'none' });
+      wx.showToast({ title: api.errorMessage(err, '加载失败，请检查网络'), icon: 'none' });
       return null;
     });
   },
@@ -297,14 +324,25 @@ Page({
 
   /** 附件是鉴权相对路径，<image src> 带不了 header，先下到本地临时文件再渲染。 */
   resolveImages(posts) {
-    posts.forEach((post, postIndex) => {
-      post.imageUrls.forEach((url, imageIndex) => {
+    posts.forEach((post) => {
+      (post.imageUrls || []).forEach((url, imageIndex) => {
         downloadImage(url).then((localPath) => {
-          if (localPath) {
-            this.setData({
-              ['posts[' + postIndex + '].imageUrls[' + imageIndex + ']']: localPath,
-            });
+          if (!localPath) {
+            return;
           }
+          // 下载是异步的：期间列表可能已经翻页 / 切 tab 被替换，
+          // 不能再用闭包里的下标写回（会写到别的稿件卡片上），按 id 重新定位。
+          const list = this.data.posts || [];
+          const postIndex = list.findIndex((item) => item.id === post.id);
+          if (postIndex < 0) {
+            return;
+          }
+          if (list[postIndex].imageUrls[imageIndex] !== url) {
+            return;   // 这一格已经换图了
+          }
+          this.setData({
+            ['posts[' + postIndex + '].imageUrls[' + imageIndex + ']']: localPath,
+          });
         });
       });
     });
