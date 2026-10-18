@@ -98,6 +98,7 @@ Page({
       wx.hideLoading();
       this.setData({ bindBusy: false });
       if (res.statusCode >= 200 && res.statusCode < 300) {
+        getApp().markWechatBound(true);   // 否则切页回来「绑定微信」弹窗会再弹一次
         wx.showModal({
           title: '微信已绑定',
           content: '以后可以直接用微信一键登录，不用再输账号密码。也可以在「服务」页解绑。',

@@ -36,6 +36,9 @@ App({
     wechatBound: undefined,
     /** 最近一次未登录弹窗的时间戳，用于防抖 */
     loginPromptAt: 0,
+    /** 选墙弹窗状态：防重复弹（busy=面板在屏上，done=本次运行已处理过） */
+    tenantPromptBusy: false,
+    tenantPromptDone: false,
   },
 
   onLaunch() {
@@ -78,6 +81,10 @@ App({
         const providers = data.oauthProviders || [];
         this.globalData.wechatBound = providers.indexOf('wechat_miniprogram') >= 0;
         this.saveSessionCache();
+        // 没有当前墙（多墙/系统运维账号）：引导选墙，否则投稿与元数据全是空的
+        if (!this.globalData.currentTenant) {
+          this.promptTenantSelection();
+        }
         return true;
       }
       // authenticated=false（或 401/403）：这个 token 已经不能用了
@@ -193,6 +200,81 @@ App({
     this.saveSessionCache();
   },
 
+  /** 绑定/解绑后同步微信绑定状态：否则切页回来 globalData 还是旧值，
+   *  「登录后自动绑定」弹窗会再弹一次（看起来像绑定没生效）。 */
+  markWechatBound(bound) {
+    this.globalData.wechatBound = bound;
+    this.saveSessionCache();
+  },
+
+  /**
+   * 没有当前校园墙时引导选墙。
+   * 触发场景：多墙/系统运维账号登录后 currentTenant=null（服务端 needsTenantSelection），
+   * 此时 /api/tenant/metadata 与 POST /api/posts 都没有 tenant 上下文 → 投稿页完全不可用，
+   * 而小程序之前对这个字段完全无感，用户只会看到「没反应」。
+   */
+  promptTenantSelection() {
+    if (this.globalData.tenantPromptBusy || this.globalData.tenantPromptDone) {
+      return;
+    }
+    const memberships = (this.globalData.memberships || []).filter((m) => m.tenant && m.tenant.id);
+    if (!memberships.length) {
+      this.globalData.tenantPromptDone = true;
+      wx.showModal({
+        title: '请先选择校园墙',
+        content: '当前账号还没有选定校园墙，暂时无法投稿。请先在网页端选择或创建校园墙，再回来使用小程序。',
+        showCancel: false,
+        confirmText: '知道了',
+      });
+      return;
+    }
+    this.globalData.tenantPromptBusy = true;
+    wx.showActionSheet({
+      itemList: memberships.map((m) => m.tenant.name),
+      success: (res) => {
+        const target = memberships[res.tapIndex];
+        if (!target || !target.tenant) {
+          this.globalData.tenantPromptBusy = false;
+          this.globalData.tenantPromptDone = true;
+          return;
+        }
+        this.switchTenantNow(target.tenant.id);
+      },
+      fail: () => {
+        // 用户取消：本次运行不再反复弹，但下一次冷启动还会给机会
+        this.globalData.tenantPromptBusy = false;
+        this.globalData.tenantPromptDone = true;
+      },
+    });
+  },
+
+  /** 切换当前校园墙并刷新会话数据（换墙接口不返回 token） */
+  switchTenantNow(tenantId) {
+    return api.switchTenant(tenantId).then((resp) => {
+      const data = (resp && resp.data) || {};
+      this.globalData.currentTenant = data.currentTenant || null;
+      this.globalData.currentMembership = data.currentMembership || null;
+      this.globalData.logoUrl = (data.currentTenant && data.currentTenant.logoUrl) || '';
+      this.globalData.reviewAllowed = undefined;
+      this.globalData.reviewProbedAt = 0;
+      this.globalData.tenantPromptBusy = false;
+      this.globalData.tenantPromptDone = true;
+      this.saveSessionCache();
+      // 让当前页立即按新墙重新渲染（元数据/稿件都是按墙查的）
+      const pages = getCurrentPages();
+      const current = pages[pages.length - 1];
+      if (current && typeof current.onShow === 'function') {
+        current.onShow();
+      }
+      return true;
+    }).catch((err) => {
+      this.globalData.tenantPromptBusy = false;
+      wx.hideLoading();
+      wx.showModal({ title: '切换校园墙失败', content: api.errorMessage(err, '请稍后重试'), showCancel: false });
+      return false;
+    });
+  },
+
   clearSession() {
     this.globalData.token = '';
     this.globalData.user = null;
@@ -205,6 +287,8 @@ App({
     this.globalData.wechatBound = undefined;
     this.globalData.reviewAllowed = undefined;   // 换账号后重新判定审核权限
     this.globalData.reviewProbedAt = 0;
+    this.globalData.tenantPromptBusy = false;    // 换账号后要重新给一次选墙机会
+    this.globalData.tenantPromptDone = false;
     wx.removeStorageSync('token');
     wx.removeStorageSync('sessionCache');
   },

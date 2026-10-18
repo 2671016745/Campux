@@ -207,6 +207,7 @@ Page({
       wx.hideLoading();
       if (res.statusCode >= 200 && res.statusCode < 300) {
         wx.showToast({ title: '微信已绑定', icon: 'success' });
+        getApp().markWechatBound(true);
         this.setData({ wechatBound: true });
         return;
       }
@@ -232,9 +233,7 @@ Page({
         api.request('/api/wechat/unbind', { method: 'POST' }).then(() => {
           // 服务端解绑只删微信身份（OAuthIdentity），不动当前会话 ——
           // 所以这里不再清会话踢人重登，只把绑定状态改掉
-          const app2 = getApp();
-          app2.globalData.wechatBound = false;
-          app2.saveSessionCache();
+          getApp().markWechatBound(false);
           this.setData({ wechatBound: false });
           wx.showToast({ title: '已解绑', icon: 'success' });
         }).catch((err) => {

@@ -110,7 +110,12 @@ Page({
 
   /** bindMode = true 时，注册成功后再把当前微信绑到新账号上。 */
   submit(bindMode) {
-    if (this.data.busy || !this.data.canSubmit) {
+    if (this.data.busy) {
+      return;
+    }
+    if (!this.data.canSubmit) {
+      // 两个按钮都是 opacity-50 的可点外观，不提示就是「点了没反应」
+      wx.showToast({ title: '请把表单填完整（密码至少 6 位）', icon: 'none' });
       return;
     }
     const { email, code, displayName, password } = this.data;
