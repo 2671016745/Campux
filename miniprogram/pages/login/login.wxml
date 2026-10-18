@@ -33,6 +33,9 @@
       bindinput="onPasswordInput"
     />
 
+    <!-- 服务端真实失败原因（如「账号或密码错误」）；网页端是 p.mt-3.text-sm.font-medium.text-red-600 -->
+    <text class="login-message" wx:if="{{message}}">{{message}}</text>
+
     <view class="postbtn login-btn {{loginBusy ? 'postbtn-disabled' : ''}}" bindtap="onPasswordLogin">
       <text>{{loginBusy ? '登录中' : '登录'}}</text>
     </view>

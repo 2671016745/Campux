@@ -38,15 +38,32 @@ function request(path, options) {
       method: opts.method || 'GET',
       data: opts.data || {},
       header: buildHeader(opts.header),
-      success: resolve,
+      success: (res) => {
+        // ⚠ wx.request 对 4xx/5xx 也走 success（只在断网时才走 fail）。
+        // 不在这里分流的话，登录失败会一路走到「未获取到令牌」这类兜底文案，
+        // 把服务端真实原因（如「账号或密码错误」）丢掉 —— 用户看到的就是「登不上去」+ 一句看不懂的话。
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(res);
+          return;
+        }
+        const message = errorMessage(res, '请求失败（HTTP ' + res.statusCode + '）');
+        // 制造成 Error 抛给调用方的 catch；err.res 保留原始响应，errorMessage() 认得它
+        const err = new Error(message);
+        err.res = res;
+        reject(err);
+      },
       fail: reject,
     });
   });
 }
 
-function errorMessage(res, fallback) {
+function errorMessage(resOrErr, fallback) {
+  const res = resOrErr && resOrErr.res ? resOrErr.res : resOrErr;
   if (res && res.data && res.data.message) {
     return res.data.message;
+  }
+  if (resOrErr && resOrErr.message && !(resOrErr.res && resOrErr.res.data)) {
+    return resOrErr.message;   // 网络层错误（如「request:fail」）
   }
   return fallback || '请求失败';
 }

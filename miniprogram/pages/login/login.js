@@ -69,7 +69,7 @@ Page({
       return;
     }
 
-    this.setData({ loginBusy: true });
+    this.setData({ loginBusy: true, message: '' });
 
     if (unbound) {
       // 未绑定微信：走 bind 接口（绑定 + 登录）
@@ -83,8 +83,8 @@ Page({
         this.onLoginSuccess(res.data);
       })
       .catch((err) => {
-        this.setData({ loginBusy: false });
-        wx.showToast({ title: errorMessage(err, '登录失败'), icon: 'none' });
+        // 失败原因来自服务端（如「账号或密码错误」），原样显示，别再落到「未获取到令牌」
+        this.setData({ loginBusy: false, message: errorMessage(err, '登录失败') });
       });
   },
 
@@ -109,7 +109,8 @@ Page({
   /** 登录成功：保存会话并跳转 */
   onLoginSuccess(data) {
     if (!data || !data.token) {
-      wx.showToast({ title: '登录失败：未获取到令牌', icon: 'none' });
+      // 非 2xx 已在 api.request 里转成 catch，能走到这说明服务端 200 却没给登录态
+      this.setData({ message: '登录失败：服务端未返回登录态，请稍后重试' });
       return;
     }
     app.setSession(data);

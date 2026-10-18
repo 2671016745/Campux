@@ -43,6 +43,11 @@
 .tabbar-icon {
   width: 20px;
   height: 20px;
+  /* 组件默认样式隔离，app.wxss 里的 .icon 不会进到组件内 —— 这里必须自己写全，
+     否则 background-size 退回 auto，24×24 的 SVG 塞进 20×20 的框会被裁掉右下角。 */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
 }
 
 .tabbar-label {
