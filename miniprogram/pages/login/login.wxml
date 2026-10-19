@@ -40,6 +40,11 @@
       <text>{{loginBusy ? '登录中' : '登录'}}</text>
     </view>
 
+    <!-- 忘记密码入口 -->
+    <view class="login-forgot" bindtap="goForgotPassword">
+      <text>忘记密码？</text>
+    </view>
+
     <view class="login-tip" wx:if="{{unbound}}">
       该微信还没绑定校园墙账号：填好上面的账号密码，点「登录」即可同时完成登录和绑定。
     </view>

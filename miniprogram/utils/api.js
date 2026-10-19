@@ -332,12 +332,14 @@ function unbanUser(recordId) {
 }
 
 // ─── 管理：墙面设置 ─────────────────────────────────────────────────────
-function fetchAdminTenantMetadata() {
-  return request('/api/admin/tenant/metadata');
+// 当前值从公开接口 /api/tenant/metadata 获取（服务端没有 admin GET）
+function fetchTenantSettings() {
+  return request('/api/tenant/metadata');
 }
 
-function updateAdminTenantMetadata(patch) {
-  return request('/api/admin/tenant/metadata', { method: 'PUT', data: patch });
+// 保存墙面设置。服务端只有 PATCH /api/admin/tenant/metadata（metadata.ts:400）
+function updateTenantSettings(patch) {
+  return request('/api/admin/tenant/metadata', { method: 'PATCH', data: patch });
 }
 
 // ─── 管理：机器人（Bot 模式）───────────────────────────────────────────
@@ -409,8 +411,8 @@ module.exports = {
   fetchBanRecords,
   banUser,
   unbanUser,
-  fetchAdminTenantMetadata,
-  updateAdminTenantMetadata,
+  fetchTenantSettings,
+  updateTenantSettings,
   fetchBots,
   createBot,
   updateBot,

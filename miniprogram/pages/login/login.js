@@ -106,6 +106,11 @@ Page({
     wx.navigateTo({ url: '/pages/register/register' });
   },
 
+  /** 跳转忘记密码页 */
+  goForgotPassword() {
+    wx.navigateTo({ url: '/pages/forgot-password/forgot-password' });
+  },
+
   /** 登录成功：保存会话并跳转 */
   onLoginSuccess(data) {
     if (!data || !data.token) {
@@ -114,6 +119,12 @@ Page({
       return;
     }
     app.setSession(data);
+    // 服务端要求强制改密（如首次登录、管理员重置密码后）：跳转修改密码页
+    if (data.user && data.user.passwordChangeRequired) {
+      app.globalData.forcePasswordChange = true;
+      wx.reLaunch({ url: '/pages/change-password/change-password' });
+      return;
+    }
     wx.reLaunch({ url: '/pages/post/post' });
   },
 });

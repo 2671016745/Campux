@@ -1,0 +1,528 @@
+/* 「统计」页 —— 视觉语言照现有页面（posts/services/admin）的实测值；
+   卡片规范：白底 + 12rpx 圆角 + padding 24rpx + margin-bottom 20rpx。 */
+
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 8rpx;
+}
+
+.page-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  line-height: 48rpx;
+  color: #020618;
+}
+
+.stats-meta {
+  margin-bottom: 16rpx;
+  font-size: 24rpx;
+  line-height: 36rpx;
+}
+
+/* ── 按钮（主色 #1447e6） ─────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 64rpx;
+  padding: 0 28rpx;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 36rpx;
+}
+
+.btn-primary {
+  background-color: #1447e6;
+  color: #ffffff;
+}
+
+.btn-ghost {
+  background-color: #ffffff;
+  border: 2rpx solid #1447e6;
+  color: #1447e6;
+}
+
+/* ── 天数分段控件（照 posts.wxss 的 seg 转 rpx） ─────────────────── */
+.seg {
+  display: flex;
+  gap: 4rpx;
+  margin-bottom: 20rpx;
+  padding: 6rpx;
+  background-color: #f1f5f9;
+  border-radius: 16rpx;
+}
+
+.seg-item {
+  flex: 1;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 36rpx;
+  color: #62748e;
+}
+
+.seg-item-active {
+  background-color: #ffffff;
+  color: #0f172b;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(15, 23, 43, 0.08);
+}
+
+/* ── 卡片 ─────────────────────────────────────────────────────────── */
+.stat-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.card-gap {
+  height: 16rpx;
+}
+
+/* ── 核心指标（2×2 网格） ─────────────────────────────────────────── */
+.metric-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.metric-card {
+  box-sizing: border-box;
+  width: calc(50% - 10rpx);
+  padding: 24rpx;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.metric-label {
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 36rpx;
+}
+
+.metric-value {
+  margin-top: 8rpx;
+  font-size: 44rpx;
+  font-weight: 900;
+  line-height: 56rpx;
+  color: #020618;
+}
+
+.metric-sub {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  line-height: 32rpx;
+}
+
+/* ── 状态网格 / 小事实卡 ─────────────────────────────────────────── */
+.status-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.status-grid-tight {
+  margin-bottom: 4rpx;
+}
+
+.status-cell {
+  box-sizing: border-box;
+  width: calc(50% - 10rpx);
+  padding: 16rpx 20rpx;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.status-label {
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 36rpx;
+}
+
+.status-value {
+  margin-top: 4rpx;
+  font-size: 36rpx;
+  font-weight: 900;
+  line-height: 48rpx;
+  color: #020618;
+}
+
+.fact-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.fact-card {
+  box-sizing: border-box;
+  width: calc(50% - 10rpx);
+  padding: 16rpx 20rpx;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.fact-label {
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 36rpx;
+}
+
+.fact-value {
+  margin-top: 4rpx;
+  font-size: 36rpx;
+  font-weight: 900;
+  line-height: 48rpx;
+  color: #020618;
+}
+
+.fact-detail {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  line-height: 32rpx;
+}
+
+/* ── 走势图（scroll-view 横滚柱子） ───────────────────────────────── */
+.chart-block {
+  margin-top: 20rpx;
+}
+
+.chart-block:first-child {
+  margin-top: 0;
+}
+
+.chart-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 40rpx;
+  color: #0f172b;
+}
+
+.chart-desc {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  line-height: 32rpx;
+}
+
+.chart-scroll {
+  width: 100%;
+  margin-top: 12rpx;
+  white-space: nowrap;
+}
+
+.chart-row {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 6rpx;
+  height: 180rpx;
+  padding: 0 4rpx;
+}
+
+.chart-row-hourly {
+  height: 140rpx;
+}
+
+.chart-col {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4rpx;
+}
+
+.chart-bar {
+  width: 14rpx;
+  border-radius: 4rpx 4rpx 0 0;
+}
+
+.chart-bar-new {
+  background-color: #93c5fd;
+}
+
+.chart-bar-passed {
+  background-color: #86efac;
+}
+
+.chart-bar-total {
+  background-color: #c4b5fd;
+}
+
+.chart-bar-visit {
+  background-color: #7dd3fc;
+}
+
+.chart-bar-friend {
+  background-color: #5eead4;
+}
+
+.chart-label {
+  margin-top: 6rpx;
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24rpx;
+  margin-top: 10rpx;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #62748e;
+}
+
+.legend-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+}
+
+.legend-dot-new {
+  background-color: #93c5fd;
+}
+
+.legend-dot-passed {
+  background-color: #86efac;
+}
+
+.legend-dot-total {
+  background-color: #c4b5fd;
+}
+
+.legend-dot-visit {
+  background-color: #7dd3fc;
+}
+
+.legend-dot-friend {
+  background-color: #5eead4;
+}
+
+/* ── 高频投稿账号 ─────────────────────────────────────────────────── */
+.author-card {
+  padding: 16rpx;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.author-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.author-text {
+  min-width: 0;
+}
+
+.author-name {
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 40rpx;
+  color: #13181e;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.author-meta {
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 32rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.author-count {
+  flex-shrink: 0;
+  font-size: 26rpx;
+  font-weight: 900;
+  color: #314158;
+}
+
+/* ── 折叠区块 ─────────────────────────────────────────────────────── */
+.fold-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.fold-indicator {
+  flex-shrink: 0;
+  padding: 4rpx 16rpx;
+  background-color: #ffffff;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #62748e;
+}
+
+.fold-body {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ── 明细卡（机器人 / 发布目标 / 发布失败） ──────────────────────── */
+.detail-card {
+  padding: 16rpx 20rpx;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.detail-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 40rpx;
+  color: #020618;
+}
+
+.detail-sub {
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 32rpx;
+}
+
+.detail-time {
+  flex-shrink: 0;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.detail-text {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 38rpx;
+  color: #13181e;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.detail-error {
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #c10007;
+}
+
+.detail-lines {
+  margin-top: 8rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 32rpx;
+}
+
+/* 徽标（badge 基底在 app.wxss，这里给启用/停用配色） */
+.badge-on {
+  background-color: #f0fdf4;
+  color: #15803d;
+}
+
+.badge-off {
+  background-color: #e5e8ec;
+  color: #22272e;
+}
+
+/* ── 条形行（高频投稿 / 管理操作） ────────────────────────────────── */
+.bar-row {
+  margin-bottom: 16rpx;
+}
+
+.bar-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 6rpx;
+}
+
+.bar-row-label {
+  min-width: 0;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #45556c;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bar-row-value {
+  flex-shrink: 0;
+  font-size: 22rpx;
+}
+
+.bar-track {
+  height: 12rpx;
+  background-color: #f1f5f9;
+  border-radius: 999rpx;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background-color: #1447e6;
+  border-radius: 999rpx;
+}
+
+/* ── 空态 / 未登录占位 ────────────────────────────────────────────── */
+.list-empty {
+  padding: 32rpx 0;
+  text-align: center;
+}
+
+.loggedout-btn {
+  display: flex;
+  justify-content: center;
+}

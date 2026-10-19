@@ -1,4 +1,4 @@
-const { fetchAdminTenantMetadata, updateAdminTenantMetadata, fetchMetadata } = require('../../utils/api.js');
+const { fetchTenantSettings, updateTenantSettings } = require('../../utils/api.js');
 
 const ROLE_LABELS = {
   submitter: '用户',
@@ -68,15 +68,9 @@ Page({
   async loadMetadata() {
     this.setData({ loading: true });
     try {
-      let data = {};
-      try {
-        const res = await fetchAdminTenantMetadata();
-        data = (res && res.data) || {};
-      } catch (err) {
-        // 管理端 GET 接口缺失时回退到公开 metadata 接口
-        const res = await fetchMetadata();
-        data = (res && res.data) || {};
-      }
+      // 公开接口 /api/tenant/metadata 已包含 name/themeColor/各开关
+      const res = await fetchTenantSettings();
+      const data = (res && res.data) || {};
 
       const app = getApp();
       const tenant = (app && app.globalData && app.globalData.currentTenant) || {};
@@ -170,7 +164,7 @@ Page({
 
     this.setData({ saving: true });
     try {
-      await updateAdminTenantMetadata(patch);
+      await updateTenantSettings(patch);
       wx.showToast({ title: '墙面设置已保存', icon: 'success' });
       await this.loadMetadata();
     } catch (err) {

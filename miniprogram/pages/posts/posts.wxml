@@ -42,7 +42,7 @@
   </view>
 
   <!-- 卡片结构与网页端一致：标签行(编号/展示/渠道/附件) + 标题 + 操作区(预览图/取消/状态) + 浅灰内容块(元信息+正文) -->
-  <view class="postcard" wx:for="{{posts}}" wx:key="id">
+  <view class="postcard" wx:for="{{posts}}" wx:key="id" data-id="{{item.id}}" bindtap="openPostDetail">
     <view class="postcard-top">
       <view class="postcard-main">
         <view class="postcard-tags">

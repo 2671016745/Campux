@@ -312,20 +312,18 @@ Page({
       ? qzoneTargets.map((target) => ({
         title: rangeLabel + target.displayName,
         desc: '每日访客与累计总访客（' + target.bot.displayName + ' / QQ ' + target.bot.qqUin + '）',
-        daily: (target.daily || []).map((day) => ({
-          label: formatDay(day.date),
-          today: num(day.todayCount),
-          total: num(day.totalCount),
-        })),
+        daily: toBars((target.daily || []), (day) => [
+          { v: num(day.todayCount) },
+          { v: num(day.totalCount) },
+        ], (day) => formatDay(day.date)),
       }))
       : [{
         title: rangeLabel + 'QZone 访客',
         desc: rangeLabel + '每日访客与累计总访客（来自 cookies 检测接口）',
-        daily: (qzoneVisitors.daily || []).map((day) => ({
-          label: formatDay(day.date),
-          today: num(day.todayCount),
-          total: num(day.totalCount),
-        })),
+        daily: toBars(qzoneVisitors.daily || [], (day) => [
+          { v: num(day.todayCount) },
+          { v: num(day.totalCount) },
+        ], (day) => formatDay(day.date)),
       }];
 
     // ── 走势：机器人好友量 ──────────────────────────────────────────
@@ -335,12 +333,12 @@ Page({
       ? friendBots.map((bot) => ({
         title: rangeLabel + bot.bot.displayName + '好友量',
         desc: '每日好友总量（' + bot.bot.displayName + ' / QQ ' + bot.bot.qqUin + '），每天自动采集',
-        daily: (bot.daily || []).map((day) => ({ label: formatDay(day.date), count: num(day.friendCount) })),
+        daily: toBars(bot.daily || [], (day) => [{ v: num(day.friendCount) }], (day) => formatDay(day.date)),
       }))
       : [{
         title: rangeLabel + '好友总量',
         desc: rangeLabel + '每日好友总量，每天自动采集',
-        daily: (botFriends.daily || []).map((day) => ({ label: formatDay(day.date), count: num(day.friendCount) })),
+        daily: toBars(botFriends.daily || [], (day) => [{ v: num(day.friendCount) }], (day) => formatDay(day.date)),
       }];
 
     // ── 时段分布（24 小时）──────────────────────────────────────────
@@ -447,6 +445,22 @@ Page({
 function num(value) {
   const n = Number(value);
   return isNaN(n) ? 0 : n;
+}
+
+/**
+ * 把每日序列转成柱子视图：{ label, bars: [{v, h}] }
+ * h 为占最大值的百分比高度（最小 2rpx，保证 0 值也能看见一条细线）
+ */
+function toBars(list, pick, labelOf) {
+  const values = (list || []).flatMap((day) => pick(day).map((item) => num(item.v)));
+  const max = Math.max(1, ...values);
+  return (list || []).map((day) => ({
+    label: labelOf(day),
+    bars: pick(day).map((item) => ({
+      v: num(item.v),
+      h: Math.max(2, Math.round(num(item.v) / max * 120)),
+    })),
+  }));
 }
 
 function formatPercent(value) {

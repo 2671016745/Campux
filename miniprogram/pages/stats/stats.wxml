@@ -1,0 +1,316 @@
+<!-- 「统计」页：仅审核员及以上可见。区块照 apps/web StatsPage.tsx，视觉照现有卡片语言 -->
+<view class="screen" wx:if="{{loggedOut}}">
+  <view class="list-empty">
+    <text class="muted">登录后才能查看统计数据。</text>
+  </view>
+  <view class="loggedout-btn">
+    <view class="postbtn" bindtap="goLogin"><text>去登录</text></view>
+  </view>
+</view>
+
+<view class="screen" wx:elif="{{!canView}}">
+  <view class="list-empty">
+    <text class="muted">没有权限</text>
+  </view>
+  <view class="list-empty">
+    <text class="muted">仅审核员及以上可查看统计数据。</text>
+  </view>
+</view>
+
+<view class="screen" wx:else>
+  <view class="page-head">
+    <text class="page-title">统计</text>
+    <view class="btn btn-ghost" bindtap="refresh">刷新</view>
+  </view>
+  <view class="stats-meta muted">{{rangeLabel}} · 更新于 {{generatedAtText || '--'}}</view>
+
+  <!-- 天数切换（7/14/30/90，与网页端一致） -->
+  <view class="seg">
+    <view
+      class="seg-item {{days === 7 ? 'seg-item-active' : ''}}"
+      data-days="7"
+      bindtap="setRange"
+    ><text>7 天</text></view>
+    <view
+      class="seg-item {{days === 14 ? 'seg-item-active' : ''}}"
+      data-days="14"
+      bindtap="setRange"
+    ><text>14 天</text></view>
+    <view
+      class="seg-item {{days === 30 ? 'seg-item-active' : ''}}"
+      data-days="30"
+      bindtap="setRange"
+    ><text>30 天</text></view>
+    <view
+      class="seg-item {{days === 90 ? 'seg-item-active' : ''}}"
+      data-days="90"
+      bindtap="setRange"
+    ><text>90 天</text></view>
+  </view>
+
+  <!-- 4 个核心指标 -->
+  <view class="metric-grid">
+    <view class="metric-card" wx:for="{{metrics}}" wx:key="label">
+      <view class="metric-label muted">{{item.label}}</view>
+      <view class="metric-value">{{item.value}}</view>
+      <view class="metric-sub muted">{{item.sub}}</view>
+    </view>
+  </view>
+
+  <!-- 稿件概览 -->
+  <view class="stat-card">
+    <view class="page-title">稿件概览 · {{rangeLabel}}</view>
+    <view class="card-gap"></view>
+    <view class="status-grid" wx:if="{{statusGrid.length > 0}}">
+      <view class="status-cell" wx:for="{{statusGrid}}" wx:key="label">
+        <view class="status-label muted">{{item.label}}</view>
+        <view class="status-value">{{item.value}}</view>
+      </view>
+    </view>
+    <view class="list-empty" wx:else>
+      <text class="muted">暂无状态数据</text>
+    </view>
+    <view class="card-gap"></view>
+    <view class="fact-grid">
+      <view class="fact-card" wx:for="{{smallFacts}}" wx:key="label">
+        <view class="fact-label muted">{{item.label}}</view>
+        <view class="fact-value">{{item.value}}</view>
+        <view class="fact-detail muted">{{item.detail}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 走势：每日稿件 / 用户 / 访客 / 好友量（横滚柱状，原生无内联 SVG） -->
+  <view class="stat-card">
+    <view class="page-title">稿件、用户与访客走势</view>
+
+    <view class="chart-block">
+      <view class="chart-title">{{rangeLabel}}稿件数量</view>
+      <view class="chart-desc muted">{{rangeLabel}每日新增稿件、已通过稿件与通过率}</view>
+      <scroll-view class="chart-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="chart-row">
+          <view class="chart-col" wx:for="{{dailyPosts}}" wx:key="label">
+            <view class="chart-bars">
+              <view class="chart-bar chart-bar-new" style="height: {{item.barNew}}rpx"></view>
+              <view class="chart-bar chart-bar-passed" style="height: {{item.barPassed}}rpx"></view>
+            </view>
+            <view class="chart-label muted">{{item.label}}</view>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="chart-legend">
+        <view class="legend-item"><view class="legend-dot legend-dot-new"></view><text>新增稿件</text></view>
+        <view class="legend-item"><view class="legend-dot legend-dot-passed"></view><text>已通过</text></view>
+      </view>
+    </view>
+
+    <view class="chart-block">
+      <view class="chart-title">{{rangeLabel}}用户数量</view>
+      <view class="chart-desc muted">{{rangeLabel}累计成员与每日新增用户</view>
+      <scroll-view class="chart-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="chart-row">
+          <view class="chart-col" wx:for="{{dailyUsers}}" wx:key="label">
+            <view class="chart-bars">
+              <view class="chart-bar chart-bar-total" style="height: {{item.barTotal}}rpx"></view>
+              <view class="chart-bar chart-bar-passed" style="height: {{item.barNew}}rpx"></view>
+            </view>
+            <view class="chart-label muted">{{item.label}}</view>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="chart-legend">
+        <view class="legend-item"><view class="legend-dot legend-dot-total"></view><text>累计用户</text></view>
+        <view class="legend-item"><view class="legend-dot legend-dot-passed"></view><text>新增用户</text></view>
+      </view>
+    </view>
+
+    <block wx:for="{{qzoneCharts}}" wx:key="title">
+      <view class="chart-block">
+        <view class="chart-title">{{item.title}}</view>
+        <view class="chart-desc muted">{{item.desc}}</view>
+        <scroll-view class="chart-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+          <view class="chart-row">
+            <view class="chart-col" wx:for="{{item.daily}}" wx:for-item="day" wx:key="label">
+              <view class="chart-bars">
+                <view class="chart-bar chart-bar-visit" style="height: {{day.bars[0].h}}rpx"></view>
+                <view class="chart-bar chart-bar-total" style="height: {{day.bars[1].h}}rpx"></view>
+              </view>
+              <view class="chart-label muted">{{day.label}}</view>
+            </view>
+          </view>
+        </scroll-view>
+        <view class="chart-legend">
+          <view class="legend-item"><view class="legend-dot legend-dot-visit"></view><text>每日访客</text></view>
+          <view class="legend-item"><view class="legend-dot legend-dot-total"></view><text>累计访客</text></view>
+        </view>
+      </view>
+    </block>
+
+    <block wx:for="{{friendCharts}}" wx:key="title">
+      <view class="chart-block">
+        <view class="chart-title">{{item.title}}</view>
+        <view class="chart-desc muted">{{item.desc}}</view>
+        <scroll-view class="chart-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+          <view class="chart-row">
+            <view class="chart-col" wx:for="{{item.daily}}" wx:for-item="day" wx:key="label">
+              <view class="chart-bars">
+                <view class="chart-bar chart-bar-friend" style="height: {{day.bars[0].h}}rpx"></view>
+              </view>
+              <view class="chart-label muted">{{day.label}}</view>
+            </view>
+          </view>
+        </scroll-view>
+        <view class="chart-legend">
+          <view class="legend-item"><view class="legend-dot legend-dot-friend"></view><text>好友量</text></view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 时段分布 -->
+  <view class="stat-card">
+    <view class="page-title">时段分布</view>
+    <view class="card-gap"></view>
+    <scroll-view class="chart-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="chart-row chart-row-hourly">
+        <view class="chart-col" wx:for="{{hourly}}" wx:key="hour">
+          <view class="chart-bar chart-bar-new" style="height: {{item.pct}}rpx"></view>
+          <view class="chart-label muted">{{item.hour}}</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 用户与审核 -->
+  <view class="stat-card">
+    <view class="page-title">用户与审核</view>
+    <view class="card-gap"></view>
+    <view class="fact-card">
+      <view class="fact-label muted">成员总数</view>
+      <view class="fact-value">{{memberTotal}}</view>
+      <view class="fact-detail muted">{{memberRoles}}</view>
+    </view>
+    <view class="fact-card">
+      <view class="fact-label muted">{{reviewLabel}}</view>
+      <view class="fact-value">{{reviewCount}}</view>
+      <view class="fact-detail muted">{{reviewDetail}}</view>
+    </view>
+    <view class="fact-card">
+      <view class="fact-label muted">高频投稿账号</view>
+      <view class="fact-value">{{topCount}}</view>
+      <view class="fact-detail muted">{{topDetail}}</view>
+    </view>
+    <view class="author-card" wx:for="{{topAuthors}}" wx:key="name">
+      <view class="author-head">
+        <view class="author-text">
+          <view class="author-name">{{item.name}}</view>
+          <view class="author-meta muted">{{item.meta}}</view>
+        </view>
+        <view class="author-count">{{item.count}} 条</view>
+      </view>
+      <view class="bar-track"><view class="bar-fill" style="width: {{item.pct}}%"></view></view>
+    </view>
+  </view>
+
+  <!-- 折叠：机器人与发布目标 -->
+  <view class="stat-card">
+    <view class="fold-head" data-key="bots" bindtap="toggleSection">
+      <text class="page-title">机器人与发布目标</text>
+      <text class="fold-indicator">{{openBots ? '收起' : '展开'}}</text>
+    </view>
+    <view wx:if="{{openBots}}" class="fold-body">
+      <view class="list-empty" wx:if="{{bots.length === 0}}">
+        <text class="muted">还没有机器人</text>
+      </view>
+      <view class="detail-card" wx:for="{{bots}}" wx:key="title">
+        <view class="detail-head">
+          <view>
+            <view class="detail-title">{{item.title}}</view>
+            <view class="detail-sub muted">{{item.qq}}</view>
+          </view>
+          <view class="badge {{item.enabled ? 'badge-on' : 'badge-off'}}">{{item.enabled ? '启用' : '停用'}}</view>
+        </view>
+        <view class="detail-lines muted">
+          <view>发布目标：{{item.targetCount}}</view>
+          <view>审核群：{{item.reviewGroup}}</view>
+          <view>最近连接：{{item.lastSeen}}</view>
+          <view>空间登录态：{{item.session}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 折叠：发布质量 -->
+  <view class="stat-card">
+    <view class="fold-head" data-key="publish" bindtap="toggleSection">
+      <text class="page-title">发布质量</text>
+      <text class="fold-indicator">{{openPublish ? '收起' : '展开'}}</text>
+    </view>
+    <view wx:if="{{openPublish}}" class="fold-body">
+      <view class="status-grid status-grid-tight" wx:if="{{publishByStatus.length > 0}}">
+        <view class="status-cell" wx:for="{{publishByStatus}}" wx:key="label">
+          <view class="status-label muted">{{item.label}}</view>
+          <view class="status-value">{{item.value}}</view>
+        </view>
+      </view>
+      <view class="list-empty" wx:else>
+        <text class="muted">暂无发布记录</text>
+      </view>
+      <view class="card-gap"></view>
+      <view class="detail-card" wx:for="{{publishTargets}}" wx:key="title">
+        <view class="detail-head">
+          <view>
+            <view class="detail-title">{{item.title}}</view>
+            <view class="detail-sub muted">{{item.bot}}</view>
+          </view>
+          <view class="badge {{item.enabled ? 'badge-on' : 'badge-off'}}">{{item.enabled ? '启用' : '停用'}}</view>
+        </view>
+        <view class="detail-lines muted">
+          <view>{{item.desc}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 折叠：最近发布失败 -->
+  <view class="stat-card">
+    <view class="fold-head" data-key="fails" bindtap="toggleSection">
+      <text class="page-title">最近发布失败</text>
+      <text class="fold-indicator">{{openFails ? '收起' : '展开'}}</text>
+    </view>
+    <view wx:if="{{openFails}}" class="fold-body">
+      <view class="list-empty" wx:if="{{recentFailures.length === 0}}">
+        <text class="muted">最近没有发布失败</text>
+      </view>
+      <view class="detail-card" wx:for="{{recentFailures}}" wx:key="displayId">
+        <view class="detail-head">
+          <view class="badge">稿件 #{{item.displayId}}</view>
+          <view class="detail-time muted">{{item.time}}</view>
+        </view>
+        <view class="detail-text">{{item.text}}</view>
+        <view class="detail-error">{{item.error}}</view>
+        <view class="detail-sub muted">{{item.meta}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 折叠：管理操作 -->
+  <view class="stat-card">
+    <view class="fold-head" data-key="audit" bindtap="toggleSection">
+      <text class="page-title">管理操作</text>
+      <text class="fold-indicator">{{openAudit ? '收起' : '展开'}}</text>
+    </view>
+    <view wx:if="{{openAudit}}" class="fold-body">
+      <view class="list-empty" wx:if="{{auditActions.length === 0}}">
+        <text class="muted">近 30 天没有管理操作</text>
+      </view>
+      <view class="bar-row" wx:for="{{auditActions}}" wx:key="label">
+        <view class="bar-row-head">
+          <text class="bar-row-label">{{item.label}}</text>
+          <text class="bar-row-value muted">{{item.count}} 次</text>
+        </view>
+        <view class="bar-track"><view class="bar-fill" style="width: {{item.pct}}%"></view></view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -452,6 +452,15 @@ Page({
     });
   },
 
+  /** 点击卡片：写入 globalData 供详情页读取，然后跳转 */
+  openPostDetail(event) {
+    const id = event.currentTarget.dataset.id;
+    const post = this.data.posts.find((p) => p.id === id);
+    if (!post) return;
+    getApp().globalData.selectedPost = post;
+    wx.navigateTo({ url: '/pages/post-detail/post-detail' });
+  },
+
   previewImage(event) {
     const urls = event.currentTarget.dataset.urls || [];
     const index = event.currentTarget.dataset.index || 0;
