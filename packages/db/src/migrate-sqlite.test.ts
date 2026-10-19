@@ -187,7 +187,13 @@ describe("applySqliteBaseline", () => {
       expect(repeated.skipped).toContain("20260713120000_auto_register_on_first_private_message");
       expect(repeated.skipped).toContain("20260724090000_add_bot_last_publish_started_at");
     } finally {
-      rmSync(dir, { recursive: true, force: true });
+      // Windows 上 better-sqlite3/bun 驱动可能仍持有文件句柄，rmSync 稳定报 EBUSY。
+      // 临时目录由 OS 清理即可，不因删不掉而让测试失败。
+      try {
+        rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+      } catch {
+        // 忽略：仅是临时目录残留。
+      }
     }
   });
 });

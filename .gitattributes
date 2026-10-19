@@ -1,0 +1,21 @@
+# 默认按文本处理：仓库内统一 LF，检出时不做转换。
+# Windows 检出默认会把 LF 转成 CRLF，导致依赖精确字节/行尾的测试失败
+# （例如 packages/db/src/migrate-sqlite.test.ts 按 '\n' 匹配 sqlite-baseline.sql）。
+* text=auto eol=lf
+
+# 二进制资源不做行尾转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+*.mp3 binary
+*.mp4 binary
+*.zip binary
+*.pdf binary
