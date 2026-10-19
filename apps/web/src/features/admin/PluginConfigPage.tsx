@@ -91,7 +91,7 @@ export function CampaignsIcon({ className }: PluginIconProps) {
   );
 }
 
-type PluginId = "markdownRender" | "colorSelection" | "fontSelection" | "anonymousAvatar" | "botStylishMessages" | "campaigns" | "aggregateLogin" | "broadcast" | "feedback" | "botAlert" | "graduation" | "todayInHistory" | "heatBoard" | "commentManagement";
+type PluginId = "markdownRender" | "colorSelection" | "fontSelection" | "anonymousAvatar" | "botStylishMessages" | "campaigns" | "aggregateLogin" | "broadcast" | "feedback" | "botAlert" | "graduation" | "todayInHistory" | "heatBoard" | "commentManagement" | "lingling" | "guestSubmission";
 type PluginPermission = "db:read" | "db:write" | "events:emit" | "events:listen" | "http:route" | "config:read" | "tenant:data" | "user:data";
 
 type PluginRisk = "low" | "medium" | "high";
@@ -164,6 +164,8 @@ const PRESET_NAME_BY_ID: PresetNameByConfigId = {
   todayInHistory: "campux-plugin-today-in-history",
   heatBoard: "campux-plugin-heat-board",
   commentManagement: "campux-plugin-comment-management",
+  lingling: "campux-plugin-lingling",
+  guestSubmission: "campux-plugin-guest-submission",
 };
 
 // 侧栏只展示预设插件；已启用计数与条目高亮也只统计预设插件的 registry 状态。
@@ -198,6 +200,16 @@ function FeedbackIcon({ className }: PluginIconProps) {
   );
 }
 
+/** 评论管理专属图标：琥珀色对话气泡 + 白色删除叉，与插件琥珀色调一致 */
+function CommentManagementIcon({ className }: PluginIconProps) {
+  return (
+    <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className={className} fill="none">
+      <path d="M512 96C276.27 96 96 262.1 96 480c0 116.35 54.2 218.5 140.05 288.1l-29.72 151.9c-3.02 15.44 11.51 27.7 25.6 20.98l163.75-74.25C432.86 875.4 471.6 880 512 880c235.73 0 416-166.1 416-384S747.73 96 512 96z" fill="#F59E0B" />
+      <path d="M394 368l236 236M630 368L394 604" stroke="#FFFFFF" strokeWidth="64" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function FeedbackPanel() {
   return (
     <div className="space-y-4">
@@ -220,6 +232,24 @@ function CommentManagementPanel({ config, onChange, busy }: { config: TenantPlug
         checked={config.commentManagement.allowUserDeleteOwnPostComments}
         disabled={busy}
         onChange={(value) => onChange({ ...config, commentManagement: { ...config.commentManagement, allowUserDeleteOwnPostComments: value } })}
+      />
+    </div>
+  );
+}
+
+function GuestSubmissionPanel({ config, onChange, busy }: { config: TenantPluginConfig; onChange: (next: TenantPluginConfig) => void; busy: boolean }) {
+  return (
+    <div className="space-y-4">
+      <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+        开启后，本墙登录页会出现「注册」入口：访客用 QQ 号、用户名和密码就能自己建号并登录投稿，不再依赖墙号机器人建号。
+        无 Bot 模式下建议开启，否则普通同学无法进入网站投稿。
+      </div>
+      <SwitchField
+        title="允许游客登录投稿"
+        description="访客可用 QQ 号 + 用户名 + 密码自助注册；注册后自动成为本墙投稿用户。关闭后立即停止接受新注册，已有账号不受影响。"
+        checked={config.guestSubmission.enabled}
+        disabled={busy}
+        onChange={(value) => onChange({ ...config, guestSubmission: { ...config.guestSubmission, enabled: value } })}
       />
     </div>
   );
@@ -484,7 +514,7 @@ function AggregateLoginPanel({ config, onChange, busy }: { config: TenantPluginC
   return (
     <div className="space-y-4">
       <p className="text-xs leading-5 text-slate-500">
-        开启后，登录页会展示下方勾选的第三方登录方式。用户需先在账号设置里绑定第三方身份，之后即可用该身份直接登录本校园墙；未绑定的身份不会自动建号。
+        开启后，登录页会展示下方勾选的第三方登录方式（包括 QQ）。用户需先在账号设置里绑定第三方身份，之后即可用该身份直接登录本校园墙；开启下方「首次扫码自动建号」后，未绑定的 QQ 身份首次登录会自动建号并加入本墙。
       </p>
       <div className="rounded-md border border-slate-200 bg-white p-3">
         <p className="mb-2 text-sm font-medium text-slate-900">可登录方式</p>
@@ -550,6 +580,13 @@ function AggregateLoginPanel({ config, onChange, busy }: { config: TenantPluginC
           </label>
         </div>
       </div>
+      <SwitchField
+        title="首次扫码自动建号"
+        description="开启后，未绑定过本墙账号的 QQ 用户首次扫码即自动创建投稿账号并加入本墙；关闭时保持只登录/绑定、不注册。"
+        checked={config.aggregateLogin.autoCreateAccount}
+        disabled={busy}
+        onChange={(value) => onChange({ ...config, aggregateLogin: { ...config.aggregateLogin, autoCreateAccount: value } })}
+      />
     </div>
   );
 }
@@ -831,6 +868,35 @@ function GraduationPanel({ busy }: { config: TenantPluginConfig; onChange: (next
       </div>
       <div className="rounded-md border border-slate-200 bg-white p-3 text-xs leading-5 text-slate-600">
         审核群命令：#毕业通过 &lt;编号&gt; / #毕业拒绝 &lt;理由&gt; &lt;编号&gt;；网页端在「服务页 → 毕业生去向 → 待审核」处理。
+      </div>
+    </div>
+  );
+}
+
+function LinglingIcon({ className }: PluginIconProps) {
+  return (
+    <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className={className}>
+      <path d="M254 396 L172 128 Q166 108 186 112 L436 208 Z" fill="#F43F5E" />
+      <path d="M770 396 L852 128 Q858 108 838 112 L588 208 Z" fill="#F43F5E" />
+      <circle cx="512" cy="596" r="316" fill="#FDA4AF" />
+      <ellipse cx="512" cy="706" rx="150" ry="112" fill="#FFF1F2" />
+      <circle cx="398" cy="524" r="30" fill="#27272A" />
+      <circle cx="626" cy="524" r="30" fill="#27272A" />
+      <ellipse cx="512" cy="668" rx="48" ry="36" fill="#27272A" />
+      <path d="M512 704 L512 748 M512 748 Q468 790 424 758 M512 748 Q556 790 600 758" stroke="#27272A" strokeWidth="20" fill="none" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function LinglingPanel({ busy }: { config: TenantPluginConfig; onChange: (next: TenantPluginConfig) => void; busy: boolean }) {
+  void busy;
+  return (
+    <div className="space-y-4">
+      <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+        开启后，服务页新增「吉祥萌宠」入口与 Live2D 小狗页面，桌面侧边栏与移动端页头也会出现小狗。
+      </div>
+      <div className="rounded-md border border-slate-200 bg-white p-3 text-xs leading-5 text-slate-600">
+        成长值由本校园墙的稿件数、互动指标（浏览/点赞/评论/转发）、成员数与运行天数计算，仅读取不写入。
       </div>
     </div>
   );
@@ -1182,7 +1248,7 @@ const PLUGINS: PluginDescriptor[] = [
   },
   {
     id: "commentManagement" as const,
-    icon: FeedbackIcon,
+    icon: CommentManagementIcon,
     name: "评论管理",
     tagline: "Moderation",
     description: "网页端通过墙号删除已发布稿件在 QQ 空间的评论",
@@ -1317,6 +1383,57 @@ const PLUGINS: PluginDescriptor[] = [
     setEnabled: (config, value) => ({ ...config, heatBoard: { ...config.heatBoard, enabled: value } }),
     render: (config, onChange, busy) => <HeatBoardPanel config={config} onChange={onChange} busy={busy} />,
   },
+  {
+    id: "lingling",
+    icon: LinglingIcon,
+    name: "吉祥萌宠",
+    tagline: "Lingling",
+    description: "服务页展示吉祥萌宠与成长值，侧边栏/页头展示 Live2D 小狗",
+    detailedDescription:
+      "本插件让校园墙拥有一只专属的 Live2D 吉祥物小狗：\n\n" +
+      "桌面侧边栏与移动端页头：\n" +
+      "· 小狗常驻展示，会随鼠标/视线转动头部、随机眨眼，点击可切换表情。\n\n" +
+      "服务页 → 吉祥萌宠：\n" +
+      "· 独立页面展示小狗大图与基本信息（名称/生日/物种/性别）。\n" +
+      "· 成长值由稿件数、互动指标（浏览/点赞/评论/转发）、成员数与运行天数加权计算，随墙的成长而增长。\n\n" +
+      "管理：\n" +
+      "· 插件仅有开关，无需配置其他项；禁用后服务页入口、独立页面与侧边栏/页头小狗同时隐藏。",
+    author: DEFAULT_PLUGIN_AUTHOR,
+    hint: "成长值只涨不跌，由墙的整体活跃度驱动。",
+    accent: "from-rose-500 to-pink-500",
+    bgTint: "bg-rose-50 text-rose-700",
+    role: "admin",
+    required: ["config:read", "db:read", "tenant:data"],
+    riskLevel: "low",
+    rationale: "开启后服务页新增吉祥萌宠入口与 Live2D 小狗；成长值仅由已发布稿件、互动指标与运行天数等租户统计数据计算，不写入任何数据。",
+    enabled: (config) => config.lingling.enabled,
+    setEnabled: (config, value) => ({ ...config, lingling: { ...config.lingling, enabled: value } }),
+    render: (config, onChange, busy) => <LinglingPanel config={config} onChange={onChange} busy={busy} />,
+  },
+  {
+    id: "guestSubmission",
+    icon: UserIcon,
+    name: "游客投稿",
+    tagline: "Guest",
+    description: "允许访客用 QQ 号、用户名和密码自助注册并登录投稿",
+    detailedDescription:
+      "开启后，本墙登录页新增注册入口：\n\n" +
+      "· 访客填写 QQ 号、用户名和密码即可注册，自动成为本墙的投稿用户并直接登录。\n" +
+      "· QQ 号作为账号唯一标识，昵称仅作展示；密码至少 6 位。\n" +
+      "· 关闭后登录页不再展示注册入口，接口也会拒绝新注册；已有账号仍可正常登录投稿。\n\n" +
+      "无 Bot 模式下没有墙号机器人代为建号，建议开启此插件，否则普通同学无法进入网站。",
+    author: DEFAULT_PLUGIN_AUTHOR,
+    hint: "注册入口仅在本墙自有域名下出现。",
+    accent: "from-sky-500 to-blue-500",
+    bgTint: "bg-sky-50 text-sky-700",
+    role: "admin",
+    required: ["config:read", "db:read", "db:write", "user:data", "tenant:data"],
+    riskLevel: "medium",
+    rationale: "开启后会创建新用户并加入本墙，属于 user:data 写入；关闭后不再接受注册。",
+    enabled: (config) => config.guestSubmission.enabled,
+    setEnabled: (config, value) => ({ ...config, guestSubmission: { ...config.guestSubmission, enabled: value } }),
+    render: (config, onChange, busy) => <GuestSubmissionPanel config={config} onChange={onChange} busy={busy} />,
+  },
 ];
 
 /**
@@ -1393,6 +1510,7 @@ function buildInitialConfig(metadata: TenantMetadata): TenantPluginConfig {
       appId: "",
       appKey: "",
       endpoint: "",
+      autoCreateAccount: false,
     },
     broadcast: {
       enabled: false,
@@ -1423,6 +1541,12 @@ function buildInitialConfig(metadata: TenantMetadata): TenantPluginConfig {
     commentManagement: {
       enabled: false,
       allowUserDeleteOwnPostComments: false,
+    },
+    lingling: {
+      enabled: false,
+    },
+    guestSubmission: {
+      enabled: Boolean(metadata.enableGuestSubmission),
     },
   };
 }
@@ -1505,7 +1629,7 @@ function defaultConfigForPlugin(pluginId: PluginId): TenantPluginConfig[PluginId
     case "campaigns":
       return { enabled: false, allowAnonymousCreate: false, maxActivePerUser: 1, maxOptions: 30 };
     case "aggregateLogin":
-      return { enabled: false, loginTypes: [], appId: "", appKey: "", endpoint: "" };
+      return { enabled: false, loginTypes: [], appId: "", appKey: "", endpoint: "", autoCreateAccount: false };
     case "broadcast":
       return { enabled: false, quickPresets: [] };
     case "feedback":
@@ -1520,6 +1644,10 @@ function defaultConfigForPlugin(pluginId: PluginId): TenantPluginConfig[PluginId
       return { enabled: false, maxTagCount: 5 };
     case "commentManagement":
       return { enabled: false, allowUserDeleteOwnPostComments: false };
+    case "lingling":
+      return { enabled: false };
+    case "guestSubmission":
+      return { enabled: false };
     default:
       return false;
   }
@@ -1780,7 +1908,7 @@ export function PluginConfigPage({ tenantId, metadata, onSaved }: { tenantId: st
               </Button>
             </div>
           </div>
-          <div className="grid gap-1 overflow-y-auto md:grid-flow-row md:grid-rows-[1fr]">
+          <div className="grid gap-1 overflow-y-auto [scrollbar-width:none] md:grid-flow-row md:grid-rows-[1fr] [&::-webkit-scrollbar]:hidden">
             {showSidebarPlugins ? (
               <div className="flex flex-col gap-1 md:overflow-visible">
                 {PLUGINS.map((plugin) => {
