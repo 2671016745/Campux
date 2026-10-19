@@ -1,0 +1,184 @@
+/* 稿件详情页 —— 与 posts 页风格一致 */
+.screen {
+  padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
+}
+
+.page-title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 24px;
+  color: #020618;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* 卡片：白底 + 12rpx 圆角 + 24rpx 内距 + 20rpx 下边距 */
+.card {
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  background-color: #ffffff;
+  border-radius: 12rpx;
+}
+
+.card-label {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  margin-bottom: 8px;
+  color: #62748e;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  color: #62748e;
+}
+
+.meta-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.post-text {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #13181e;
+  word-break: break-word;
+}
+
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.detail-image {
+  width: 100px;
+  height: 100px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f1f5f9;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.tag-plain {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #314158;
+}
+
+.tag-anon {
+  background-color: #fffbeb;
+  border: 1px solid #fee685;
+  color: #973c00;
+}
+
+.tag-channel {
+  background-color: #dff2fe;
+  border-radius: 8px;
+  color: #0069a8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 状态徽章 */
+.tag-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.tag-status-pending {
+  background-color: #fef3c6;
+  border: 1px solid #ffd230;
+  color: #7a3306;
+}
+
+.tag-status-active {
+  background-color: #dcfce7;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+}
+
+.tag-status-neutral {
+  background-color: #e5e8ec;
+  color: #22272e;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  background-color: #f9fafb;
+  border: 1px solid #d8dbdf;
+  color: #13181e;
+}
+
+.action-primary {
+  background-color: #1447e6;
+  border-color: #1447e6;
+  color: #ffffff;
+}
+
+.action-danger {
+  color: #c10007;
+}
+
+.list-empty {
+  padding: 32px 0;
+  text-align: center;
+}

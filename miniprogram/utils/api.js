@@ -239,6 +239,137 @@ function rejectReviewPost(id, comment) {
   });
 }
 
+// ─── 统计（reviewer 及以上）────────────────────────────────────────────
+function fetchStatsTenant() {
+  return request('/api/stats/tenant');
+}
+
+// ─── 稿件：已发布 / 待发布（无 Bot 模式）───────────────────────────────
+function fetchPublishedPosts(page, limit, status) {
+  let qs = 'page=' + (page || 1) + '&limit=' + (limit || 10);
+  if (status) qs += '&status=' + encodeURIComponent(status);
+  return request('/api/posts/published?' + qs);
+}
+
+function fetchPendingPublish(page, limit) {
+  return request('/api/admin/pending-publish?page=' + (page || 1) + '&limit=' + (limit || 10));
+}
+
+function confirmPendingPublish(id) {
+  return request('/api/admin/pending-publish/' + id + '/confirm', { method: 'POST', data: {} });
+}
+
+function confirmPendingPublishBatch(ids) {
+  return request('/api/admin/pending-publish/confirm', { method: 'POST', data: { ids: ids || [] } });
+}
+
+function fetchPendingPublishResidual() {
+  return request('/api/admin/pending-publish/residual');
+}
+
+function requeuePendingPublish() {
+  return request('/api/admin/pending-publish/requeue', { method: 'POST', data: {} });
+}
+
+// ─── 稿件：撤回 / 关注 ──────────────────────────────────────────────────
+function requestRecall(id) {
+  return request('/api/posts/' + id + '/recall/request', { method: 'POST', data: {} });
+}
+
+function followPost(id) {
+  return request('/api/posts/' + id + '/follow', { method: 'POST', data: {} });
+}
+
+function unfollowPost(id) {
+  return request('/api/posts/' + id + '/follow', { method: 'DELETE' });
+}
+
+// ─── 密码：忘记密码 / 强制改密 ─────────────────────────────────────────
+function requestPasswordReset(email) {
+  return request('/api/auth/password/forgot', { method: 'POST', data: { email: email } });
+}
+
+function resetPassword(email, code, newPassword) {
+  return request('/api/auth/password/reset', {
+    method: 'POST',
+    data: { email: email, code: code, newPassword: newPassword },
+  });
+}
+
+function changeRequiredPassword(newPassword) {
+  return request('/api/auth/password/required', { method: 'POST', data: { newPassword: newPassword } });
+}
+
+// ─── 管理：成员 ────────────────────────────────────────────────────────
+function fetchAdminMembers(page, limit, q) {
+  let qs = 'page=' + (page || 1) + '&limit=' + (limit || 20);
+  if (q) qs += '&q=' + encodeURIComponent(q);
+  return request('/api/admin/members?' + qs);
+}
+
+function updateMemberRole(membershipId, role) {
+  return request('/api/admin/members/' + membershipId, { method: 'PATCH', data: { role: role } });
+}
+
+function inviteMember(account, role) {
+  return request('/api/admin/members/users/' + encodeURIComponent(account), {
+    method: 'POST',
+    data: { role: role || 'submitter' },
+  });
+}
+
+// ─── 管理：封禁 ────────────────────────────────────────────────────────
+function fetchBanRecords(page, limit) {
+  return request('/api/admin/ban-records?page=' + (page || 1) + '&limit=' + (limit || 20));
+}
+
+function banUser(payload) {
+  return request('/api/admin/ban-records', { method: 'POST', data: payload });
+}
+
+function unbanUser(recordId) {
+  return request('/api/admin/ban-records/' + recordId + '/unban', { method: 'POST', data: {} });
+}
+
+// ─── 管理：墙面设置 ─────────────────────────────────────────────────────
+function fetchAdminTenantMetadata() {
+  return request('/api/admin/tenant/metadata');
+}
+
+function updateAdminTenantMetadata(patch) {
+  return request('/api/admin/tenant/metadata', { method: 'PUT', data: patch });
+}
+
+// ─── 管理：机器人（Bot 模式）───────────────────────────────────────────
+function fetchBots() {
+  return request('/api/admin/bots');
+}
+
+function createBot(payload) {
+  return request('/api/admin/bots', { method: 'POST', data: payload });
+}
+
+function updateBot(id, payload) {
+  return request('/api/admin/bots/' + id, { method: 'PATCH', data: payload });
+}
+
+function deleteBot(id) {
+  return request('/api/admin/bots/' + id, { method: 'DELETE' });
+}
+
+// ─── 管理：发布目标 ─────────────────────────────────────────────────────
+function fetchPublishTargets() {
+  return request('/api/admin/publish-targets');
+}
+
+function createPublishTarget(payload) {
+  return request('/api/admin/publish-targets', { method: 'POST', data: payload });
+}
+
+function updatePublishTarget(id, payload) {
+  return request('/api/admin/publish-targets/' + id, { method: 'PATCH', data: payload });
+}
+
 module.exports = {
   baseUrl,
   getToken,
@@ -259,4 +390,32 @@ module.exports = {
   fetchReviewPosts,
   approveReviewPost,
   rejectReviewPost,
+  fetchStatsTenant,
+  fetchPublishedPosts,
+  fetchPendingPublish,
+  confirmPendingPublish,
+  confirmPendingPublishBatch,
+  fetchPendingPublishResidual,
+  requeuePendingPublish,
+  requestRecall,
+  followPost,
+  unfollowPost,
+  requestPasswordReset,
+  resetPassword,
+  changeRequiredPassword,
+  fetchAdminMembers,
+  updateMemberRole,
+  inviteMember,
+  fetchBanRecords,
+  banUser,
+  unbanUser,
+  fetchAdminTenantMetadata,
+  updateAdminTenantMetadata,
+  fetchBots,
+  createBot,
+  updateBot,
+  deleteBot,
+  fetchPublishTargets,
+  createPublishTarget,
+  updatePublishTarget,
 };

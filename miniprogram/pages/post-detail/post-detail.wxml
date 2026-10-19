@@ -1,0 +1,100 @@
+<app-header tenant-name="{{tenantName}}" logo-url="{{logoUrl}}" role-label="{{roleLabel}}"></app-header>
+
+<view class="screen" wx:if="{{post}}">
+  <!-- 标题栏 -->
+  <view class="detail-header">
+    <view class="page-title">{{post.displayId || '稿件详情'}}</view>
+    <view class="tag-status tag-status-{{statusTone}}">
+      <text>{{statusLabel}}</text>
+    </view>
+  </view>
+
+  <!-- 元信息 -->
+  <view class="card">
+    <view class="meta-row">
+      <view class="meta-item">
+        <view class="meta-icon icon" style="background-image: url('{{icons.textIcon.gray}}')"></view>
+        <text>{{textLength}} 字</text>
+      </view>
+      <view class="meta-item">
+        <view class="meta-icon icon" style="background-image: url('{{icons.clock.gray}}')"></view>
+        <text>{{createdAt || '未知时间'}}</text>
+      </view>
+    </view>
+    <view class="meta-row">
+      <view class="meta-item">
+        <text class="muted">作者：{{authorName}}</text>
+      </view>
+      <view class="meta-item" wx:if="{{authorQq}}">
+        <text class="muted">QQ {{authorQq}}</text>
+      </view>
+    </view>
+    <view class="meta-row" wx:if="{{channelLabel}}">
+      <view class="tag tag-channel">
+        <text>{{channelLabel}}</text>
+      </view>
+    </view>
+    <view class="meta-row" wx:if="{{post.anonymous}}">
+      <view class="tag tag-anon">
+        <text>匿名展示</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 正文 -->
+  <view class="card" wx:if="{{post.text}}">
+    <view class="card-label muted">正文</view>
+    <view class="post-text">{{post.text}}</view>
+  </view>
+
+  <!-- 图片 -->
+  <view class="card" wx:if="{{imageUrls.length > 0}}">
+    <view class="card-label muted">附件图片</view>
+    <view class="image-grid">
+      <image
+        class="detail-image"
+        wx:for="{{imageUrls}}"
+        wx:for-item="img"
+        wx:key="*this"
+        src="{{img}}"
+        mode="aspectFill"
+        data-urls="{{imageUrls}}"
+        data-index="{{index}}"
+        bindtap="previewImage"
+      ></image>
+    </view>
+  </view>
+
+  <!-- 标签 -->
+  <view class="card" wx:if="{{post.pendingTags && post.pendingTags.length > 0}}">
+    <view class="card-label muted">标签</view>
+    <view class="tag-row">
+      <view class="tag tag-plain" wx:for="{{post.pendingTags}}" wx:key="*this">
+        <text>{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="card">
+    <view class="card-label muted">操作</view>
+    <view class="action-row">
+      <view class="action-btn {{post.isFollowed ? 'action-danger' : 'action-primary'}}" bindtap="toggleFollow">
+        <text>{{post.isFollowed ? '取消关注' : '关注'}}</text>
+      </view>
+      <view class="action-btn action-danger" wx:if="{{post.status === 'published'}}" bindtap="requestRecall">
+        <text>申请撤回</text>
+      </view>
+      <view class="action-btn action-danger" wx:if="{{post.status === 'pending_approval'}}" bindtap="cancelPost">
+        <text>取消投稿</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 未找到稿件 -->
+<view class="screen" wx:else>
+  <view class="list-empty">
+    <text class="muted">未找到稿件信息。</text>
+  </view>
+</view>

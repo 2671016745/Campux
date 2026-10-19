@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "稿件详情",
+  "usingComponents": {
+    "app-header": "/components/app-header/index"
+  }
+}

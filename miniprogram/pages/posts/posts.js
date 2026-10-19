@@ -37,6 +37,14 @@ const STATUS_TONES = {
 // 又因为缺 .catch 而没有任何提示 —— 表现就是「点了没反应」。
 const CANCELLABLE = ['pending_approval'];
 
+// 各视图模式：按角色动态显示
+const MODES = {
+  mine: { label: '我的稿件', minRank: 1 },
+  published: { label: '已发布', minRank: 1 },
+  review: { label: '待审核', minRank: 3 },
+  pending: { label: '待发布', minRank: 4 },
+};
+
 const CHANNEL_LABELS = {
   web: '网页投稿',
   private: '对话投稿',
@@ -65,8 +73,10 @@ Page({
     loading: false,
     loggedOut: false,
     // 'mine' = 我的稿件；'review' = 待审核队列（reviewer 及以上才显示这个 tab）
+    // 'published' = 已发布（全员可见）；'pending' = 待发布（仅管理员）
     mode: 'mine',
     canReview: false,
+    modes: ['mine', 'published'],
     reviewBusyId: '',
   },
 
@@ -93,12 +103,19 @@ Page({
       const t = app.globalData.currentTenant || {};
       const rank = ROLE_RANK[app.role] || 0;
       const canReview = rank >= ROLE_RANK.reviewer || app.globalData.reviewAllowed === true;
+      // 按角色动态计算可用模式
+      const modes = ['mine', 'published'];
+      if (canReview) modes.push('review');
+      if (rank >= ROLE_RANK.admin) modes.push('pending');
+      // 当前模式不在可用列表里则回退到第一个
+      const mode = modes.indexOf(this.data.mode) >= 0 ? this.data.mode : modes[0];
       this.setData({
         tenantName: t.name || '校园墙',
         logoUrl: t.logoUrl || '',
         roleLabel: ROLE_LABELS[app.role] || '',
         canReview,
-        mode: canReview ? this.data.mode : 'mine',
+        modes,
+        mode,
       });
     };
     app.checkSession({ prompt: true }).then((ok) => {
@@ -172,7 +189,7 @@ Page({
     }
   },
 
-  /** 切换「我的稿件 / 待审核」 */
+  /** 切换视图模式（我的稿件 / 已发布 / 待审核 / 待发布） */
   switchMode(event) {
     const mode = event.currentTarget.dataset.mode;
     if (!mode || mode === this.data.mode) {
@@ -181,7 +198,10 @@ Page({
     if (mode === 'review' && !this.data.canReview) {
       return;
     }
-    this.setData({ mode, page: 1, posts: [], total: 0, pageCount: 1 });
+    if (mode === 'pending' && (ROLE_RANK[getApp().role] || 0) < ROLE_RANK.admin) {
+      return;
+    }
+    this.setData({ mode, page: 1, posts: [], total: 0, pageCount: 1, keyword: '' });
     this.load(1);
   },
 
@@ -191,11 +211,18 @@ Page({
     // 先发后到的慢响应不许覆盖当前视图（否则会出现 tab 与列表对不上）
     this._loadSeq = (this._loadSeq || 0) + 1;
     const seq = this._loadSeq;
-    const isReview = this.data.mode === 'review';
+    const mode = this.data.mode;
+    const isReview = mode === 'review';
+    const isPending = mode === 'pending';
+    const isPublished = mode === 'published';
     const keyword = this.data.keyword.trim();
     let req;
     if (isReview) {
       req = api.fetchReviewPosts(page, PAGE_SIZE);
+    } else if (isPending) {
+      req = api.fetchPendingPublish(page, PAGE_SIZE);
+    } else if (isPublished) {
+      req = api.fetchPublishedPosts(page, PAGE_SIZE);
     } else {
       let path = '/api/posts/mine?page=' + page + '&limit=' + PAGE_SIZE;
       if (keyword) {
@@ -209,7 +236,13 @@ Page({
       }
       const data = res.data || {};
       const pagination = data.pagination || {};
-      const posts = (data.posts || []).map((post) => this.toView(post, isReview));
+      let posts;
+      if (isPublished) {
+        // 已发布返回的是按「说说」聚合的批次，字段是 items 不是 posts
+        posts = (data.items || []).map((batch) => this.toPublishedView(batch));
+      } else {
+        posts = (data.posts || []).map((post) => this.toView(post, isReview || isPending));
+      }
       this.setData({
         posts,
         loading: false,
@@ -237,8 +270,43 @@ Page({
         this.load(1);
         return null;
       }
+      if (status === 403 && isPending) {
+        // 待发布仅管理员可见
+        wx.showToast({ title: '没有权限', icon: 'none' });
+        this.setData({ mode: 'mine' });
+        this.load(1);
+        return null;
+      }
       wx.showToast({ title: api.errorMessage(err, '加载失败，请检查网络'), icon: 'none' });
       return null;
+    });
+  },
+
+  /** 待发布模式：确认已发布（手动发到 QQ 空间后回来点） */
+  confirmPublished(event) {
+    const id = event.currentTarget.dataset.id;
+    if (!id || this.data.reviewBusyId) {
+      return;
+    }
+    wx.showModal({
+      title: '确认已发布？',
+      content: '确认后该稿件会从待发布队列移除。',
+      confirmText: '确认发布',
+      cancelText: '取消',
+      success: (res) => {
+        if (!res.confirm) {
+          return;
+        }
+        this.setData({ reviewBusyId: id });
+        api.confirmPendingPublish(id).then(() => {
+          this.setData({ reviewBusyId: '' });
+          wx.showToast({ title: '已确认', icon: 'success' });
+          this.load(1);
+        }).catch((err) => {
+          this.setData({ reviewBusyId: '' });
+          wx.showModal({ title: '操作失败', content: api.errorMessage(err, '请稍后重试'), showCancel: false });
+        });
+      },
     });
   },
 
@@ -297,6 +365,42 @@ Page({
         });
       },
     });
+  },
+
+  /** 已发布视图：把「说说」批次转成卡片数据。每条说说可能包含多条稿件。 */
+  toPublishedView(batch) {
+    const first = (batch.posts && batch.posts[0]) || {};
+    const attachments = normalizeAttachments(first.attachments);
+    const postCount = (batch.posts || []).length;
+    const stats = batch.qzoneStats || {};
+    const targets = stats.targets || [];
+    const totalViews = targets.reduce((sum, t) => sum + (t.visitorCount || 0), 0);
+    const totalLikes = targets.reduce((sum, t) => sum + (t.likeCount || 0), 0);
+    const totalComments = targets.reduce((sum, t) => sum + (t.commentCount || 0), 0);
+    return {
+      id: batch.id || first.id || '',
+      batchId: batch.id || '',
+      displayId: first.displayId,
+      title: first.title || first.text || '已发布说说',
+      text: first.text || '',
+      anonymous: first.anonymous,
+      statusLabel: postCount > 1 ? '批量 ' + postCount + ' 条' : '独立发布',
+      statusTone: 'active',
+      cancellable: false,
+      channelLabel: '',
+      author: '',
+      authorQq: '',
+      attachmentCount: attachments.length,
+      imageUrls: attachments.map((a) => a.url),
+      textLength: (first.text || '').length,
+      createdAt: formatDate(batch.publishedAt || first.createdAt),
+      postCount,
+      totalViews,
+      totalLikes,
+      totalComments,
+      adminOnly: !!batch.adminOnly,
+      publishedAt: batch.publishedAt || first.createdAt,
+    };
   },
 
   /** 与服务端 toPostListItem 的字段对齐（title 即截断后的正文）。 */

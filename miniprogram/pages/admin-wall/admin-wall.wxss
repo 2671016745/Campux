@@ -1,0 +1,127 @@
+/* 「墙面设置」页 —— 沿用 Campux 的信息面 + 行式列表风格 */
+
+.screen {
+  padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: #0f172b;
+}
+
+.section-sub {
+  margin-top: 4px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #62748e;
+}
+
+.section-gap {
+  margin-top: 24px;
+}
+
+.surface {
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.rows {
+  /* 行式列表容器 */
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.row-static {
+  padding: 10px 16px;
+}
+
+.row-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.row-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: #0f172b;
+}
+
+.row-desc {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 16px;
+  color: #62748e;
+  word-break: break-all;
+}
+
+.row-value {
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: #62748e;
+}
+
+.row-divider {
+  height: 1px;
+  margin-left: 16px;
+  background-color: #f1f5f9;
+}
+
+.row-input {
+  flex-shrink: 0;
+  width: 180px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #0f172b;
+  text-align: right;
+}
+
+.row-switch {
+  flex-shrink: 0;
+  transform: scale(0.9);
+}
+
+/* ── 主题色 ─────────────────────────────────────────────── */
+
+.color-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #f1f5f9;
+}
+
+.color-input {
+  width: 130px;
+}
+
+/* ── 按钮 ───────────────────────────────────────────────── */
+
+.btn-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-wide {
+  flex: 1;
+}

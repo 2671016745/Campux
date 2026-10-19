@@ -1,0 +1,44 @@
+<view class="screen">
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading-text">正在加载…</view>
+  </view>
+
+  <!-- 有封禁 -->
+  <view wx:elif="{{hasBan}}" class="banned-wrap">
+    <view class="banned-header">
+      <view class="banned-badge">CAMPUX</view>
+      <view class="banned-title">账号已被封禁</view>
+      <view class="banned-sub">{{displayName}}{{tenantName ? ' 当前不能访问 ' + tenantName : ' 当前无法使用服务'}}。</view>
+    </view>
+
+    <view class="surface ban-card">
+      <view class="ban-field">
+        <view class="ban-label">封禁原因</view>
+        <view class="ban-value">{{banComment}}</view>
+      </view>
+      <view class="ban-divider"></view>
+      <view class="ban-field">
+        <view class="ban-label">结束时间</view>
+        <view class="ban-value">{{banEndsAt}}</view>
+      </view>
+    </view>
+
+    <view class="banned-hint">如需申诉，请联系当前校园墙管理员。</view>
+
+    <view class="btn-row">
+      <view class="outline-btn outline-btn-danger btn-wide" bindtap="onLogout">退出登录</view>
+    </view>
+  </view>
+
+  <!-- 无封禁 -->
+  <view wx:else class="banned-wrap">
+    <view class="banned-header">
+      <view class="banned-title">账号正常</view>
+      <view class="banned-sub">你的账号当前没有封禁记录。</view>
+    </view>
+    <view class="btn-row">
+      <view class="postbtn btn-wide" bindtap="goBack">返回</view>
+    </view>
+  </view>
+</view>

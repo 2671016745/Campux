@@ -1,0 +1,71 @@
+<app-header tenant-name="{{tenantName}}" logo-url="{{logoUrl}}" role-label="{{roleLabel}}"></app-header>
+
+<view class="screen" wx:if="{{!loggedOut}}">
+  <view class="section-title">基本信息</view>
+  <view class="surface rows">
+    <view class="row row-static">
+      <view class="row-text"><view class="row-title">墙名</view></view>
+      <input
+        class="row-input"
+        placeholder="校园墙名称"
+        value="{{form.tenantName}}"
+        bindinput="onNameInput"
+      />
+    </view>
+    <view class="row-divider"></view>
+    <view class="row row-static">
+      <view class="row-text">
+        <view class="row-title">主题色</view>
+        <view class="row-desc">6 位十六进制颜色值，如 #2563eb</view>
+      </view>
+      <view class="color-field">
+        <view class="color-swatch" style="background-color: {{form.themeColor}}"></view>
+        <input
+          class="row-input color-input"
+          placeholder="#2563eb"
+          value="{{form.themeColor}}"
+          bindinput="onThemeInput"
+        />
+      </view>
+    </view>
+  </view>
+
+  <view class="section-title section-gap">功能开关</view>
+  <view class="section-sub">控制投稿页与服务页的功能入口，改动在保存后生效。</view>
+  <view class="surface rows" wx:if="{{loading}}">
+    <view class="row row-static"><view class="row-text"><view class="row-title">正在加载…</view></view></view>
+  </view>
+  <view class="surface rows" wx:else>
+    <block wx:for="{{switches}}" wx:key="key">
+      <view class="row row-static">
+        <view class="row-text">
+          <view class="row-title">{{item.label}}</view>
+          <view class="row-desc">{{item.desc}}</view>
+        </view>
+        <switch
+          class="row-switch"
+          checked="{{item.value}}"
+          data-key="{{item.key}}"
+          disabled="{{saving}}"
+          bindchange="onSwitchChange"
+        />
+      </view>
+      <view class="row-divider" wx:if="{{item.showDivider}}"></view>
+    </block>
+  </view>
+
+  <view class="btn-row">
+    <view class="postbtn {{saving ? 'postbtn-disabled' : ''}}" bindtap="onSave">
+      <text>{{saving ? '保存中…' : '保存设置'}}</text>
+    </view>
+  </view>
+</view>
+
+<!-- 未登录 -->
+<view class="screen" wx:else>
+  <view class="section-title">需要先登录</view>
+  <view class="section-sub">墙面设置需要登录后才能操作。</view>
+  <view class="btn-row">
+    <view class="postbtn btn-wide" bindtap="goLogin"><text>去登录</text></view>
+  </view>
+</view>

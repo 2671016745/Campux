@@ -1,0 +1,140 @@
+/* 「封禁提示」页 —— 白底卡片 + 红色警示，风格对齐 services 页 */
+.screen {
+  padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.loading-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 120px;
+}
+
+.loading-text {
+  font-size: 14px;
+  color: #62748e;
+}
+
+/* ── 头部 ── */
+.banned-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.banned-header {
+  padding: 24px 4px 20px;
+}
+
+.banned-badge {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #c10007;
+}
+
+.banned-title {
+  margin-top: 6px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 30px;
+  color: #0f172b;
+}
+
+.banned-sub {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 22px;
+  color: #62748e;
+}
+
+/* ── 封禁信息卡片 ── */
+.surface {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 43, 0.06);
+  overflow: hidden;
+}
+
+.ban-card {
+  padding: 16px;
+}
+
+.ban-field {
+  padding: 4px 0;
+}
+
+.ban-label {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  color: #c10007;
+}
+
+.ban-value {
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 22px;
+  color: #7f1d1d;
+}
+
+.ban-divider {
+  height: 1px;
+  margin: 12px 0;
+  background-color: #fecaca;
+}
+
+/* ── 提示 ── */
+.banned-hint {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 22px;
+  color: #62748e;
+}
+
+/* ── 按钮 ── */
+.btn-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.outline-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  color: #314158;
+}
+
+.outline-btn-danger {
+  color: #c10007;
+  border-color: #fecaca;
+}
+
+.postbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  background-color: #0f172b;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  color: #ffffff;
+}
+
+.btn-wide {
+  flex: 1;
+}

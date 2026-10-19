@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "封禁管理",
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#f9fafb",
+  "usingComponents": {
+    "app-header": "/components/app-header/index"
+  }
+}

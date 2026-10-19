@@ -1,0 +1,102 @@
+<app-header tenant-name="{{tenantName}}" logo-url="{{logoUrl}}" role-label="{{roleLabel}}"></app-header>
+
+<view class="screen" wx:if="{{!loggedOut}}">
+  <!-- 封禁表单 -->
+  <view class="section-title">封禁用户</view>
+  <view class="surface rows">
+    <view class="row row-static">
+      <view class="row-text"><view class="row-title">QQ 号</view></view>
+      <input
+        class="row-input"
+        type="number"
+        placeholder="输入要封禁的 QQ 号"
+        value="{{banForm.qqUin}}"
+        bindinput="onQqUinInput"
+      />
+    </view>
+    <view class="row-divider"></view>
+    <view class="row row-static">
+      <view class="row-text"><view class="row-title">封禁原因</view></view>
+      <input
+        class="row-input"
+        placeholder="输入封禁原因"
+        value="{{banForm.comment}}"
+        bindinput="onCommentInput"
+      />
+    </view>
+    <view class="row-divider"></view>
+    <view class="row row-static">
+      <view class="row-text"><view class="row-title">时长</view></view>
+      <picker
+        class="row-picker"
+        mode="selector"
+        range="{{durationOptions}}"
+        range-key="label"
+        value="{{banForm.durationIndex}}"
+        bindchange="onDurationChange"
+      >
+        <view class="picker-value">{{durationOptions[banForm.durationIndex].label}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="btn-row">
+    <view class="postbtn {{submitting ? 'postbtn-disabled' : ''}}" bindtap="onSubmitBan">
+      <text>{{submitting ? '提交中…' : '封禁'}}</text>
+    </view>
+  </view>
+
+  <!-- 封禁列表 -->
+  <view class="section-title section-gap">封禁记录</view>
+  <view class="surface rows" wx:if="{{bansLoading}}">
+    <view class="row row-static"><view class="row-text"><view class="row-title">正在加载…</view></view></view>
+  </view>
+  <view class="surface rows" wx:elif="{{bans.length === 0}}">
+    <view class="row row-static"><view class="row-text"><view class="row-title">暂无封禁记录</view></view></view>
+  </view>
+  <block wx:else>
+    <view class="surface ban-card" wx:for="{{bans}}" wx:key="id">
+      <view class="ban-head">
+        <view class="ban-user">
+          <view class="ban-name">{{item.userId}}</view>
+          <view class="ban-status {{item.active ? 'ban-status-active' : 'ban-status-ended'}}">{{item.active ? '生效中' : '已结束'}}</view>
+        </view>
+        <view class="ban-date">{{formatDate(item.createdAt)}}</view>
+      </view>
+      <view class="ban-comment">{{item.comment}}</view>
+      <view class="ban-meta">
+        <text>开始：{{formatDate(item.startsAt)}}</text>
+        <text wx:if="{{item.endsAt}}">结束：{{formatDate(item.endsAt)}}</text>
+        <text wx:else>结束：永久</text>
+        <text wx:if="{{item.operatorId}}">操作人：{{item.operatorId}}</text>
+      </view>
+      <view class="ban-actions" wx:if="{{item.active}}">
+        <view class="unban-btn" data-id="{{item.id}}" bindtap="onUnban">解封</view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 分页 -->
+  <view class="pagination" wx:if="{{bansTotal > bansLimit}}">
+    <view
+      class="page-btn {{bansPage <= 1 ? 'page-btn-disabled' : ''}}"
+      data-page="{{bansPage - 1}}"
+      bindtap="onBansPageChange"
+    >上一页</view>
+    <view class="page-info">{{bansPage}} / {{Math.ceil(bansTotal / bansLimit)}}</view>
+    <view
+      class="page-btn {{bansPage >= Math.ceil(bansTotal / bansLimit) ? 'page-btn-disabled' : ''}}"
+      data-page="{{bansPage + 1}}"
+      bindtap="onBansPageChange"
+    >下一页</view>
+  </view>
+</view>
+
+<!-- 未登录 -->
+<view class="screen" wx:else>
+  <view class="section-title">需要先登录</view>
+  <view class="section-sub">封禁管理需要登录后才能操作。</view>
+  <view class="btn-row">
+    <view class="postbtn btn-wide" bindtap="goLogin"><text>去登录</text></view>
+  </view>
+</view>

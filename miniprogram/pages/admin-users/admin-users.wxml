@@ -1,0 +1,99 @@
+<view class="screen" wx:if="{{!loggedOut}}">
+  <!-- 搜索区 -->
+  <view class="surface search-card">
+    <view class="search-row">
+      <input
+        class="search-input"
+        placeholder="搜索用户 ID、QQ 号或名称"
+        placeholder-class="search-placeholder"
+        value="{{keyword}}"
+        bindinput="onKeywordInput"
+        bindconfirm="onSearch"
+      />
+      <view class="postbtn search-btn" bindtap="onSearch">
+        <text>搜索</text>
+      </view>
+    </view>
+    <view class="search-clear" wx:if="{{keyword}}" bindtap="onClearSearch">
+      <text class="search-clear-text">清除搜索</text>
+    </view>
+  </view>
+
+  <!-- 成员列表 -->
+  <view class="surface list-card">
+    <view class="list-header">
+      <text class="page-title">用户列表</text>
+      <text class="muted list-total">共 {{tenantMemberTotal}} 人</text>
+    </view>
+
+    <view class="member-list" wx:if="{{members.length}}">
+      <view
+        class="member-item"
+        wx:for="{{members}}"
+        wx:key="id"
+        data-index="{{index}}"
+        bindtap="onMemberTap"
+      >
+        <view class="member-info">
+          <text class="member-name">{{item.user.displayName || item.user.qqUin}}</text>
+          <text class="muted member-meta">QQ {{item.user.qqUin}} · 加入 {{item.createdAt}}</text>
+        </view>
+        <view class="member-role">
+          <text class="role-badge role-{{item.role}}">{{item.role === 'submitter' ? '用户' : item.role === 'reviewer' ? '审核员' : '管理员'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{!loading && !members.length}}">
+      <text class="muted">暂无用户</text>
+    </view>
+
+    <!-- 分页 -->
+    <view class="pagination" wx:if="{{pagination.pageCount > 1}}">
+      <view class="page-btn {{page <= 1 ? 'page-btn-disabled' : ''}}" bindtap="onPrevPage">
+        <text>上一页</text>
+      </view>
+      <text class="muted page-info">{{page}} / {{pagination.pageCount}}</text>
+      <view class="page-btn {{page >= pagination.pageCount ? 'page-btn-disabled' : ''}}" bindtap="onNextPage">
+        <text>下一页</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 添加用户 -->
+  <view class="surface invite-card">
+    <text class="page-title">添加用户</text>
+    <text class="muted invite-hint">输入 QQ 号添加到当前校园墙</text>
+    <input
+      class="invite-input"
+      placeholder="QQ 号"
+      placeholder-class="search-placeholder"
+      value="{{inviteAccount}}"
+      bindinput="onInviteAccountInput"
+    />
+    <picker
+      class="invite-picker"
+      mode="selector"
+      range="{{['用户', '审核员', '管理员']}}"
+      value="{{inviteRole === 'submitter' ? 0 : inviteRole === 'reviewer' ? 1 : 2}}"
+      bindchange="onInviteRoleChange"
+    >
+      <view class="picker-value">
+        <text>{{inviteRole === 'submitter' ? '用户' : inviteRole === 'reviewer' ? '审核员' : '管理员'}}</text>
+        <text class="picker-arrow">▾</text>
+      </view>
+    </picker>
+    <view class="postbtn invite-btn {{inviteBusy ? 'postbtn-disabled' : ''}}" bindtap="onInvite">
+      <text>{{inviteBusy ? '添加中' : '添加用户'}}</text>
+    </view>
+  </view>
+</view>
+
+<!-- 未登录占位 -->
+<view class="screen" wx:else>
+  <view class="surface login-placeholder">
+    <text class="page-title">需要先登录</text>
+    <text class="muted">用户管理需要登录后使用。</text>
+    <view class="postbtn login-btn" bindtap="goLogin"><text>去登录</text></view>
+  </view>
+</view>

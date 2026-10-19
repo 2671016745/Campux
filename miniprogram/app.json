@@ -5,7 +5,17 @@
     "pages/services/services",
     "pages/admin/admin",
     "pages/login/login",
-    "pages/register/register"
+    "pages/register/register",
+    "pages/stats/stats",
+    "pages/post-detail/post-detail",
+    "pages/forgot-password/forgot-password",
+    "pages/change-password/change-password",
+    "pages/banned/banned",
+    "pages/admin-users/admin-users",
+    "pages/admin-bans/admin-bans",
+    "pages/admin-wall/admin-wall",
+    "pages/admin-bot/admin-bot",
+    "pages/admin-publish/admin-publish"
   ],
   "window": {
     "backgroundColor": "#f9fafb",
