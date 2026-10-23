@@ -60,7 +60,11 @@
 
 .tabbar-indicator {
   position: absolute;
-  bottom: 0;
+  /* 指示条位于标签下方（距标签约10px），而不是容器最底边。
+     容器高度含安全区，若用 bottom:0 会把指示条推到安全区底部、和标签脱节。
+     正确值：bottom = safe-area-inset-bottom（即内容区与安全区的分界线），
+     指示条下沿贴齐内容区底部，与网页端 MobileTabBar 的 10px 间距一致。 */
+  bottom: env(safe-area-inset-bottom);
   height: 3px;
   border-radius: 999px;
   background-color: #155dfc;
