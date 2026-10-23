@@ -70,9 +70,12 @@ Component({
       }
       const inner = width - 24;
       const itemWidth = inner / items.length;
+      // 取整，避免小数像素导致指示条渲染发虚/发歪
+      const left = Math.round(24 + (this.data.selected || 0) * itemWidth);
+      const indWidth = Math.round(itemWidth - 24);
       this.setData({
-        indicatorLeft: 12 + this.data.selected * itemWidth + 12,
-        indicatorWidth: itemWidth - 24,
+        indicatorLeft: left,
+        indicatorWidth: indWidth,
       });
     },
 
