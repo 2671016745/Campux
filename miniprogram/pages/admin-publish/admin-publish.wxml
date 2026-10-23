@@ -1,0 +1,55 @@
+<app-header tenant-name="{{tenantName}}" logo-url="{{logoUrl}}" role-label="{{roleLabel}}"></app-header>
+
+<view class="screen" wx:if="{{!loggedOut}}">
+  <view class="section-title">待发布队列</view>
+  <view class="section-sub">审核通过的稿件在这里排队。无 Bot 模式下：渲染保存后手动发到 QQ 空间，再回来点「确认已发布」。</view>
+
+  <view class="mode-bar" wx:if="{{residualText}}">
+    <text class="mode-text">{{residualText}}</text>
+    <view class="mode-btn {{requeueBusy ? 'mode-btn-off' : ''}}" bindtap="requeue">补入自动队列</view>
+  </view>
+
+  <view class="batch-bar" wx:if="{{posts.length}}">
+    <view class="batch-info">已选 {{selectedCount}} / {{total}} 条</view>
+    <view class="batch-btn {{batchBusy || !selectedCount ? 'batch-btn-off' : ''}}" bindtap="confirmBatch">
+      <text>{{batchBusy ? '处理中…' : '批量确认已发布'}}</text>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!posts.length}}">
+    <text class="muted">{{loading ? '正在加载…' : '没有待发布的稿件。'}}</text>
+  </view>
+
+  <view class="pub-card" wx:for="{{posts}}" wx:key="id">
+    <view class="pub-head">
+      <view class="pub-check {{selected[item.id] ? 'pub-check-on' : ''}}" data-id="{{item.id}}" bindtap="toggleSelect">
+        <text wx:if="{{selected[item.id]}}">✓</text>
+      </view>
+      <view class="pub-title">
+        <text class="badge">#{{item.displayId}}</text>
+        <text class="pub-author">{{item.author}}</text>
+        <text class="pub-anon" wx:if="{{item.anonymous}}">匿名</text>
+      </view>
+      <text class="pub-time muted">{{item.createdAt}}</text>
+    </view>
+    <view class="pub-text">{{item.text}}</view>
+    <view class="pub-foot">
+      <text class="muted">{{item.attachmentCount}} 个附件</text>
+      <view class="pub-btn {{busyId === item.id ? 'pub-btn-off' : ''}}" data-id="{{item.id}}" bindtap="confirmOne">
+        <text>{{busyId === item.id ? '处理中…' : '确认已发布'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="pager" wx:if="{{pageCount > 1}}">
+    <view class="pager-btn {{page <= 1 ? 'pager-off' : ''}}" bindtap="prevPage">上一页</view>
+    <text class="pager-info muted">{{page}} / {{pageCount}}</text>
+    <view class="pager-btn {{page >= pageCount ? 'pager-off' : ''}}" bindtap="nextPage">下一页</view>
+  </view>
+</view>
+
+<view class="screen" wx:else>
+  <view class="section-title">需要先登录</view>
+  <view class="section-sub">待发布队列需要管理员登录后才能操作。</view>
+  <view class="btn-row"><view class="postbtn btn-wide" bindtap="goLogin"><text>去登录</text></view></view>
+</view>

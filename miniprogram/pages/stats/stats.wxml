@@ -86,7 +86,7 @@
 
     <view class="chart-block">
       <view class="chart-title">{{rangeLabel}}稿件数量</view>
-      <view class="chart-desc muted">{{rangeLabel}每日新增稿件、已通过稿件与通过率}</view>
+      <view class="chart-desc muted">{{rangeLabel}}每日新增稿件、已通过稿件与通过率</view>
       <scroll-view class="chart-scroll" scroll-x enhanced show-scrollbar="{{false}}">
         <view class="chart-row">
           <view class="chart-col" wx:for="{{dailyPosts}}" wx:key="label">
@@ -106,7 +106,7 @@
 
     <view class="chart-block">
       <view class="chart-title">{{rangeLabel}}用户数量</view>
-      <view class="chart-desc muted">{{rangeLabel}累计成员与每日新增用户</view>
+      <view class="chart-desc muted">{{rangeLabel}}累计成员与每日新增用户</view>
       <scroll-view class="chart-scroll" scroll-x enhanced show-scrollbar="{{false}}">
         <view class="chart-row">
           <view class="chart-col" wx:for="{{dailyUsers}}" wx:key="label">

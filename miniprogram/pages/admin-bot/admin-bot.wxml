@@ -1,0 +1,58 @@
+<app-header tenant-name="{{tenantName}}" logo-url="{{logoUrl}}" role-label="{{roleLabel}}"></app-header>
+
+<view class="screen" wx:if="{{!loggedOut}}">
+  <view class="section-title">机器人账号</view>
+  <view class="section-sub">仅 Bot 模式需要。无 Bot（手动发布）模式的墙可以不配置。</view>
+
+  <view class="empty" wx:if="{{!bots.length}}">
+    <text class="muted">{{loading ? '正在加载…' : '还没有机器人'}}</text>
+  </view>
+
+  <view class="bot-card" wx:for="{{bots}}" wx:key="id">
+    <view class="bot-head">
+      <view class="bot-title">
+        <text class="bot-name">{{item.displayName}}</text>
+        <text class="bot-qq muted">QQ {{item.qqUin}}</text>
+      </view>
+      <view class="bot-badge {{item.enabled ? 'bot-on' : 'bot-off'}}">{{item.enabled ? '启用' : '停用'}}</view>
+    </view>
+    <view class="bot-lines muted">
+      <view>平台：{{item.platform}}</view>
+      <view>审核群：{{item.reviewGroupId}}</view>
+      <view>发布目标：{{item.targets}} 个</view>
+      <view>最近连接：{{item.lastSeen}}</view>
+    </view>
+    <view class="bot-actions">
+      <view class="bot-btn {{busyId === item.id ? 'bot-btn-off' : ''}}" data-id="{{item.id}}" bindtap="toggleBot">
+        {{item.enabled ? '停用' : '启用'}}
+      </view>
+      <view class="bot-btn bot-btn-danger {{busyId === item.id ? 'bot-btn-off' : ''}}" data-id="{{item.id}}" bindtap="removeBot">
+        删除
+      </view>
+    </view>
+  </view>
+
+  <view class="section-title section-gap">添加机器人</view>
+  <view class="surface rows">
+    <view class="row row-static">
+      <view class="row-text"><view class="row-title">QQ 号</view></view>
+      <input class="row-input" type="number" placeholder="机器人 QQ" value="{{form.qqUin}}" bindinput="onQqInput" />
+    </view>
+    <view class="row-divider"></view>
+    <view class="row row-static">
+      <view class="row-text"><view class="row-title">名称</view></view>
+      <input class="row-input" placeholder="显示名" value="{{form.displayName}}" bindinput="onNameInput" />
+    </view>
+  </view>
+  <view class="btn-row">
+    <view class="postbtn {{creating ? 'postbtn-disabled' : ''}}" bindtap="createBot">
+      <text>{{creating ? '添加中…' : '添加机器人'}}</text>
+    </view>
+  </view>
+</view>
+
+<view class="screen" wx:else>
+  <view class="section-title">需要先登录</view>
+  <view class="section-sub">机器人管理需要管理员登录后才能操作。</view>
+  <view class="btn-row"><view class="postbtn btn-wide" bindtap="goLogin"><text>去登录</text></view></view>
+</view>

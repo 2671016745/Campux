@@ -1,0 +1,163 @@
+/* 「机器人」页 —— 沿用 admin 系列的信息面 + 行式表单 */
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-950);
+  margin: 0 0 6px;
+}
+
+.section-sub {
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+
+.section-gap {
+  margin-top: 20px;
+}
+
+.empty {
+  padding: 36px 0;
+  text-align: center;
+}
+
+.bot-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.bot-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.bot-title {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bot-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-950);
+}
+
+.bot-qq {
+  font-size: 12px;
+}
+
+.bot-badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.bot-on {
+  background: #ecfdf5;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.bot-off {
+  background: var(--slate-pill-bg);
+  color: var(--slate-pill-text);
+  border: 1px solid #e2e8f0;
+}
+
+.bot-lines {
+  font-size: 12px;
+  line-height: 20px;
+  margin-bottom: 10px;
+}
+
+.bot-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.bot-btn {
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-900);
+}
+
+.bot-btn-danger {
+  border-color: #fecaca;
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.bot-btn-off {
+  opacity: .5;
+}
+
+/* 行式表单（与 services/admin 一致） */
+.rows {
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
+.row-static {
+  align-items: center;
+}
+
+.row-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.row-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-900);
+}
+
+.row-input {
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  font-size: 14px;
+  color: var(--text);
+  background: transparent;
+}
+
+.row-divider {
+  height: 1px;
+  background: var(--border-200);
+  margin-left: 14px;
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.btn-wide {
+  flex: 1;
+}

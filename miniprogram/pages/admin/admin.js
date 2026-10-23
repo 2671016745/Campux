@@ -63,6 +63,15 @@ Page({
     });
   },
 
+  /** 跳转管理子页（用户 / 封禁 / 墙面设置 / 机器人 / 待发布） */
+  goto(event) {
+    const url = event.currentTarget.dataset.url;
+    if (!url) {
+      return;
+    }
+    wx.navigateTo({ url: url });
+  },
+
   copyConsoleUrl() {
     wx.setClipboardData({
       data: this.data.consoleUrl,

@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "机器人管理",
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#f9fafb",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "app-header": "/components/app-header/index"
+  }
+}

@@ -22,6 +22,49 @@
   <view class="section-title section-gap">审核与管理</view>
   <view class="section-sub">小程序端支持投稿、稿件与审核队列；发布目标、统计与墙设置等请在网页端完成。</view>
   <view class="surface rows">
+    <view class="row" data-url="/pages/admin-users/admin-users" bindtap="goto">
+      <view class="row-text">
+        <view class="row-title">用户管理</view>
+        <view class="row-desc">搜索、调整角色、添加用户</view>
+      </view>
+      <view class="row-chevron icon" style="background-image: url('{{icons.chevronDown.gray}}')"></view>
+    </view>
+    <view class="row-divider"></view>
+    <view class="row" data-url="/pages/admin-bans/admin-bans" bindtap="goto">
+      <view class="row-text">
+        <view class="row-title">封禁管理</view>
+        <view class="row-desc">封禁用户、查看记录、解封</view>
+      </view>
+      <view class="row-chevron icon" style="background-image: url('{{icons.chevronDown.gray}}')"></view>
+    </view>
+    <view class="row-divider"></view>
+    <view class="row" data-url="/pages/admin-publish/admin-publish" bindtap="goto">
+      <view class="row-text">
+        <view class="row-title">待发布队列</view>
+        <view class="row-desc">审核通过的稿件，确认已发布</view>
+      </view>
+      <view class="row-chevron icon" style="background-image: url('{{icons.chevronDown.gray}}')"></view>
+    </view>
+    <view class="row-divider"></view>
+    <view class="row" data-url="/pages/admin-wall/admin-wall" bindtap="goto">
+      <view class="row-text">
+        <view class="row-title">墙面设置</view>
+        <view class="row-desc">墙名、主题色、功能开关</view>
+      </view>
+      <view class="row-chevron icon" style="background-image: url('{{icons.chevronDown.gray}}')"></view>
+    </view>
+    <view class="row-divider"></view>
+    <view class="row" data-url="/pages/admin-bot/admin-bot" bindtap="goto">
+      <view class="row-text">
+        <view class="row-title">机器人</view>
+        <view class="row-desc">Bot 账号与发布目标（仅 Bot 模式）</view>
+      </view>
+      <view class="row-chevron icon" style="background-image: url('{{icons.chevronDown.gray}}')"></view>
+    </view>
+  </view>
+
+  <view class="section-gap"></view>
+  <view class="surface rows">
     <view class="row" bindtap="copyConsoleUrl">
       <view class="row-text">
         <view class="row-title">复制管理端地址</view>
