@@ -21,7 +21,7 @@ Page({
   onShow() {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().refresh();
-      this.getTabBar().setSelected(3);
+      this.getTabBar().setSelected(4);
     }
     const app = getApp();
     // 未登录不硬跳登录页：弹「去登录 / 随便看看」，页面显示未登录占位
@@ -51,7 +51,7 @@ Page({
       const tabBar = typeof this.getTabBar === 'function' ? this.getTabBar() : null;
       if (tabBar) {
         tabBar.refresh();
-        tabBar.setSelected(3);
+        tabBar.setSelected(4);
       }
     });
   },

@@ -51,7 +51,7 @@ Page({
   onShow() {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().refresh();
-      this.getTabBar().setSelected(3);
+      this.getTabBar().setSelected(4);
     }
     const app = getApp();
     if (!app.globalData.token) {

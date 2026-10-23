@@ -110,6 +110,11 @@ Page({
   },
 
   onShow() {
+    // 统计在 tabBar 里是第 4 项（索引 3，位于服务之后、管理之前）
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().refresh();
+      this.getTabBar().setSelected(3);
+    }
     const app = getApp();
     // 未登录不硬跳登录页：弹「去登录 / 随便看看」，页面显示未登录占位（照 posts/services 模式）
     if (!app.globalData.token) {
@@ -127,6 +132,12 @@ Page({
         return;
       }
       this.renderIdentity();
+      // 角色这时才落地，补刷一次 tabBar（审核员及以上才会出现「统计」）
+      const tabBar = typeof this.getTabBar === 'function' ? this.getTabBar() : null;
+      if (tabBar) {
+        tabBar.refresh();
+        tabBar.setSelected(3);
+      }
       this.load();
     });
   },
